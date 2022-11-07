@@ -81,7 +81,7 @@ def main():
             )  # fixed diameter = 10 arcsec [arcmin]
 
             # Directly get the path to the reference catalog from the environment.
-            reffile = os.environ["$LARGEGALAXIES_CAT"]
+            reffile = os.environ["LARGEGALAXIES_CAT"]
             kdreffile = reffile.replace(".fits", ".kd.fits")
             print("Writing {} galaxies to {}".format(ngal, reffile))
 
