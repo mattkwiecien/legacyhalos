@@ -17,7 +17,7 @@ DECCOLUMN = "dec"
 DIAMCOLUMN = "RADIUS_MOSAIC"  # [radius, arcsec]
 GALAXYCOLUMN = "object_id"
 REFIDCOLUMN = "object_id"
-
+MAGCOLUMN = "gcmodel_mag"
 CATALOG_NM = "s16a_massive_logm_11.2.fits"
 
 RADIUS_CLUSTER_KPC = 125.0  # default cluster radius
