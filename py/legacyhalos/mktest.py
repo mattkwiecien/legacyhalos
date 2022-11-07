@@ -18,7 +18,7 @@ DIAMCOLUMN = "RADIUS_MOSAIC"  # [radius, arcsec]
 GALAXYCOLUMN = "OBJECT_ID"
 REFIDCOLUMN = "OBJECT_ID"
 MAGCOLUMN = "GCMODEL_MAG"
-CATALOG_NM = "s16a_massive_logm_11.2.fits"
+CATALOG_NM = "s16a_overlap_bsm.fits"
 
 RADIUS_CLUSTER_KPC = 125.0  # default cluster radius
 
