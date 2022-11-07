@@ -11,13 +11,13 @@ import fitsio
 
 import legacyhalos.io
 
-ZCOLUMN = "z_best"
-RACOLUMN = "ra"
-DECCOLUMN = "dec"
+ZCOLUMN = "Z_BEST"
+RACOLUMN = "RA"
+DECCOLUMN = "DEC"
 DIAMCOLUMN = "RADIUS_MOSAIC"  # [radius, arcsec]
-GALAXYCOLUMN = "object_id"
-REFIDCOLUMN = "object_id"
-MAGCOLUMN = "gcmodel_mag"
+GALAXYCOLUMN = "OBJECT_ID"
+REFIDCOLUMN = "OBJECT_ID"
+MAGCOLUMN = "GCMODEL_MAG"
 CATALOG_NM = "s16a_massive_logm_11.2.fits"
 
 RADIUS_CLUSTER_KPC = 125.0  # default cluster radius
