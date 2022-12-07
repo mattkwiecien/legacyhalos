@@ -12,10 +12,11 @@ from setuptools import setup, find_packages
 
 def _get_version():
     import subprocess
-    version = subprocess.check_output('git describe', shell=True)
+    version = subprocess.check_output('git rev-parse HEAD', shell=True)
     version = version.decode('utf-8').replace('\n', '')
     return version
 
+# Get the SHA of the current commit as the "version"
 version = _get_version()
 
 with open('README.rst') as f:
@@ -27,7 +28,7 @@ with open('LICENSE') as f:
 setup_kwargs=dict(
     name='legacyhalos',
     url='https://github.com/moustakas/legacyhalos',
-    version=version,
+    # version=version,
     author='John Moustakas',
     author_email='jmoustakas@siena.edu',
     #packages=[],
@@ -36,12 +37,26 @@ setup_kwargs=dict(
     long_description=readme,
 )
 
+# /Users/matt/opt/anaconda3/bin/python3.8 -c 
+# '
+# import io, os, sys, setuptools, tokenize; 
+# sys.argv[0] = '"'"'/Users/matt/Repos/legacyhalos/setup.py'"'"'; 
+# __file__='"'"'/Users/matt/Repos/legacyhalos/setup.py'"'"';
+# f = getattr(tokenize, '"'"'open'"'"', open)(__file__) 
+#     if os.path.exists(__file__) 
+#     else io.StringIO('"'"'from setuptools import setup; setup()'"'"');
+# code = f.read().replace('"'"'\r\n'"'"', '"'"'\n'"'"');
+# f.close();
+# exec(compile(code, __file__, '"'"'exec'"'"'))'
+# develop --no-deps
+
 #- What to install
 setup_kwargs['packages'] = find_packages('py')
 setup_kwargs['package_dir'] = {'':'py'}
 
 #- Treat everything in bin/ as a script to be installed
-setup_kwargs['scripts'] = glob.glob(os.path.join('bin', '*'))
+# This currently doesn't work as it attempts to install directory names rather than scri
+# setup_kwargs['scripts'] = glob.glob(os.path.join('bin', '*'))
 
 #- Data to include
 # setup_kwargs['package_data'] = {

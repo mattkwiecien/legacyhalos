@@ -271,7 +271,7 @@ def main():
         )
         # MATT - I think this should be
         # run = "decam"
-        survey = get_survey("decam", output_dir=galaxydir)
+        survey = get_survey(run, output_dir=galaxydir)
 
         if args.coadds:
             from legacyhalos.mpi import call_custom_coadds
