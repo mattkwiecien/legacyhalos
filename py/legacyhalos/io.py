@@ -66,9 +66,9 @@ def legacyhalos_header(hdr=None):
         if hdr is None:
             hdr = fits.header.Header()
 
-        cmd = 'cd {} && git describe --tags'.format(os.path.dirname(legacyhalos.__file__))
-        ver = subprocess.check_output(cmd, shell=True, universal_newlines=True).strip()
-        hdr['LEGHALOV'] = (ver, 'legacyhalos git version')
+        # cmd = 'cd {} && git describe --tags'.format(os.path.dirname(legacyhalos.__file__))
+        # ver = subprocess.check_output(cmd, shell=True, universal_newlines=True).strip()
+        # hdr['LEGHALOV'] = (ver, 'legacyhalos git version')
 
         depvers, headers = [], []
         for name, pkg in [('pydl', pydl)]:
