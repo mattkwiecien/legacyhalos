@@ -459,6 +459,8 @@ def read_sample(first=None, last=None, galaxylist=None, verbose=False):
     return sample
 
 
+# Make choices see manga.py
+# Called by read_multiband
 def _build_multiband_mask(
     data,
     tractor,
@@ -537,13 +539,10 @@ def _build_multiband_mask(
         )
         pa = pa % 180
 
-        if tractor.shape_r[indx] < 1:
-            print("Galaxy half-light radius is < 1 arcsec!")
-            raise ValueError
-
-        majoraxis = (
-            factor * tractor.shape_r[indx] / filt2pixscale[refband]
-        )  # [pixels]
+        if tractor.shape_r[indx] > 1:
+            majoraxis = factor * tractor.shape_r[indx] / filt2pixscale[refband] # [pixels]
+        else:
+            majoraxis = factor * tractor.diam_init[indx] * 60 / 2 / 2 / filt2pixscale[refband] # [pixels]
 
         mgegalaxy = MGEgalaxy()
         mgegalaxy.xmed = tractor.by[indx]
@@ -813,6 +812,7 @@ def _build_multiband_mask(
     return data
 
 
+#Builds threshold mask 
 def read_multiband(
     galaxy,
     galaxydir,
@@ -971,6 +971,7 @@ def read_multiband(
     # subsky - dictionary of additional scalar value to subtract from the imaging,
     #   per band, e.g., {'g': -0.01, 'r': 0.002, 'z': -0.0001}
     if sky_tests:
+        #Different aperatures 
         # imfile = os.path.join(galaxydir, '{}-{}-{}.fits.fz'.format(galaxy, filt2imfile[refband]['image'], refband))
         hdr = fitsio.read_header(filt2imfile[refband]["image"], ext=1)
         nskyaps = hdr["NSKYANN"]  # number of annuli
@@ -1007,9 +1008,13 @@ def read_multiband(
 
     # keep all objects
     galaxy_indx = []
+    # Here's where you match ref catalog to the current sample
+
     galaxy_indx = np.hstack(
         [np.where(sid == tractor.ref_id)[0] for sid in sample[REFIDCOLUMN]]
     )
+    #Make sure you dont lose objects - this would indicate a problem happened since we told tractor there's something there
+
     assert np.all(sample[REFIDCOLUMN] == tractor.ref_id[galaxy_indx])
 
     # data['galaxy_indx'] = []
