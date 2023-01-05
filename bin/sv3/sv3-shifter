@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Load the legacyhalos Docker container using shifter; unfortunately I can't
+# source the environment file in this script. (Passing the --env-file works OK,
+# but $PATH and $PYTHONPATH get overwritten.)
+project=sv3
+
+SHIFTER=docker:legacysurvey/legacyhalos:v1.2
+
+echo 'Updating and loading the shifter image '$SHIFTER
+echo 'Load the environment with: '
+echo '  source '$LEGACYHALOS_CODE_DIR'/bin/'$project'/'$project'-env'
+
+if [[ $NERSC_HOST == "perlmutter" ]]; then
+    MPILIB=mpich
+elif [[ $NERSC_HOST == "cori" ]]; then
+    MPILIB=mpich-cle6
+else
+    MPILIB=
+fi
+    
+shifterimg pull $SHIFTER
+shifter --module=$MPILIB --image $SHIFTER bash
