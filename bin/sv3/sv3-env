@@ -18,7 +18,7 @@ export PATH=$LEGACYHALOS_CODE_DIR/bin/sv3:$PATH
 export LEGACYHALOS_DIR=/global/homes/m/mkwiecie/desi/sv3-clustering
 export LEGACYHALOS_DATA_DIR=/global/homes/m/mkwiecie/desi/legacydata/output
 export LEGACYHALOS_HTML_DIR=/global/homes/m/mkwiecie/desi/legacydata/html
-export LARGEGALAXIES_CAT=$LEGACYHALOS_DIR/sv3-refcat.fits
+export LARGEGALAXIES_CAT=$LEGACYHALOS_DIR/sv3-refcat.kd.fits
 
 # Pipeline variables---only change these if you know what you're doing!
 export LEGACY_SURVEY_DIR=/global/cfs/cdirs/cosmo/work/legacysurvey/dr9
