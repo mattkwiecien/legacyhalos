@@ -17,8 +17,7 @@ DECCOLUMN = "DEC"
 DIAMCOLUMN = "RADIUS_MOSAIC"  # [radius, arcsec]
 GALAXYCOLUMN = "TARGETID"
 REFIDCOLUMN = "TARGETID"
-MAGCOLUMN = "ABSMAG_R"
-CATALOG_NM = "BGS_BRIGHT_S_clustering.dat.fits"
+MAGCOLUMN = "FLUX_R_DERED"
 
 RADIUS_CLUSTER_KPC = 125.0  # default cluster radius
 
@@ -210,6 +209,9 @@ def mpi_args():
     import argparse
 
     parser = argparse.ArgumentParser()
+    
+    parser.add_argument('--fname', default='', type=str, help='Catalog Name')
+
     parser.add_argument(
         "--nproc",
         default=1,
@@ -376,15 +378,15 @@ def get_integrated_filename():
     return integratedfile
 
 
-def read_sample(first=None, last=None, galaxylist=None, verbose=False):
+def read_sample(first=None, last=None, galaxylist=None, verbose=False, filenm=''):
     """Read/generate the parent HSC sample by combining the low-z and intermediate-z
     samples.
     """
     cosmo = legacyhsc_cosmology()
-
+    catnm = 'subsampled_bgs_min_17.00_max_18.14_111.fits'
     # intermediate-z sample only
-    samplefile = os.path.join(legacyhalos.io.legacyhalos_dir(), CATALOG_NM)
-
+    samplefile = os.path.join(legacyhalos.io.legacyhalos_dir(), filenm)
+    print(samplefile)
     if first and last:
         if first > last:
             print(
