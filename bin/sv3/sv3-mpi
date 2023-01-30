@@ -82,8 +82,7 @@ def main():
             )  # fixed diameter = 10 arcsec [arcmin]
 
             # Directly get the path to the reference catalog from the environment.
-            reffile = args.fname.replace(".fits", "-refcat.fits")
-            # reffile = os.environ["LARGEGALAXIES_CAT"]
+            reffile = os.environ["LARGEGALAXIES_CAT"]
             kdreffile = reffile.replace(".fits", ".kd.fits")
             print("Writing {} galaxies to {}".format(ngal, reffile))
 
@@ -125,12 +124,6 @@ def main():
         if args.build_catalog:
             print("Write me!")
             return
-
-        # if args.integrate:
-        #    import legacyhalos.integrate
-        #    results = legacyhalos.integrate.integrate(
-        #        sample, nproc=args.nproc, verbose=args.verbose, clobber=args.clobber)
-        #    return
 
     # Determine how many more galaxies we need to analyze and divide them across
     # ranks.
@@ -371,9 +364,9 @@ def main():
 
         if args.htmlplots:
             from legacyhalos.mpi import call_htmlplots
-            from legacyhalos.sv3 import legacyhsc_cosmology, read_multiband
+            from legacyhalos.sv3 import get_cosmology, read_multiband
 
-            cosmo = legacyhsc_cosmology()
+            cosmo = get_cosmology()
             barlabel = "30 arcsec"
             barlen = np.ceil(30 / args.pixscale).astype(int)  # [pixels]
 
