@@ -50,6 +50,7 @@ def main():
             last=args.last,
             galaxylist=args.galaxylist,
             verbose=args.verbose,
+            filenm = args.fname
         )
         if len(sample) == 0:
             return
@@ -81,7 +82,8 @@ def main():
             )  # fixed diameter = 10 arcsec [arcmin]
 
             # Directly get the path to the reference catalog from the environment.
-            reffile = os.environ["LARGEGALAXIES_CAT"]
+            reffile = args.fname.replace(".fits", "-refcat.fits")
+            # reffile = os.environ["LARGEGALAXIES_CAT"]
             kdreffile = reffile.replace(".fits", ".kd.fits")
             print("Writing {} galaxies to {}".format(ngal, reffile))
 
