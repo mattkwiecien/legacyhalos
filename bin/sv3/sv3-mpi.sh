@@ -11,27 +11,27 @@ Note 2>&1 redirects stoud and stderr to file AND shows on console.
 & allows he process ot start in background
 
 Allocate
-salloc -N 8 -C haswell -A desi -L cfs,SCRATCH -t 04:00:00 --qos interactive --image=legacysurvey/legacyhalos:v1.2
+salloc -N 8 -C haswell -A desi -L cfs,SCRATCH -t 01:00:00 --qos interactive --image=legacysurvey/legacyhalos:v1.2
+
+Refcat
+shifter --module=mpich-cle6 $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh refcat \
+    0 subsampled_bgs_min_22.73_max_23.85_111.fits 
 
 Coadds
-srun -n 64 -c 4 shifter --module=mpich-cle6 \
-   $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh coadds 4 subsampled_bgs_min_15.85_max_16.99_111.fits \
-   > /global/homes/m/mkwiecie/desi/sv3-clustering/subsampled_bgs/logs/sv3-coadds.log.1 2>&1 
+srun -n 64 -c 8 shifter --module=mpich-cle6 \
+   $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh coadds 8 subsampled_bgs_min_22.73_max_23.85_111.fits 
 
 Ellipse
-srun -n 64 -c 4 shifter --module=mpich-cle6 \
-    $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh ellipse 4 subsampled_bgs_min_15.85_max_16.99_111.fits \
-    > /global/homes/m/mkwiecie/desi/sv3-clustering/subsampled_bgs/logs/sv3-min_20.44_max_21.57-ellipse.log.1 2>&1 
+srun -n 64 -c 8 shifter --module=mpich-cle6 \
+    $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh ellipse 8 subsampled_bgs_min_22.73_max_23.85_111.fits 
 
 Plots
-srun -n 64 -c 1 shifter --module=mpich-cle6 \
-    $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh htmlplots 1 subsampled_bgs_min_15.85_max_16.99_111.fits \
-    > /global/homes/m/mkwiecie/desi/sv3-clustering/subsampled_bgs/logs/sv3-htmlplots.log.1 2>&1 
+srun -n 64 -c 8 shifter --module=mpich-cle6 \
+    $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh htmlplots 8 subsampled_bgs_min_22.73_max_23.85_111.fits 
 
 Index
-srun -n 64 -c 1 shifter --module=mpich-cle6 \
-    $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh htmlindex 1 subsampled_bgs_min_15.85_max_16.99_111.fits \
-    > /global/homes/m/mkwiecie/desi/sv3-clustering/subsampled_bgs/logs/sv3-htmlplots.log.1 2>&1 
+srun -n 128 -c 1 shifter --module=mpich-cle6 \
+    $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh htmlindex 1 subsampled_bgs_min_21.57_max_22.71_111.fits 
 
 comment
 # Grab the input arguments--
@@ -53,6 +53,8 @@ elif [ $stage = "htmlplots" ]; then
     time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --htmlplots --nproc $ncores --mpi --fname $fname --verbose
 elif [ $stage = "htmlindex" ]; then
     time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --htmlindex --nproc $ncores --mpi --fname $fname --verbose
+elif [ $stage = "refcat" ]; then
+    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --build-refcat --fname $fname
 else
     echo "Unrecognized stage "$stage
 fi
