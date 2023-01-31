@@ -1768,7 +1768,7 @@ def make_html(
     sample = sample[done[0]]
     # galaxy, galaxydir, htmlgalaxydir = get_galaxy_galaxydir(sample, html=True)
 
-    htmlhome = "index.html"
+    htmlhome = mpiargs.fname.replace('.fits','.html')
 
     # Build the home (index.html) page (always, irrespective of clobber)--
     build_htmlhome(
@@ -1822,6 +1822,8 @@ def make_html(
                 fix_permissions,
             ]
         )
+    print("Begin map")
     ok = mp.map(_build_htmlpage_one, args)
-    sys.exit(0)
+    print("Finished")
+    # sys.exit(0)
     return 1
