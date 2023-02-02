@@ -16,11 +16,11 @@ export PATH=$LEGACYHALOS_CODE_DIR/bin/sv3:$PATH
 
 # Specify the location of the input and output data.
 export LEGACYHALOS_DIR=/global/homes/m/mkwiecie/desi/sv3-clustering/subsampled_bgs
-export LEGACYHALOS_DATA_DIR=/global/homes/m/mkwiecie/desi/legacydata/output
-export LEGACYHALOS_HTML_DIR=/global/homes/m/mkwiecie/desi/legacydata/html
-export LARGEGALAXIES_CAT=$LEGACYHALOS_DIR/subsampled_bgs_min_15.85_max_16.99_111-refcat.kd.fits
+export LEGACYHALOS_DATA_DIR=/global/cscratch1/sd/mkwiecie/legacydata/output
+export LEGACYHALOS_HTML_DIR=/global/cscratch1/sd/mkwiecie/legacydata/html
+# export LARGEGALAXIES_CAT=$LEGACYHALOS_DIR/subsampled_bgs_min_15.85_max_92.46-refcat.kd.fits
 # Uncomment below for refcat build
-# export LARGEGALAXIES_CAT=$LEGACYHALOS_DIR/subsampled_bgs_min_15.85_max_16.99_111-refcat.fits
+# export LARGEGALAXIES_CAT=$LEGACYHALOS_DIR/subsampled_bgs_min_109.84_max_121.45-refcat.fits
 
 # Pipeline variables---only change these if you know what you're doing!
 export LEGACY_SURVEY_DIR=/global/cfs/cdirs/cosmo/work/legacysurvey/dr9
