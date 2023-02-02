@@ -1822,8 +1822,6 @@ def make_html(
                 fix_permissions,
             ]
         )
-    print("Begin map")
     ok = mp.map(_build_htmlpage_one, args)
     print("Finished")
-    # sys.exit(0)
     return 1

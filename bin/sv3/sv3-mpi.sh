@@ -7,24 +7,28 @@ MPI+shifter at NERSC. Required arguments:
   {2} ncores [should match the resources requested.]
 
 Example: build the coadds using 64 MPI tasks with 4 cores per node (and therefore 64*4/32=8 nodes)
-Note 2>&1 redirects stoud and stderr to file AND shows on console. 
-& allows he process ot start in background
+
 
 Allocate
 salloc -N 8 -C haswell -A desi -L cfs,SCRATCH -t 01:00:00 --qos interactive --image=legacysurvey/legacyhalos:v1.2
 
-export 
+export BGS_FILENAME=subsampled_bgs_min_8235.47_max_14582.40
+
 Coadds
-srun -n 64 -c 8 shifter --module=mpich-cle6 $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh coadds 8 
+srun -n 64 -c 8 shifter --module=mpich-cle6 $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh coadds 8 \
+    > /global/homes/m/mkwiecie/desi/sv3-clustering/subsampled_bgs/logs/coadds-$BGS_FILENAME.log 2>&1
 
 Ellipse
-srun -n 64 -c 8 shifter --module=mpich-cle6 $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh ellipse 8 
+srun -n 64 -c 8 shifter --module=mpich-cle6 $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh ellipse 8 \
+    > /global/homes/m/mkwiecie/desi/sv3-clustering/subsampled_bgs/logs/coadds-$BGS_FILENAME.log 2>&1
 
 Plots
-srun -n 64 -c 8 shifter --module=mpich-cle6 $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh htmlplots 8 
+srun -n 32 -c 16 shifter --module=mpich-cle6 $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh htmlplots 16 \
+    > /global/homes/m/mkwiecie/desi/sv3-clustering/subsampled_bgs/logs/coadds-$BGS_FILENAME.log 2>&1
 
 Index
-srun -n 128 -c 1 shifter --module=mpich-cle6 $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh htmlindex 1 
+srun -n 128 -c 1 shifter --module=mpich-cle6 $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh htmlindex 1 \
+    > /global/homes/m/mkwiecie/desi/sv3-clustering/subsampled_bgs/logs/coadds-$BGS_FILENAME.log 2>&1
 
 comment
 # Grab the input arguments--
@@ -53,13 +57,13 @@ export LARGEGALAXIES_CAT=$LEGACYHALOS_DIR/$BGS_FILENAME-refcat.kd.fits
 if [ $stage = "test" ]; then
     time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --help
 elif [ $stage = "coadds" ]; then
-    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --coadds --nproc $ncores --mpi --fname $BGS_FILENAME.fits --verbose --clobber
+    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --coadds --nproc $ncores --mpi --fname $BGS_FILENAME.fits --verbose --clobber --debug
 elif [ $stage = "ellipse" ]; then
-    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --ellipse --nproc $ncores --mpi --fname $BGS_FILENAME.fits --verbose --clobber
+    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --ellipse --nproc $ncores --mpi --fname $BGS_FILENAME.fits --verbose --clobber --debug
 elif [ $stage = "htmlplots" ]; then
-    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --htmlplots --nproc $ncores --mpi --fname $BGS_FILENAME.fits --verbose --clobber
+    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --htmlplots --nproc $ncores --mpi --fname $BGS_FILENAME.fits --verbose --clobber --debug
 elif [ $stage = "htmlindex" ]; then
-    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --htmlindex --nproc $ncores --mpi --fname $BGS_FILENAME.fits --verbose --clobber
+    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --htmlindex --nproc $ncores --mpi --fname $BGS_FILENAME.fits --verbose --clobber --debug
 elif [ $stage = "refcat" ]; then
     time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --build-refcat --fname $BGS_FILENAME.fits
 else
