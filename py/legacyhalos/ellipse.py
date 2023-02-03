@@ -75,7 +75,8 @@ def apphot_one(img, mask, theta, x0, y0, aa, bb, pixscale, variance=False, iscir
     """Perform aperture photometry in a single elliptical annulus.
 
     """
-    from photutils import EllipticalAperture, CircularAperture, aperture_photometry
+    from photutils import EllipticalAperture
+    from photutils.aperture import aperture_photometry, CircularAperture
 
     if iscircle:
         aperture = CircularAperture((x0, y0), aa)

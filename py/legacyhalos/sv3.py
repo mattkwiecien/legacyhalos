@@ -1071,6 +1071,7 @@ def call_ellipse(
                         filesuffix,
                         log=log,
                     )
+            return
         else:
             log = None
             if bool(data):
@@ -1089,6 +1090,7 @@ def call_ellipse(
                 else:
                     err = 0  # failed failure
             _done(galaxy, galaxydir, err, t0, "ellipse", filesuffix, log=log)
+            return
     else:
         mpi_call_ellipse(
             galaxy,
@@ -1110,6 +1112,7 @@ def call_ellipse(
             logfile=logfile,
         )
 
+    return
 
 def _get_mags(
     cat,
@@ -1737,7 +1740,7 @@ def make_html(
 ):
     """Make the HTML pages."""
     import subprocess
-    from astrometry.util.multiproc import multiproc
+    from multiprocessing.pool import Pool
 
     import legacyhalos.io
     from legacyhalos.coadds import _mosaic_width
@@ -1790,7 +1793,7 @@ def make_html(
     nexthtmlgalaxydir = np.roll(np.atleast_1d(htmlgalaxydir), -1)
     prevhtmlgalaxydir = np.roll(np.atleast_1d(htmlgalaxydir), 1)
 
-    mp = multiproc(nthreads=nproc)
+    mp = Pool(nproc)
     args = []
     for ii, (gal, galaxy1, galaxydir1, htmlgalaxydir1) in enumerate(
         zip(
@@ -1822,6 +1825,8 @@ def make_html(
                 fix_permissions,
             ]
         )
-    ok = mp.map(_build_htmlpage_one, args)
+    results = mp.map_async(_build_htmlpage_one, args)
+    # Call get to block until finished.
+    results.wait()
     print("Finished")
     return 1
