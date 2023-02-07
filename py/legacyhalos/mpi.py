@@ -237,6 +237,5 @@ def call_custom_coadds(onegal, galaxy, survey, run, radius_mosaic, nproc=1,
                 no_galex_ceres=no_galex_ceres,
                 log=log)
             _done(galaxy, survey.output_dir, err, t0, 'coadds', filesuffix, log=log)
-            print("mpi.py.238")
             return
     return

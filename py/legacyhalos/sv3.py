@@ -1829,4 +1829,4 @@ def make_html(
     # Call get to block until finished.
     results.wait()
     print("Finished")
-    return 1
+    return

@@ -233,7 +233,6 @@ def main():
                 Table(onegal).write(tmpfile, overwrite=True, format="fits")
                 os.rename(tmpfile, samplefile)
 
-            print("sv3-mpi.236")
             call_custom_coadds(
                 onegal,
                 galaxy,
@@ -261,8 +260,6 @@ def main():
                 logfile=logfile,
                 write_wise_psf=False,
             )
-            print("sv3-mpi.264")
-
 
         if args.ellipse:
             from legacyhalos.sv3 import call_ellipse
@@ -318,7 +315,6 @@ def main():
             )
 
     # Wait for all ranks to finish.
-    print("sv3-mpi.321")
     print(f"Rank {rank} waiting at barrier.", flush=True)
     if comm is not None:
         comm.barrier()
