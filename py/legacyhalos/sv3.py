@@ -469,6 +469,10 @@ def _build_multiband_mask(
         )
         pa = pa % 180
 
+        if tractor.shape_r[indx] < 1:
+            print('Galaxy half-light radius is < 1 arcsec!')
+            raise ValueError
+
         majoraxis = factor * tractor.shape_r[indx] / filt2pixscale[refband] # [pixels]
 
         mgegalaxy = MGEgalaxy()

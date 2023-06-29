@@ -1,12 +1,11 @@
 #! /bin/bash
-# Shell script to set the environment variables for SGA project.
+# Shell script to set the environment variables for SV3 data.
 
 project=sv3
 
 #############################
 # For a power-user / testing. Use local checkouts of the code even though it's
 # in the Docker container.
-# Matt 
 # Prepend your local repo directories to your python path to use yours version
 export LEGACYPIPE_CODE_DIR=/global/homes/m/mkwiecie/desi/repos/legacypipe
 export LEGACYHALOS_CODE_DIR=/global/homes/m/mkwiecie/desi/repos/legacyhalos
