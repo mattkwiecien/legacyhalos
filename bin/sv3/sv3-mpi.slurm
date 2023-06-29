@@ -20,7 +20,12 @@
 ntasks=64
 ncores=64
 
-# Since we are using SBATCH to load mpich and the image, we can just call shifter 
+# Run refcat
+export LARGEGALAXIES_CAT=/pscratch/sd/m/mkwiecie/legacydata/refcats/sv3_matches.fits
+srun -n 1 -c $ncores shifter $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh refcat $ncores
+
+# Update refcat name
+export LARGEGALAXIES_CAT=/pscratch/sd/m/mkwiecie/legacydata/refcats/sv3_matches.kd.fits
 
 # Coadds step
 srun -n $ntasks -c $ncores shifter $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh coadds $ncores

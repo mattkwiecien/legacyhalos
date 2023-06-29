@@ -9,15 +9,15 @@ ncores=$2
 source $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-env
 
 if [ $stage = "coadds" ]; then
-    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --coadds --nproc $ncores --mpi --fname $BGS_FILENAME.fits --verbose 
+    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.py --coadds --nproc $ncores --mpi --fname sv3_matches.fits --verbose 
 elif [ $stage = "ellipse" ]; then
-    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --ellipse --nproc $ncores --mpi --fname $BGS_FILENAME.fits --verbose
+    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.py --ellipse --nproc $ncores --mpi --fname sv3_matches.fits --verbose
 elif [ $stage = "htmlplots" ]; then
-    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --htmlplots --nproc $ncores --mpi --fname $BGS_FILENAME.fits --verbose
+    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.py --htmlplots --nproc $ncores --mpi --fname sv3_matches.fits --verbose
 elif [ $stage = "htmlindex" ]; then
-    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --htmlindex --nproc $ncores --fname $BGS_FILENAME.fits --verbose
+    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.py --htmlindex --nproc $ncores --fname sv3_matches.fits --verbose
 elif [ $stage = "refcat" ]; then
-    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi --build-refcat --fname $BGS_FILENAME.fits
+    time python $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.py --build-refcat --fname sv3_matches.fits
 else
     echo "Unrecognized stage "$stage
 fi
