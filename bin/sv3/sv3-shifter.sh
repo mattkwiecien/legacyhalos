@@ -6,4 +6,4 @@ echo 'Load the environment with: '
 echo 'source '$LEGACYHALOS_CODE_DIR'/bin/sv3/sv3-env'
 
 shifterimg pull docker:mattkwiecien/legacyhalos:v1.3.1
-shifter /bin/bash 
+shifter --image=docker:mattkwiecien/legacyhalos:v1.3.1 /bin/bash 
