@@ -1,0 +1,19 @@
+name: legacyhalos
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - fitsio
+  - scipy
+  - numpy
+  - matplotlib
+  - astropy
+  - astrometry
+  - ipykernel
+  - seaborn
+  - h5py
+  - pip
+  - pip:
+    - e /local/path/to/legacypipe
+
