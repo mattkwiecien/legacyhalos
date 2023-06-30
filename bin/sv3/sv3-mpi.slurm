@@ -9,7 +9,7 @@
 #SBATCH --qos=regular
 #SBATCH --constraint=cpu
 #SBATCH --licenses=cfs,SCRATCH
-#SBATCH --image=docker:legacysurvey/legacyhalos:v1.2
+#SBATCH --image=docker:mattkwiecien/legacyhalos:v1.3.1
 #SBATCH --output=/pscratch/sd/m/mkwiecie/legacydata/sv3j_overlap_outputs/logs/sv3-jiaxuan.log-%j.txt
 #SBATCH --mail-user=mkwiecie@ucsc.edu
 #SBATCH --mail-type=ALL
@@ -20,8 +20,8 @@ ntasks=16
 ncores=16
 
 # Run refcat
-export LARGEGALAXIES_CAT=/pscratch/sd/m/mkwiecie/legacydata/refcats/sv3_matches.fits
-srun -n 1 -c $ncores shifter $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh refcat $ncores
+# export LARGEGALAXIES_CAT=/pscratch/sd/m/mkwiecie/legacydata/refcats/sv3_matches.fits
+# srun -n 1 -c 256 shifter $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh refcat $ncores
 
 # Update refcat name
 export LARGEGALAXIES_CAT=/pscratch/sd/m/mkwiecie/legacydata/refcats/sv3_matches.kd.fits
@@ -36,5 +36,5 @@ srun -n $ntasks -c $ncores shifter $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh elli
 srun -n $ntasks -c $ncores shifter $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh htmlplots $ncores
 
 # Build index page
-# srun -n 1 -c $ncores shifter $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh htmlindex $ncores
+# srun -n 1 -c 256 shifter $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh htmlindex $ncores
 
