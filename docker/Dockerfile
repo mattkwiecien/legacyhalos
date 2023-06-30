@@ -41,6 +41,7 @@ RUN for x in \
     corner \
     scikit-image \
     mpi4py \
+    seaborn \
     ; do python3 -m pip --no-cache-dir install $x; done
 
 # Remove the policy.xml file so we do not get an 'exhausted cache resources'
