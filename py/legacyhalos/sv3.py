@@ -198,7 +198,7 @@ def mpi_args():
     )
     parser.add_argument(
         "--galaxylist",
-        type=np.int,
+        type=np.int64,
         nargs="*",
         default=None,
         help="List of galaxy names to process.",
