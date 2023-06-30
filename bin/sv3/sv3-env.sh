@@ -14,9 +14,9 @@ export PATH=$LEGACYHALOS_CODE_DIR/bin/sv3:$PATH
 #############################
 
 # Specify the location of the input and output data.
-export LEGACYHALOS_DIR=/global/homes/m/mkwiecie/desi/sv3-clustering/subsampled_bgs
-export LEGACYHALOS_DATA_DIR=/global/cscratch1/sd/mkwiecie/legacydata/output
-export LEGACYHALOS_HTML_DIR=/global/cscratch1/sd/mkwiecie/legacydata/html
+export LEGACYHALOS_DIR=/pscratch/sd/m/mkwiecie/legacydata/refcats
+export LEGACYHALOS_DATA_DIR=/pscratch/sd/m/mkwiecie/legacydata/sv3j_overlap_outputs/output
+export LEGACYHALOS_HTML_DIR=/pscratch/sd/m/mkwiecie/legacydata/sv3j_overlap_outputs/html
 # export LARGEGALAXIES_CAT=$LEGACYHALOS_DIR/subsampled_bgs_min_15.85_max_92.46-refcat.kd.fits
 # Uncomment below for refcat build
 # export LARGEGALAXIES_CAT=$LEGACYHALOS_DIR/subsampled_bgs_min_109.84_max_121.45-refcat.fits

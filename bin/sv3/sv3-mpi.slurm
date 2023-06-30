@@ -1,24 +1,23 @@
 #!/bin/sh
-#SBATCH --job-name=sv3-legacyhalos-coadds-1
+#SBATCH --job-name=sv3-jiaxuan-overlap-legacyhalos-1
 #SBATCH --mem=256000
 #SBATCH --nodes=8
-#SBATCH --ntasks-per-node=1
-#SBATCH --ntasks=64
-#SBATCH --cpus-per-task=64
+#SBATCH --ntasks=16
+#SBATCH --cpus-per-task=16
 #SBATCH --time=12:00:00
 #SBATCH --account=desi
 #SBATCH --qos=regular
 #SBATCH --constraint=cpu
 #SBATCH --licenses=cfs,SCRATCH
-#SBATCH --image=docker:legacysurvey/legacyhalos:v1.3
-#SBATCH --output=/pscratch/sd/m/mkwiecie/sv3-mpi.log-%j.txt
+#SBATCH --image=docker:legacysurvey/legacyhalos:v1.2
+#SBATCH --output=/pscratch/sd/m/mkwiecie/legacydata/sv3j_overlap_outputs/logs/sv3-jiaxuan.log-%j.txt
 #SBATCH --mail-user=mkwiecie@ucsc.edu
 #SBATCH --mail-type=ALL
 #SBATCH --module=mpich
 
 # Specify tasks and cores per task
-ntasks=64
-ncores=64
+ntasks=16
+ncores=16
 
 # Run refcat
 export LARGEGALAXIES_CAT=/pscratch/sd/m/mkwiecie/legacydata/refcats/sv3_matches.fits
