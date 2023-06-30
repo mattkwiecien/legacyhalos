@@ -15,16 +15,19 @@
 #SBATCH --mail-type=ALL
 #SBATCH --module=mpich
 
+# Interactive
+# salloc -N 1 -A desi -C cpu -L cfs,SCRATCH -t 04:00:00 --qos interactive --module mpich --image docker:mattkwiecien/legacyhalos:v1.3.1
+
 # Specify tasks and cores per task
 ntasks=16
 ncores=16
 
 # Run refcat
-# export LARGEGALAXIES_CAT=/pscratch/sd/m/mkwiecie/legacydata/refcats/sv3_matches.fits
-# srun -n 1 -c 256 shifter $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh refcat $ncores
+export LARGEGALAXIES_CAT=/pscratch/sd/m/mkwiecie/legacydata/refcats/sv3_matches-refcat.fits
+srun -n 1 -c 256 shifter $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh refcat 256
 
 # Update refcat name
-export LARGEGALAXIES_CAT=/pscratch/sd/m/mkwiecie/legacydata/refcats/sv3_matches.kd.fits
+export LARGEGALAXIES_CAT=/pscratch/sd/m/mkwiecie/legacydata/refcats/sv3_matches-refact.kd.fits
 
 # Coadds step
 srun -n $ntasks -c $ncores shifter $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh coadds $ncores
