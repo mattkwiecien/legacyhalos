@@ -14,7 +14,7 @@ export PATH=$LEGACYHALOS_CODE_DIR/bin/sv3:$PATH
 #############################
 
 # Specify the location of the input and output data.
-export LEGACYHALOS_DIR=/pscratch/sd/m/mkwiecie/legacydata/refcats
+export LEGACYHALOS_DIR=/global/homes/m/mkwiecie/desi/sv3j_overlap
 export LEGACYHALOS_DATA_DIR=/pscratch/sd/m/mkwiecie/legacydata/sv3j_overlap_outputs/output
 export LEGACYHALOS_HTML_DIR=/pscratch/sd/m/mkwiecie/legacydata/sv3j_overlap_outputs/html
 # export LARGEGALAXIES_CAT=$LEGACYHALOS_DIR/subsampled_bgs_min_15.85_max_92.46-refcat.kd.fits

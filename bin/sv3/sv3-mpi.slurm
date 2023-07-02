@@ -23,11 +23,11 @@ ntasks=16
 ncores=16
 
 # Run refcat
-export LARGEGALAXIES_CAT=/pscratch/sd/m/mkwiecie/legacydata/refcats/sv3_matches-refcat.fits
+export LARGEGALAXIES_CAT=/global/homes/m/mkwiecie/desi/sv3j_overlap/sv3_matches-refcat.fits
 srun -n 1 -c 256 shifter $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh refcat 256
 
 # Update refcat name
-export LARGEGALAXIES_CAT=/pscratch/sd/m/mkwiecie/legacydata/refcats/sv3_matches-refact.kd.fits
+export LARGEGALAXIES_CAT=/global/homes/m/mkwiecie/desi/sv3j_overlap/sv3_matches-refact.kd.fits
 
 # Coadds step
 srun -n $ntasks -c $ncores shifter $LEGACYHALOS_CODE_DIR/bin/sv3/sv3-mpi.sh coadds $ncores
