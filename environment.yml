@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.9
+  - python=3.8
   - fitsio
   - scipy
   - numpy
@@ -13,7 +13,12 @@ dependencies:
   - ipykernel
   - seaborn
   - h5py
+  - pydl
+  - pyyaml
+  - corner
+  - scikit-image
+  - gnureadline
+  - mpi4py
   - pip
   - pip:
-    - e /local/path/to/legacypipe
-
+    - colossus
