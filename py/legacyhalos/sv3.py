@@ -17,7 +17,7 @@ DECCOLUMN = "DEC"
 DIAMCOLUMN = "RADIUS_MOSAIC"  # [radius, arcsec]
 GALAXYCOLUMN = "TARGETID"
 REFIDCOLUMN = "TARGETID"
-MAGCOLUMN = "mag_r_dered"
+MAGCOLUMN = "MAG_R_DERED"
 
 RADIUS_CLUSTER_KPC = 125.0  # default cluster radius
 
@@ -515,7 +515,7 @@ def _build_multiband_mask(
 
         iclose = np.where(
             [
-                centralmask[np.int(by), np.int(bx)]
+                centralmask[np.int32(by), np.int32(bx)]
                 for by, bx in zip(tractor.by, tractor.bx)
             ]
         )[0]
@@ -886,7 +886,6 @@ def read_multiband(
     # Make sure you dont lose objects - this would indicate a problem happened since we told tractor there's something there
 
     assert np.all(sample[REFIDCOLUMN] == tractor.ref_id[galaxy_indx])
-
     # Do we need to take into account the elliptical mask of each source??
     srt = np.argsort(tractor.flux_r[galaxy_indx])[::-1]
     galaxy_indx = galaxy_indx[srt]
