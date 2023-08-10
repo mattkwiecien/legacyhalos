@@ -7,7 +7,8 @@ ENV PATH /opt/conda/bin:$PATH
 # Get non python dependencies
 RUN apt-get update && \
     apt-get -y upgrade
-RUN apt-get install -y curl tini build-essential gfortran python3-dev python3-pip wget apt-get clean all
+RUN apt-get install -y curl tini build-essential gfortran python3-dev python3-pip wget && \
+    apt-get clean all
 
 # MPI install needs to be done explicitly 
 ARG mpich=4.0.2
@@ -67,6 +68,3 @@ ENV PATH=/src/legacyhalos/bin:$PATH
 RUN . /opt/conda/etc/profile.d/conda.sh && mamba activate legacyhalos && \
     cd /opt/legacyhalos/workdir && \
     python setup.py install
-
-ENTRYPOINT [ "/usr/bin/tini", "--" ]
-CMD [ "/bin/bash", "-lc" ]
