@@ -18,7 +18,6 @@ dependencies:
   - scikit-image
   - mpi4py
   - coveralls
-  - coverage
   - pytest
   - black
   - flake8
