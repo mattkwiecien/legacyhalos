@@ -46,7 +46,7 @@ RUN echo ". /opt/conda/etc/profile.d/conda.sh" > /opt/legacyhalos/startup.sh && 
 
 COPY . environment.yml
 RUN source /opt/conda/etc/profile.d/conda.sh && \
-    mamba create env -f environment.yml && \
+    mamba env create -n legacyhalos-env -f environment.yml && \
     mamba clean -af --yes
 
 RUN . /opt/conda/etc/profile.d/conda.sh && mamba activate legacyhalos-env && \
