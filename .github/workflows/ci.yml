@@ -61,7 +61,7 @@ jobs:
           show-channel-urls: true
           auto-update-conda: true
           use-mamba: true
-          activate-environment: tjpcov
+          activate-environment: legacyhalos
           miniforge-version: latest
           miniforge-variant: Mambaforge
 
