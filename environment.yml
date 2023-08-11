@@ -16,7 +16,6 @@ dependencies:
   - pyyaml
   - corner
   - scikit-image
-  - gnureadline
   - mpi4py
   - pip
   - pip:
