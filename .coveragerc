@@ -1,8 +1,0 @@
-[run]
-branch = True
-#include = py/legacyhalos/*
-omit =
-    */.local/*
-    /usr/*
-    py/legacyhalos/test/*
-    setup.py

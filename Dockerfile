@@ -42,6 +42,10 @@ WORKDIR $PROJECT_DIR
 COPY . $PROJECT_DIR
 RUN chown -R $USER $PROJECT_DIR
 
+COPY docker/entrypoint.sh /usr/local/bin/
+RUN chown $UID:$GID /usr/local/bin/entrypoint.sh && \
+    chmod u+x /usr/local/bin/entrypoint.sh
+
 # Finally, swap to non-root user
 USER legacyhalos
 
@@ -74,8 +78,7 @@ ENV IPYTHONDIR /tmp/ipython-config
 ENV PYTHONPATH=/opt/legacyhalos/workdir:$PYTHONPATH
 ENV PATH=/opt/legacyhalos/workdir:$PATH
 
-
-
+ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
 
 
 # # # MPI install needs to be done explicitly 
