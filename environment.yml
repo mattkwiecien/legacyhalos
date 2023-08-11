@@ -17,6 +17,10 @@ dependencies:
   - corner
   - scikit-image
   - mpi4py
+  - coveralls
+  - pytest
+  - black
+  - flake8
   - pip
   - pip:
     - colossus

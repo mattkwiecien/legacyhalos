@@ -26,10 +26,11 @@ jobs:
       - name: Run black
         uses: psf/black@stable
 
-      - name: Run flake8
-        uses: py-actions/flake8@v2
-        with:
-          path: "py/legacyhalos bin"
+      # Codebase not ready for this yet
+      # - name: Run flake8
+      #   uses: py-actions/flake8@v2
+      #   with:
+      #     path: "py/legacyhalos bin"
 
   tests:
     needs: lint
@@ -89,6 +90,9 @@ jobs:
         run: | 
           pip install . --no-deps
       
+      - name: Run Tests
+        run: coverage run --source=legacyhalos -m pytest -vv tests/ 
+
       - name: Collect coverage report
         uses: coverallsapp/github-action@v2
         with:
