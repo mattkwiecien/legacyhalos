@@ -180,5 +180,5 @@ def main():
     total_ellipse.write("total_ellipse.fits", format="fits", overwrite=True)
 
 
-if __name__ == "main":
+if __name__ == "__main__":
     main()
