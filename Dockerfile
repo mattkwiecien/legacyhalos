@@ -1,10 +1,13 @@
 FROM legacysurvey/legacypipe:DR10.1.3
 
-SHELL [ "/bin/bash", "--login", "-c" ]
+# Remove the policy.xml file so we do not get an 'exhausted cache resources'
+# error when we build mosaics for very large systems.
+RUN echo '<policymap></policymap>' > /etc/ImageMagick-6/policy.xml
 
 RUN /sbin/ldconfig
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+SHELL [ "/bin/bash", "--login", "-c" ]
 
 # Get non python dependencies
 RUN apt-get update && \
@@ -61,18 +64,9 @@ RUN conda init bash
 RUN mamba env create --name legacyhalos-env --file /tmp/environment.yml --force && \
     conda clean --all --yes
 
-
 RUN . $CONDA_DIR/etc/profile.d/conda.sh && \
-    conda activate legacyhalos-env
-
-RUN pwd
-RUN ls -l
-
-RUN pip install -e .
-
-# Remove the policy.xml file so we do not get an 'exhausted cache resources'
-# error when we build mosaics for very large systems.
-RUN echo '<policymap></policymap>' > /etc/ImageMagick-6/policy.xml
+    conda activate legacyhalos-env && \
+    pip install -e .
 
 ENV IPYTHONDIR /tmp/ipython-config
 ENV PYTHONPATH=/opt/legacyhalos/workdir:$PYTHONPATH
