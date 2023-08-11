@@ -27,7 +27,7 @@ with open(pth, "r") as fp:
             r = line.strip()[3:].strip()
             rqs.append(_munge_req(r))
 
-with open("README.rst") as f:
+with open("README.md") as f:
     readme = f.read()
 
 with open("LICENSE") as f:

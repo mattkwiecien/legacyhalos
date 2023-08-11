@@ -75,8 +75,8 @@ RUN . $CONDA_DIR/etc/profile.d/conda.sh && \
     pip install . --no-deps
 
 ENV IPYTHONDIR /tmp/ipython-config
-ENV PYTHONPATH=/opt/legacyhalos/workdir:$PYTHONPATH
-ENV PATH=/opt/legacyhalos/workdir:$PATH
+ENV PYTHONPATH=/home/legacyhalos/src:$PYTHONPATH
+ENV PATH=/home/legacyhalos/src:$PATH
 
 ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
 

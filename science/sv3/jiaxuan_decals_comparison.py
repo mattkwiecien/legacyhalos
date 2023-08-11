@@ -43,9 +43,7 @@ def phys_size_fn(redshift, is_print=True, H0=70, Omegam=0.3, Omegal=0.7):
     -----------
     physical_size: float, in 'kpc/arcsec'
     """
-    cosmos = cosmology.Cosmo(
-        H0=H0, omega_m=Omegam, flat=True, omega_l=Omegal, omega_k=None
-    )
+    cosmos = cosmology.Cosmo(H0=H0, omega_m=Omegam, flat=True, omega_l=Omegal, omega_k=None)
     ang_distance = cosmos.Da(0.0, redshift)
     physical_size = ang_distance / 206265 * 1000  # kpc/arcsec
     if is_print:
@@ -103,9 +101,7 @@ def SBP_single(
     """
     if ax is None:
         fig = plt.figure(figsize=(10, 10))
-        fig.subplots_adjust(
-            left=0.0, right=1.0, bottom=0.0, top=1.0, wspace=0.00, hspace=0.00
-        )
+        fig.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0, wspace=0.00, hspace=0.00)
 
         ax1 = fig.add_axes([0.08, 0.07, 0.85, 0.88])
         ax1.tick_params(direction="in")
@@ -124,26 +120,9 @@ def SBP_single(
 
     if physical_unit is True:
         x = ell_fix["sma"] * pixel_scale * phys_size
-        y = (
-            -2.5 * np.log10((ell_fix["intens"].data + offset) / (pixel_scale) ** 2)
-            + zeropoint
-        )
-        y_upper = (
-            -2.5
-            * np.log10(
-                (ell_fix["intens"] + offset + ell_fix[intens_err_name])
-                / (pixel_scale) ** 2
-            )
-            + zeropoint
-        )
-        y_lower = (
-            -2.5
-            * np.log10(
-                (ell_fix["intens"] + offset - ell_fix[intens_err_name])
-                / (pixel_scale) ** 2
-            )
-            + zeropoint
-        )
+        y = -2.5 * np.log10((ell_fix["intens"].data + offset) / (pixel_scale) ** 2) + zeropoint
+        y_upper = -2.5 * np.log10((ell_fix["intens"] + offset + ell_fix[intens_err_name]) / (pixel_scale) ** 2) + zeropoint
+        y_lower = -2.5 * np.log10((ell_fix["intens"] + offset - ell_fix[intens_err_name]) / (pixel_scale) ** 2) + zeropoint
         upper_yerr = y_lower - y
         lower_yerr = y - y_upper
         asymmetric_error = [lower_yerr, upper_yerr]
@@ -151,26 +130,9 @@ def SBP_single(
         ylabel = r"$\mu\,[\mathrm{mag/arcsec^2}]$"
     else:
         x = ell_fix["sma"] * pixel_scale
-        y = (
-            -2.5 * np.log10((ell_fix["intens"].data + offset) / (pixel_scale) ** 2)
-            + zeropoint
-        )
-        y_upper = (
-            -2.5
-            * np.log10(
-                (ell_fix["intens"] + offset + ell_fix[intens_err_name])
-                / (pixel_scale) ** 2
-            )
-            + zeropoint
-        )
-        y_lower = (
-            -2.5
-            * np.log10(
-                (ell_fix["intens"] + offset - ell_fix[intens_err_name])
-                / (pixel_scale) ** 2
-            )
-            + zeropoint
-        )
+        y = -2.5 * np.log10((ell_fix["intens"].data + offset) / (pixel_scale) ** 2) + zeropoint
+        y_upper = -2.5 * np.log10((ell_fix["intens"] + offset + ell_fix[intens_err_name]) / (pixel_scale) ** 2) + zeropoint
+        y_lower = -2.5 * np.log10((ell_fix["intens"] + offset - ell_fix[intens_err_name]) / (pixel_scale) ** 2) + zeropoint
         upper_yerr = y_lower - y
         lower_yerr = y - y_upper
         asymmetric_error = [lower_yerr, upper_yerr]
@@ -215,9 +177,7 @@ def SBP_single(
             linestyle=linestyle,
             alpha=alpha,
         )
-    ax1.fill_between(
-        x**0.25, y_upper, y_lower, color=linecolor, alpha=0.3 * alpha, label=None
-    )
+    ax1.fill_between(x**0.25, y_upper, y_lower, color=linecolor, alpha=0.3 * alpha, label=None)
 
     for tick in ax1.xaxis.get_major_ticks():
         tick.label.set_fontsize(ticksize)
@@ -240,9 +200,7 @@ def SBP_single(
         ax4.set_xlabel(r"$\mathrm{kpc}$", fontsize=ticksize)
         ax4.xaxis.set_label_coords(1, 1.025)
 
-        ax4.set_xticklabels(
-            [r"$\mathrm{" + str(i) + "}$" for i in lin_label], fontsize=ticksize
-        )
+        ax4.set_xticklabels([r"$\mathrm{" + str(i) + "}$" for i in lin_label], fontsize=ticksize)
         for tick in ax4.xaxis.get_major_ticks():
             tick.label.set_fontsize(ticksize)
 
@@ -274,9 +232,7 @@ def SBP_single(
 
 def create_sv3_jiaxuan_matched_catalog(jiaxuan_cat):
     # Construct a catalog of SV3 joined to Jiaxuan's DECaLS data to run legacyhalos on
-    sv3_cat = Table.read(
-        "/Users/matt/Data/legacydata/sv3-clustering/BGS_BRIGHT_S_clustering.dat.fits"
-    )
+    sv3_cat = Table.read("/Users/matt/Data/legacydata/sv3-clustering/BGS_BRIGHT_S_clustering.dat.fits")
 
     # Add a join ID to later join on
     jiaxuan_cat.add_column(0, name="join_id")
@@ -320,9 +276,7 @@ def create_sv3_jiaxuan_matched_catalog(jiaxuan_cat):
         this_row = combined_cat[combined_cat["TARGETID"] == s["TARGETID"]]
         assert this_row["id_s16a"] == j["id_s16a"]
 
-    combined_cat.write(
-        "/Users/matt/Data/legacydata/jiaxuan_data/sv3_matches.fits", overwrite=True
-    )
+    combined_cat.write("/Users/matt/Data/legacydata/jiaxuan_data/sv3_matches.fits", overwrite=True)
 
 
 def main():
@@ -348,9 +302,12 @@ def main():
     # Join ref id's... ID_CENT == TARGETID
     ellipse_cat = join(sv3_ellipses, sample, keys_left="ID_CENT", keys_right="TARGETID")
 
-    fig, (axes, axes2) = plt.subplots(2, 5, figsize=(30, 12))
+    number_plots = 10
+    width_per_plot = 6
+    fig, (axes, axes2) = plt.subplots(2, number_plots, figsize=(number_plots * width_per_plot, 15))
 
-    for i, my_fit in enumerate(ellipse_cat[100:105]):
+    start = 50
+    for i, my_fit in enumerate(ellipse_cat[start : start + number_plots]):
         # For this HSC ID, grab Jiaxuan's fit data
         s16a_id = str(my_fit["ID_S16A"])
         filenm = f"{s16a_id}/{s16a_id}-custom-{s16a_id}-ellipse.fits"
@@ -363,10 +320,8 @@ def main():
         ell_decals = Table(
             data=[
                 ellipsefit_j["R_SMA"].data[0],  # pixel
-                ellipsefit_j["R_INTENS"].data[0]
-                * (DECaLS_pixel_scale) ** 2,  # nanomaggie/pixel
-                ellipsefit_j["R_INTENS_ERR"].data[0]
-                * (DECaLS_pixel_scale) ** 2,  # nanomaggie/pixel
+                ellipsefit_j["R_INTENS"].data[0] * (DECaLS_pixel_scale) ** 2,  # nanomaggie/pixel
+                ellipsefit_j["R_INTENS_ERR"].data[0] * (DECaLS_pixel_scale) ** 2,  # nanomaggie/pixel
             ],
             names=["sma", "intens", "intens_err"],
         )
@@ -451,15 +406,11 @@ def main():
         ax_lower.plot(
             [
                 0,
-                ellipsefit_j["MAJORAXIS"][0]
-                * DECaLS_pixel_scale
-                * np.cos(ellipsefit_j["PA"][0] * np.pi / 180),
+                ellipsefit_j["MAJORAXIS"][0] * DECaLS_pixel_scale * np.cos(ellipsefit_j["PA"][0] * np.pi / 180),
             ],
             [
                 0,
-                ellipsefit_j["MAJORAXIS"][0]
-                * DECaLS_pixel_scale
-                * np.sin(ellipsefit_j["PA"][0] * np.pi / 180),
+                ellipsefit_j["MAJORAXIS"][0] * DECaLS_pixel_scale * np.sin(ellipsefit_j["PA"][0] * np.pi / 180),
             ],
             linewidth=2,
             color="tab:blue",
@@ -484,9 +435,7 @@ def main():
             transform=ax_lower.transAxes,
         )
 
-        ax.text(
-            3.2, 21, f'ID={my_fit["TARGETID"]}', fontsize=12, ha="center", va="center"
-        )
+        ax.text(3.2, 21, f'ID={my_fit["TARGETID"]}', fontsize=12, ha="center", va="center")
 
     fig.subplots_adjust(hspace=0.3)
     fig.savefig("SBP_comparison.png", dpi=300)
