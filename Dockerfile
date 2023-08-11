@@ -3,7 +3,6 @@ FROM legacysurvey/legacypipe:DR10.1.3
 # Remove the policy.xml file so we do not get an 'exhausted cache resources'
 # error when we build mosaics for very large systems.
 RUN echo '<policymap></policymap>' > /etc/ImageMagick-6/policy.xml
-
 RUN /sbin/ldconfig
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
@@ -34,18 +33,21 @@ RUN adduser --disabled-password \
 COPY environment.yml /tmp/
 RUN chown $UID:$GID /tmp/environment.yml
 
-# create a project directory inside user home
+# Create a project directory inside user home
 ENV PROJECT_DIR $HOME/src
 RUN mkdir $PROJECT_DIR
 WORKDIR $PROJECT_DIR
 
+# Copy the code to the non-root user's home directory and change the owner
 COPY . $PROJECT_DIR
 RUN chown -R $USER $PROJECT_DIR
 
+# Finally, swap to non-root user
 USER legacyhalos
 
 ENV CONDA_DIR $HOME/miniforge
 
+# Install mamba/conda
 RUN curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh && \
     chmod +x ~/mambaforge.sh && \
     ~/mambaforge.sh -b -p $CONDA_DIR && \
@@ -66,7 +68,7 @@ RUN mamba env create --name legacyhalos-env --file /tmp/environment.yml --force 
 
 RUN . $CONDA_DIR/etc/profile.d/conda.sh && \
     conda activate legacyhalos-env && \
-    pip install -e .
+    pip install . --no-deps
 
 ENV IPYTHONDIR /tmp/ipython-config
 ENV PYTHONPATH=/opt/legacyhalos/workdir:$PYTHONPATH
