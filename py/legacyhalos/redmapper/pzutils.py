@@ -9,29 +9,36 @@ Note: code currently treats pzbins as bin midpoints with uniform binning.
 """
 import numpy as np
 
+
 def p_in_lambdabin(lambda_val, lambda_err, lm_min, lm_max):
     """Compute the probability P(lm_min < lambda < lm_max) for an input sample of
     galaxies assuming a Gaussian distribution.
 
     """
     from scipy.special import erf
+
     isnan = np.isnan(lambda_err)
     if np.sum(isnan) > 0:
         lambda_err[isnan] = 0.0
 
-    alist = np.where( lambda_err > 0 )[0]
-    blist = np.where( lambda_err == 0 )[0]
+    alist = np.where(lambda_err > 0)[0]
+    blist = np.where(lambda_err == 0)[0]
 
     p = np.zeros_like(lambda_val)
     if len(alist) > 0:
-        p[alist] = 0.5*(erf( (lm_max - lambda_val[alist]) / lambda_err[alist] / np.sqrt(2) ) -
-                        erf( (lm_min - lambda_val[alist]) / lambda_err[alist] / np.sqrt(2)) )
-        
+        p[alist] = 0.5 * (
+            erf((lm_max - lambda_val[alist]) / lambda_err[alist] / np.sqrt(2))
+            - erf((lm_min - lambda_val[alist]) / lambda_err[alist] / np.sqrt(2))
+        )
+
     if len(blist) > 0:
-        clist = np.where( (lambda_val[blist] >= lm_min) * (lambda_val[blist] < lm_max) )[0]
+        clist = np.where((lambda_val[blist] >= lm_min) * (lambda_val[blist] < lm_max))[
+            0
+        ]
         p[blist][clist] = 1
 
     return p
+
 
 def p_in_zbin(pz, pzbins, zmin, zmax, verbose=False):
     """Compute the probability that a given galaxy is in a specified bin in redshift
@@ -42,56 +49,77 @@ def p_in_zbin(pz, pzbins, zmin, zmax, verbose=False):
     p = np.zeros(len(pz))
 
     # Case 1: PDF is entirely in the pzbins range.
-    alist = np.where( (zmin < np.min(pzbins, 1)) * (zmax > np.max(pzbins, 1)) )[0]
+    alist = np.where((zmin < np.min(pzbins, 1)) * (zmax > np.max(pzbins, 1)))[0]
     if len(alist) != 0:
         p[alist] = 0 * alist + 1.0
 
     # Case 2: zmax cutoff is in the pzbins range.
-    blist = np.where( (zmin < np.min(pzbins, 1)) * (zmax < np.max(pzbins, 1)) *
-                      (zmax > np.min(pzbins, 1)) )[0]
+    blist = np.where(
+        (zmin < np.min(pzbins, 1))
+        * (zmax < np.max(pzbins, 1))
+        * (zmax > np.min(pzbins, 1))
+    )[0]
     if len(blist) > 0:
         for i in range(len(blist)):
-            bmax = np.max( np.where(pzbins[blist[i], :] < zmax)[0] )
-            slope = ( pz[blist[i], bmax + 1] - pz[blist[i], bmax] ) / dz[blist[i]]
-            p[blist[i]] = ( np.sum( pz[blist[i], :bmax+1] ) * dz[blist[i]] - pz[blist[i], bmax] *
-                            dz[blist[i]] / 2.0 + (pz[blist[i], bmax] * 2 + slope * (zmax - pzbins[blist[i], bmax]) ) *
-                            (zmax - pzbins[blist[i], bmax]) / 2.0 )
-            #print p[blist[i]],slope,pzbins[blist[i],bmax],pzbins[blist[i],bmax+1]
+            bmax = np.max(np.where(pzbins[blist[i], :] < zmax)[0])
+            slope = (pz[blist[i], bmax + 1] - pz[blist[i], bmax]) / dz[blist[i]]
+            p[blist[i]] = (
+                np.sum(pz[blist[i], : bmax + 1]) * dz[blist[i]]
+                - pz[blist[i], bmax] * dz[blist[i]] / 2.0
+                + (pz[blist[i], bmax] * 2 + slope * (zmax - pzbins[blist[i], bmax]))
+                * (zmax - pzbins[blist[i], bmax])
+                / 2.0
+            )
+            # print p[blist[i]],slope,pzbins[blist[i],bmax],pzbins[blist[i],bmax+1]
 
     # Case 3: zmin cutoff is in the pzbins range.
-    blist = np.where( (zmax > np.max(pzbins, 1)) * (zmin > np.min(pzbins, 1)) * (zmin < np.max(pzbins,1)) )[0]
+    blist = np.where(
+        (zmax > np.max(pzbins, 1))
+        * (zmin > np.min(pzbins, 1))
+        * (zmin < np.max(pzbins, 1))
+    )[0]
     if len(blist) > 0:
         for i in range(len(blist)):
-            bmin = np.min( np.where(pzbins[blist[i], :] > zmin)[0] )
-            slope = ( pz[blist[i], bmin] - pz[blist[i], bmin-1]) / dz[blist[i]]
-            p[blist[i]] = ( np.sum(pz[blist[i], bmin:]) * dz[blist[i]] - pz[blist[i], bmin] *
-                            dz[blist[i]] / 2.0 + (pz[blist[i], bmin] * 2 - slope * (pzbins[blist[i], bmin] - zmin) ) *
-                            (pzbins[blist[i], bmin] - zmin) / 2.0 )
+            bmin = np.min(np.where(pzbins[blist[i], :] > zmin)[0])
+            slope = (pz[blist[i], bmin] - pz[blist[i], bmin - 1]) / dz[blist[i]]
+            p[blist[i]] = (
+                np.sum(pz[blist[i], bmin:]) * dz[blist[i]]
+                - pz[blist[i], bmin] * dz[blist[i]] / 2.0
+                + (pz[blist[i], bmin] * 2 - slope * (pzbins[blist[i], bmin] - zmin))
+                * (pzbins[blist[i], bmin] - zmin)
+                / 2.0
+            )
 
     # Case 4: zmax and zmin cutoff are both in the pzbins range.
-    clist = np.where( (zmax < np.max(pzbins, 1)) * (zmin > np.min(pzbins, 1)) )[0]
+    clist = np.where((zmax < np.max(pzbins, 1)) * (zmin > np.min(pzbins, 1)))[0]
     if len(clist) > 0:
         for i in range(len(clist)):
-            cmin = np.min( np.where(pzbins[clist[i],:] > zmin)[0] )
-            cmax = np.max( np.where(pzbins[clist[i],:] < zmax)[0] )
+            cmin = np.min(np.where(pzbins[clist[i], :] > zmin)[0])
+            cmax = np.max(np.where(pzbins[clist[i], :] < zmax)[0])
             slope_min = (pz[clist[i], cmin] - pz[clist[i], cmin - 1]) / dz[clist[i]]
             slope_max = (pz[clist[i], cmax + 1] - pz[clist[i], cmax]) / dz[clist[i]]
 
-            p[clist[i]] = ( np.sum(dz[clist[i]] * pz[clist[i], cmin:cmax + 1]) -
-                            pz[clist[i], cmax] * dz[clist[i]] / 2.0 +
-                            (pz[clist[i], cmax] * 2 + slope_max * (zmax-pzbins[clist[i],cmax]) ) *
-                            (zmax - pzbins[clist[i], cmax]) / 2.0 - pz[clist[i], cmin] * dz[clist[i]] / 2.0 +
-                            (pz[clist[i], cmin] * 2 - slope_min * (pzbins[clist[i], cmin] - zmin) ) *
-                            (pzbins[clist[i], cmin] - zmin) / 2.0 )
+            p[clist[i]] = (
+                np.sum(dz[clist[i]] * pz[clist[i], cmin : cmax + 1])
+                - pz[clist[i], cmax] * dz[clist[i]] / 2.0
+                + (pz[clist[i], cmax] * 2 + slope_max * (zmax - pzbins[clist[i], cmax]))
+                * (zmax - pzbins[clist[i], cmax])
+                / 2.0
+                - pz[clist[i], cmin] * dz[clist[i]] / 2.0
+                + (pz[clist[i], cmin] * 2 - slope_min * (pzbins[clist[i], cmin] - zmin))
+                * (pzbins[clist[i], cmin] - zmin)
+                / 2.0
+            )
 
     ## Clamp probabilities in excess of unity due to numerical roundoff.
-    #plist = np.where( p > 1 )[0]
-    #if len(plist) > 0:
+    # plist = np.where( p > 1 )[0]
+    # if len(plist) > 0:
     #    if verbose:
     #        print('Clamping p(z) to unity for {} galaxies to unity.'.format(len(plist)))
     #    p[plist] = 1
 
     return p
+
 
 def p_in_mstarbin(pofm, pofm_bins, mstarmin, mstarmax, verbose=False):
     """Compute the probability that a given galaxy is in a specified bin of stellar
@@ -102,68 +130,106 @@ def p_in_mstarbin(pofm, pofm_bins, mstarmin, mstarmax, verbose=False):
     p = np.zeros(len(pofm))
 
     # Case 1: PDF is entirely in the pofm_bins range.
-    alist = np.where( (mstarmin < np.min(pofm_bins, 1)) * (mstarmax > np.max(pofm_bins, 1)) )[0]
+    alist = np.where(
+        (mstarmin < np.min(pofm_bins, 1)) * (mstarmax > np.max(pofm_bins, 1))
+    )[0]
     if len(alist) != 0:
         p[alist] = 0 * alist + 1.0
 
     # Case 2: mstarmax cutoff is in the pofm_bins range.
-    blist = np.where( (mstarmin < np.min(pofm_bins, 1)) * (mstarmax < np.max(pofm_bins, 1)) *
-                      (mstarmax > np.min(pofm_bins, 1)) )[0]
+    blist = np.where(
+        (mstarmin < np.min(pofm_bins, 1))
+        * (mstarmax < np.max(pofm_bins, 1))
+        * (mstarmax > np.min(pofm_bins, 1))
+    )[0]
     if len(blist) > 0:
         for i in range(len(blist)):
-            bmax = np.max( np.where(pofm_bins[blist[i], :] < mstarmax)[0] )
-            slope = ( pofm[blist[i], bmax + 1] - pofm[blist[i], bmax] ) / dz[blist[i]]
-            p[blist[i]] = ( np.sum( pofm[blist[i], :bmax+1] ) * dz[blist[i]] - pofm[blist[i], bmax] *
-                            dz[blist[i]] / 2.0 + (pofm[blist[i], bmax] * 2 + slope * (mstarmax - pofm_bins[blist[i], bmax]) ) *
-                            (mstarmax - pofm_bins[blist[i], bmax]) / 2.0 )
-            #print p[blist[i]],slope,pofm_bins[blist[i],bmax],pofm_bins[blist[i],bmax+1]
+            bmax = np.max(np.where(pofm_bins[blist[i], :] < mstarmax)[0])
+            slope = (pofm[blist[i], bmax + 1] - pofm[blist[i], bmax]) / dz[blist[i]]
+            p[blist[i]] = (
+                np.sum(pofm[blist[i], : bmax + 1]) * dz[blist[i]]
+                - pofm[blist[i], bmax] * dz[blist[i]] / 2.0
+                + (
+                    pofm[blist[i], bmax] * 2
+                    + slope * (mstarmax - pofm_bins[blist[i], bmax])
+                )
+                * (mstarmax - pofm_bins[blist[i], bmax])
+                / 2.0
+            )
+            # print p[blist[i]],slope,pofm_bins[blist[i],bmax],pofm_bins[blist[i],bmax+1]
 
     # Case 3: mstarmin cutoff is in the pofm_bins range.
-    blist = np.where( (mstarmax > np.max(pofm_bins, 1)) * (mstarmin > np.min(pofm_bins, 1)) * (mstarmin < np.max(pofm_bins,1)) )[0]
+    blist = np.where(
+        (mstarmax > np.max(pofm_bins, 1))
+        * (mstarmin > np.min(pofm_bins, 1))
+        * (mstarmin < np.max(pofm_bins, 1))
+    )[0]
     if len(blist) > 0:
         for i in range(len(blist)):
-            bmin = np.min( np.where(pofm_bins[blist[i], :] > mstarmin)[0] )
-            slope = ( pofm[blist[i], bmin] - pofm[blist[i], bmin-1]) / dz[blist[i]]
-            p[blist[i]] = ( np.sum(pofm[blist[i], bmin:]) * dz[blist[i]] - pofm[blist[i], bmin] *
-                            dz[blist[i]] / 2.0 + (pofm[blist[i], bmin] * 2 - slope * (pofm_bins[blist[i], bmin] - mstarmin) ) *
-                            (pofm_bins[blist[i], bmin] - mstarmin) / 2.0 )
+            bmin = np.min(np.where(pofm_bins[blist[i], :] > mstarmin)[0])
+            slope = (pofm[blist[i], bmin] - pofm[blist[i], bmin - 1]) / dz[blist[i]]
+            p[blist[i]] = (
+                np.sum(pofm[blist[i], bmin:]) * dz[blist[i]]
+                - pofm[blist[i], bmin] * dz[blist[i]] / 2.0
+                + (
+                    pofm[blist[i], bmin] * 2
+                    - slope * (pofm_bins[blist[i], bmin] - mstarmin)
+                )
+                * (pofm_bins[blist[i], bmin] - mstarmin)
+                / 2.0
+            )
 
     # Case 4: mstarmax and mstarmin cutoff are both in the pofm_bins range.
-    clist = np.where( (mstarmax < np.max(pofm_bins, 1)) * (mstarmin > np.min(pofm_bins, 1)) )[0]
+    clist = np.where(
+        (mstarmax < np.max(pofm_bins, 1)) * (mstarmin > np.min(pofm_bins, 1))
+    )[0]
     if len(clist) > 0:
         for i in range(len(clist)):
-            cmin = np.min( np.where(pofm_bins[clist[i],:] > mstarmin)[0] )
-            cmax = np.max( np.where(pofm_bins[clist[i],:] < mstarmax)[0] )
+            cmin = np.min(np.where(pofm_bins[clist[i], :] > mstarmin)[0])
+            cmax = np.max(np.where(pofm_bins[clist[i], :] < mstarmax)[0])
             slope_min = (pofm[clist[i], cmin] - pofm[clist[i], cmin - 1]) / dz[clist[i]]
             slope_max = (pofm[clist[i], cmax + 1] - pofm[clist[i], cmax]) / dz[clist[i]]
 
-            p[clist[i]] = ( np.sum(dz[clist[i]] * pofm[clist[i], cmin:cmax + 1]) -
-                            pofm[clist[i], cmax] * dz[clist[i]] / 2.0 +
-                            (pofm[clist[i], cmax] * 2 + slope_max * (mstarmax-pofm_bins[clist[i],cmax]) ) *
-                            (mstarmax - pofm_bins[clist[i], cmax]) / 2.0 - pofm[clist[i], cmin] * dz[clist[i]] / 2.0 +
-                            (pofm[clist[i], cmin] * 2 - slope_min * (pofm_bins[clist[i], cmin] - mstarmin) ) *
-                            (pofm_bins[clist[i], cmin] - mstarmin) / 2.0 )
+            p[clist[i]] = (
+                np.sum(dz[clist[i]] * pofm[clist[i], cmin : cmax + 1])
+                - pofm[clist[i], cmax] * dz[clist[i]] / 2.0
+                + (
+                    pofm[clist[i], cmax] * 2
+                    + slope_max * (mstarmax - pofm_bins[clist[i], cmax])
+                )
+                * (mstarmax - pofm_bins[clist[i], cmax])
+                / 2.0
+                - pofm[clist[i], cmin] * dz[clist[i]] / 2.0
+                + (
+                    pofm[clist[i], cmin] * 2
+                    - slope_min * (pofm_bins[clist[i], cmin] - mstarmin)
+                )
+                * (pofm_bins[clist[i], cmin] - mstarmin)
+                / 2.0
+            )
 
     ## Clamp probabilities in excess of unity due to numerical roundoff.
-    #plist = np.where( p > 1 )[0]
-    #if len(plist) > 0:
+    # plist = np.where( p > 1 )[0]
+    # if len(plist) > 0:
     #    if verbose:
     #        print('Clamping p(z) to unity for {} galaxies to unity.'.format(len(plist)))
     #    p[plist] = 1
 
     return p
 
+
 def bootstrap_resample_simple(ngal, nboot=10, seed=None):
     """Generate nboot bootstrap samples of ngal galaxies.
 
-    Note: This method does not resample lambda or redshift. 
+    Note: This method does not resample lambda or redshift.
 
     """
     rand = np.random.RandomState(seed)
-    return rand.randint( ngal, size=(nboot, ngal) )
+    return rand.randint(ngal, size=(nboot, ngal))
+
 
 ##Single random selection from P(z) distribution
-#def select_rand_z(pz,pzbins):
+# def select_rand_z(pz,pzbins):
 #    z = -1.
 #    val = 0.
 #    p = 1.
@@ -172,24 +238,24 @@ def bootstrap_resample_simple(ngal, nboot=10, seed=None):
 #    mybins = np.where(pz > 0)[0]
 #    zmin = np.min(pzbins[mybins])
 #    zmax = np.max(pzbins[mybins])
-#        
+#
 #    count = 0
 #    while p > val and count < 100:
 #        z = np.random.random_sample()*(zmax-zmin) + zmin
 #        p = np.random.random_sample()*pmax
 #        if len(np.where(z > pzbins)[0]) == 0:
-#            
+#
 #            print >> sys.stderr, pmax, p, val, zmin, zmax, z
 #            val = pz[0]
 #        else:
 #            bin = max(np.where(z > pzbins)[0])
 #            val = pz[bin] + (z-pzbins[bin])*(pz[bin+1]-pz[bin])/dz
 #        count = count+1
-#        
+#
 #    return z
 #
 ##Make selection for a set of clusters
-#def select_rand_z_set(pz,pzbins):
+# def select_rand_z_set(pz,pzbins):
 #    nclusters = len(pz)
 #    z = np.zeros(nclusters)
 #    for i in range(nclusters):
@@ -199,7 +265,7 @@ def bootstrap_resample_simple(ngal, nboot=10, seed=None):
 #
 ##Make a set of nboot boostrap samples from an input catalog
 ##Also makes redshifts drawn from P(z)
-#def make_boot_samples(nboot,cat):
+# def make_boot_samples(nboot,cat):
 #    nclusters = len(cat)
 #    bootlist = np.random.randint(nclusters,size=(nboot,nclusters))
 #    zboot = np.zeros([nboot,nclusters])
@@ -210,7 +276,7 @@ def bootstrap_resample_simple(ngal, nboot=10, seed=None):
 #    return bootlist, zboot
 #
 ##Makes a random galaxy sample using given probabilities
-#def make_boot_samples_gal(nboot,p):
+# def make_boot_samples_gal(nboot,p):
 #    ngals = len(p)
 #
 #    gboot = np.zeros([nboot,ngals])
@@ -221,7 +287,7 @@ def bootstrap_resample_simple(ngal, nboot=10, seed=None):
 #
 ##Determines the bootstrapped "lambda" value given gboot and cluster list
 ##Includes options necessary for doing appropriate lambda in abundance-matched case
-#def make_boot_lambda(bootlist,c_mem_id,scaleval,g_mem_id,gboot,p,
+# def make_boot_lambda(bootlist,c_mem_id,scaleval,g_mem_id,gboot,p,
 #                     lambda_tr=[],do_abm=False):
 #    nboot = len(bootlist)
 #    ncl = len(c_mem_id)
@@ -235,7 +301,7 @@ def bootstrap_resample_simple(ngal, nboot=10, seed=None):
 #        else:
 #            #Make sorted lambda_list
 #            slambda = lambda_tr[np.argsort(lambda_tr)]
-#    
+#
 #    for i in range(nboot):
 #        #Note -- assumes galaxies list already sorted on mem_id
 #        csort = np.argsort(c_mem_id[bootlist[i]])
@@ -271,20 +337,20 @@ def bootstrap_resample_simple(ngal, nboot=10, seed=None):
 #            count_lo = count_hi
 #            if count_hi >= ngals:
 #                break
-#        
+#
 #        #Resort on lambda if necessary and if data supplied for later ABM
 #        #lambda_tr should be the true cluster lambda values
 #        if len(lambda_tr) > 0 and do_abm:
 #            #Sort on lmboot first, then enter slambda values from true clusters
 #            lmboot[i,:] = slambda[np.argsort(lmboot[i,:])]
-#            
+#
 #
 #    return lmboot
 #
 #
 ##Script for adding the desired subset of "ubermem" galaxies, which always
 ##includes those dimmer than 0.1L*, and possibly including those with r>r_lambda
-#def dimmer_rlambda_p(use_p_ext,c_mem_id,lambda_chisq,r_lambda,
+# def dimmer_rlambda_p(use_p_ext,c_mem_id,lambda_chisq,r_lambda,
 #                     g_mem_id,p,p_ext,r):
 #    #Case where we want all the ubermem galaxies
 #    if use_p_ext == 1:
@@ -299,7 +365,7 @@ def bootstrap_resample_simple(ngal, nboot=10, seed=None):
 #    for i in range(len(p)):
 #        #if (r[i] < r_lambda[index[g_mem_id[i]]]) & (p[i] > 0):
 #        if r[i] < r_lambda[index[g_mem_id[i]]]:
-#            my_p[i] = p_ext[i]    
+#            my_p[i] = p_ext[i]
 #
 #    #Add a cutoff at p=0.2 if use_p_ext=3
 #    if use_p_ext==3:
@@ -311,7 +377,7 @@ def bootstrap_resample_simple(ngal, nboot=10, seed=None):
 ##Script for adding the desired subset of "ubermem" galaxies, which always
 ##includes those dimmer than 0.1L*, and possibly including those with r>r_lambda
 ##Handles the format for redmapper v5.10 and later
-#def dimmer_rlambda_p_new(use_p_ext,c_mem_id,lambda_chisq,r_lambda,
+# def dimmer_rlambda_p_new(use_p_ext,c_mem_id,lambda_chisq,r_lambda,
 #                         g_mem_id,p,r):
 #    #e include dim galaxies, but not those outside the cluster r_lambda
 #    #Set up the index to connect galaxies to clusters
@@ -323,7 +389,7 @@ def bootstrap_resample_simple(ngal, nboot=10, seed=None):
 #        #modified by chto
 #        if (r[i] < r_lambda[index[g_mem_id[i]]]) & (p[i] > 0):
 #        #if r[i] < r_lambda[index[g_mem_id[i]]]:
-#            my_p[i] = p[i]    
+#            my_p[i] = p[i]
 #
 #    #Add a cutoff at p=0.2 if use_p_ext=8
 #    if use_p_ext==8:
@@ -334,11 +400,11 @@ def bootstrap_resample_simple(ngal, nboot=10, seed=None):
 #
 ##Making a random galaxy sample; note that this depends on the clusters selected
 ##And is not in the same format as the other version
-#def make_boot_samples_gal_full(bootlist,c_mem_id,g_mem_id,p):
+# def make_boot_samples_gal_full(bootlist,c_mem_id,g_mem_id,p):
 #    '''
 #    Input: bootlist, c_mem_id, g_mem_id, p
 #    Output: gboot structure which is an nboot long list of lists of lists of galaxies (whew)
-#    Each galaxy list is the list of galaxies selected to be in the corresponding cluster at 
+#    Each galaxy list is the list of galaxies selected to be in the corresponding cluster at
 #    that position
 #    '''
 #    nboot = len(bootlist)
@@ -395,15 +461,15 @@ def bootstrap_resample_simple(ngal, nboot=10, seed=None):
 #    return match_index, gboot
 #
 #
-#def make_jack_samples_simple(njack, cat):
-#    import kmeans_radec 
+# def make_jack_samples_simple(njack, cat):
+#    import kmeans_radec
 #    radec=np.zeros( (len(cat['RA']), 2) )
 #    radec[:,0] = cat['RA'].flatten()
 #    radec[:,1] = cat['DEC'].flatten()
 #    _maxiter=100
 #    _tol=1.0e-5
 #    _km = kmeans_radec.kmeans_sample(radec, njack, maxiter=_maxiter, tol=_tol)
-#    uniquelabel = np.unique(_km.labels) 
+#    uniquelabel = np.unique(_km.labels)
 #    jacklist = np.empty(njack, dtype=np.object)
 #    for i in range(njack):
 #      jacklist[i]=np.where(_km.labels!=uniquelabel[i])[0]
@@ -411,11 +477,11 @@ def bootstrap_resample_simple(ngal, nboot=10, seed=None):
 #   return jacklist
 #
 ##Making a random galaxy sample; note that this depends on the clusters selected
-#def getjackgal(jackclusterList,c_mem_id,g_mem_id, match_index=None):
+# def getjackgal(jackclusterList,c_mem_id,g_mem_id, match_index=None):
 #    import pandas as pd
-#  
 #
-#  
+#
+#
 #    nclusters = len(c_mem_id)
 #    ngals = len(g_mem_id)
 #
@@ -458,4 +524,3 @@ def bootstrap_resample_simple(ngal, nboot=10, seed=None):
 #            gboot_single.extend([])
 #
 #    return gboot_single
-

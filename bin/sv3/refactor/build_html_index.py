@@ -9,13 +9,11 @@ from .mpi_step import MpiStep
 
 
 class BuildHtmlIndex(MpiStep):
-
     def __init__(self, args, sample):
         super.__init__(args, sample)
         self.is_serial = True
 
     def run(self):
-
         make_html(
             self.sample,
             survey=None,

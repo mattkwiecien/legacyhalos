@@ -2,13 +2,12 @@ from legacyhalos.sv3 import call_ellipse
 from .mpi_step import MpiStep
 from astropy.table import Table
 
-class BuildEllipse(MpiStep):
 
-    def __init__(self, args, sample : Table):
+class BuildEllipse(MpiStep):
+    def __init__(self, args, sample: Table):
         super.__init__(args, sample)
 
     def run(self):
-
         call_ellipse(
             self.onegal,
             galaxy=self.galaxy,
@@ -24,4 +23,3 @@ class BuildEllipse(MpiStep):
             logfile=self.logfile,
             clobber=self.args.clobber,
         )
-

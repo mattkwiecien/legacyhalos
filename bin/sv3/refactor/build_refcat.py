@@ -9,9 +9,9 @@ from astropy.table import Table
 from .mpi_step import MpiStep
 import numpy as np
 
-class BuildRefcat(MpiStep):
 
-    def __init__(self, args, sample : Table):
+class BuildRefcat(MpiStep):
+    def __init__(self, args, sample: Table):
         super.__init__(args, sample)
         self.is_serial = True
 
@@ -26,9 +26,7 @@ class BuildRefcat(MpiStep):
         ref["sga_id"] = self.sample[REFIDCOLUMN]
         ref["mag_leda"] = self.sample[MAGCOLUMN]
         ref["ba"] = np.repeat(1.0, ngal).astype("f4")  # fixed b/a
-        ref["pa"] = np.repeat(0.0, ngal).astype(
-            "f4"
-        )  # fixed position angle
+        ref["pa"] = np.repeat(0.0, ngal).astype("f4")  # fixed position angle
         ref["diam"] = np.repeat(10.0 / 60.0, ngal).astype(
             "f4"
         )  # fixed diameter = 10 arcsec [arcmin]
@@ -44,9 +42,7 @@ class BuildRefcat(MpiStep):
         fitsio.write(reffile, ref.as_array(), header=hdr, clobber=True)
 
         print("Writing {}".format(kdreffile))
-        cmd = "startree -i {} -o {} -T -P -k -n stars".format(
-            reffile, kdreffile
-        )
+        cmd = "startree -i {} -o {} -T -P -k -n stars".format(reffile, kdreffile)
         print(cmd)
         _ = os.system(cmd)
 
@@ -54,4 +50,3 @@ class BuildRefcat(MpiStep):
         _ = os.system(cmd)
 
         return
-

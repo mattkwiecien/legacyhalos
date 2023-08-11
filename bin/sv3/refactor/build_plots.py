@@ -8,16 +8,14 @@ from astropy.table import Table
 
 
 class BuildPlots(MpiStep):
-
-    def __init__(self, args, sample : Table):
+    def __init__(self, args, sample: Table):
         super.__init__(args, sample)
 
     def run(self):
-    
         cosmo = get_cosmology()
         barlabel = "30 arcsec"
         barlen = np.ceil(30 / self.args.pixscale).astype(int)  # [pixels]
-        
+
         call_htmlplots(
             self.onegal,
             self.galaxy,
@@ -42,4 +40,3 @@ class BuildPlots(MpiStep):
         )
 
         return
-

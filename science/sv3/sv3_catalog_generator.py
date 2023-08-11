@@ -51,7 +51,9 @@ def read_ccds_tractor_sample(galaxy_dir, galaxy, prefix="custom"):
     return tractor, sample
 
 
-def read_ellipsefit(galaxy, galaxydir, filesuffix="", galaxy_id="", verbose=True, asTable=True):
+def read_ellipsefit(
+    galaxy, galaxydir, filesuffix="", galaxy_id="", verbose=True, asTable=True
+):
     """Read the output of write_ellipsefit. Convert the astropy Table into a
     dictionary so we can use a bunch of legacy code.
 
@@ -65,7 +67,9 @@ def read_ellipsefit(galaxy, galaxydir, filesuffix="", galaxy_id="", verbose=True
     else:
         fsuff = "-{}".format(filesuffix)
 
-    ellipsefitfile = os.path.join(galaxydir, "{}{}-ellipse{}.fits".format(galaxy, fsuff, galid))
+    ellipsefitfile = os.path.join(
+        galaxydir, "{}{}-ellipse{}.fits".format(galaxy, fsuff, galid)
+    )
 
     if os.path.isfile(ellipsefitfile):
         print(ellipsefitfile, " exists")
@@ -128,7 +132,14 @@ def get_ellipse_column_metadata(ellipse_rows):
             else:
                 new_items = []
                 for item in v:
-                    new_items.append(np.pad(item.astype(float), (0, maxlen - len(item)), "constant", constant_values=-1))
+                    new_items.append(
+                        np.pad(
+                            item.astype(float),
+                            (0, maxlen - len(item)),
+                            "constant",
+                            constant_values=-1,
+                        )
+                    )
 
                 new_cols[k] = new_items
         else:
@@ -153,7 +164,14 @@ def main():
             tractor_rows.append(tractor)
             sample_rows.append(sample)
 
-        ellipse = read_ellipsefit(galaxy, galaxydir, filesuffix="custom", galaxy_id=galaxy, verbose=True, asTable=True)
+        ellipse = read_ellipsefit(
+            galaxy,
+            galaxydir,
+            filesuffix="custom",
+            galaxy_id=galaxy,
+            verbose=True,
+            asTable=True,
+        )
         if ellipse is not None:
             ellipse_rows.append(ellipse)
 
@@ -167,7 +185,9 @@ def main():
     total_ellipse = Table()
     for k, v in column_mappings.items():
         dat = column_metadata[k]
-        total_ellipse.add_column(Column(data=dat, name=k, dtype=v[0], shape=v[2], length=len(ellipse_rows)))
+        total_ellipse.add_column(
+            Column(data=dat, name=k, dtype=v[0], shape=v[2], length=len(ellipse_rows))
+        )
 
     # Ensure all reference ID's match
     print(total_ellipse["ID_CENT"])

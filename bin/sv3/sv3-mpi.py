@@ -51,7 +51,7 @@ def main():
             last=args.last,
             galaxylist=args.galaxylist,
             verbose=args.verbose,
-            filenm = args.fname
+            filenm=args.fname,
         )
         if len(sample) == 0:
             return
@@ -77,9 +77,7 @@ def main():
             ref["sga_id"] = sample[REFIDCOLUMN]
             ref["mag_leda"] = sample[MAGCOLUMN]
             ref["ba"] = np.repeat(1.0, ngal).astype("f4")  # fixed b/a
-            ref["pa"] = np.repeat(0.0, ngal).astype(
-                "f4"
-            )  # fixed position angle
+            ref["pa"] = np.repeat(0.0, ngal).astype("f4")  # fixed position angle
             ref["diam"] = np.repeat(10.0 / 60.0, ngal).astype(
                 "f4"
             )  # fixed diameter = 10 arcsec [arcmin]
@@ -95,9 +93,7 @@ def main():
             fitsio.write(reffile, ref.as_array(), header=hdr, clobber=True)
 
             print("Writing {}".format(kdreffile))
-            cmd = "startree -i {} -o {} -T -P -k -n stars".format(
-                reffile, kdreffile
-            )
+            cmd = "startree -i {} -o {} -T -P -k -n stars".format(reffile, kdreffile)
             print(cmd)
             _ = os.system(cmd)
 
@@ -141,52 +137,84 @@ def main():
 
     if rank == 0:
         ntodo = len(np.hstack(groups))
-        print("{} left to do: {} / {} divided across {} rank(s)."
-            .format(suffix.upper(), ntodo, len(sample), size), flush=True)
+        print(
+            "{} left to do: {} / {} divided across {} rank(s).".format(
+                suffix.upper(), ntodo, len(sample), size
+            ),
+            flush=True,
+        )
 
     # Wait for all ranks to catch up.
     if comm is not None:
         comm.barrier()
 
     if len(groups[rank]) == 0:
-        
         # This MPI rank has no more work to do, so early exit.
-        print("{} for all {} galaxies on rank {} are complete!"
-            .format(suffix.upper(), len(sample), rank), flush=True)
-        
+        print(
+            "{} for all {} galaxies on rank {} are complete!".format(
+                suffix.upper(), len(sample), rank
+            ),
+            flush=True,
+        )
+
         # If we're debugging, loop through and print the failures.
         if rank == 0 and args.count and args.debug:
             if len(fail[rank]) == 0:
                 return
-                
-            print("{} failures: {} / {}".format(suffix.upper(), len(fail[rank]), len(sample)), flush=True)
+
+            print(
+                "{} failures: {} / {}".format(
+                    suffix.upper(), len(fail[rank]), len(sample)
+                ),
+                flush=True,
+            )
             galaxy, galaxydir = get_galaxy_galaxydir(sample[fail[rank]])
 
-            for ii, dd, diam in zip(fail[rank], np.atleast_1d(galaxydir), sample[fail[rank]][DIAMCOLUMN]):
+            for ii, dd, diam in zip(
+                fail[rank], np.atleast_1d(galaxydir), sample[fail[rank]][DIAMCOLUMN]
+            ):
                 print("  {} {} (r={:.3f} arcsec)".format(ii, dd, diam), flush=True)
 
         return
 
-    print("Rank {}: {} galaxies left to do.".format(rank, len(groups[rank])), flush=True)
+    print(
+        "Rank {}: {} galaxies left to do.".format(rank, len(groups[rank])), flush=True
+    )
 
     if rank == 0 and args.count and args.debug:
         if len(fail[rank]) > 0:
-            print("{} failures: {} / {}".format(suffix.upper(), len(fail[rank]), len(sample)),flush=True)
+            print(
+                "{} failures: {} / {}".format(
+                    suffix.upper(), len(fail[rank]), len(sample)
+                ),
+                flush=True,
+            )
             galaxy, galaxydir = get_galaxy_galaxydir(sample[fail[rank]])
-            for ii, dd, diam in zip(fail[rank],np.atleast_1d(galaxydir),sample[fail[rank]][DIAMCOLUMN]):
+            for ii, dd, diam in zip(
+                fail[rank], np.atleast_1d(galaxydir), sample[fail[rank]][DIAMCOLUMN]
+            ):
                 print("  {} {} (r={:.3f} arcsec)".format(ii, dd, diam))
 
         todo = np.hstack(groups)
         if len(todo) > 0:
-            print("{} todo: {} / {}".format(suffix.upper(), len(todo), len(sample)),flush=True)
+            print(
+                "{} todo: {} / {}".format(suffix.upper(), len(todo), len(sample)),
+                flush=True,
+            )
             galaxy, galaxydir = get_galaxy_galaxydir(sample[todo])
-            for ii, dd, diam in zip(todo,np.atleast_1d(galaxydir),sample[todo][DIAMCOLUMN]):
+            for ii, dd, diam in zip(
+                todo, np.atleast_1d(galaxydir), sample[todo][DIAMCOLUMN]
+            ):
                 print("  {} {} (r={:.3f} arcsec)".format(ii, dd, diam))
         return
 
     # Loop on the remaining objects.
-    print("Starting {} {} on rank {} with {} cores on {}"
-        .format(len(groups[rank]), suffix.upper(), rank, args.nproc, time.asctime()),flush=True)
+    print(
+        "Starting {} {} on rank {} with {} cores on {}".format(
+            len(groups[rank]), suffix.upper(), rank, args.nproc, time.asctime()
+        ),
+        flush=True,
+    )
 
     tall = time.time()
     for count, ii in enumerate(groups[rank]):
@@ -196,8 +224,12 @@ def main():
         if not os.path.isdir(galaxydir):
             os.makedirs(galaxydir, exist_ok=True)
 
-        print("Rank {:03d} ({} / {}): {} (index {})"
-            .format(rank, count + 1, len(groups[rank]), galaxydir, ii),flush=True)
+        print(
+            "Rank {:03d} ({} / {}): {} (index {})".format(
+                rank, count + 1, len(groups[rank]), galaxydir, ii
+            ),
+            flush=True,
+        )
 
         if args.debug:
             logfile = None
@@ -220,7 +252,7 @@ def main():
         )  # annulus 3
 
         run = legacyhalos.io.get_run(onegal, racolumn=RACOLUMN, deccolumn=DECCOLUMN)
-        
+
         survey = get_survey(run, output_dir=galaxydir)
 
         if args.coadds:
@@ -320,17 +352,29 @@ def main():
         comm.barrier()
 
     if rank == 0:
-        print("Finished {} {} at {} after {:.3f} minutes"
-            .format(ntodo,suffix.upper(), time.asctime(), (time.time() - tall) / 60,), flush=True)
-        
-        _, groups, _, _ = legacyhalos.sv3.missing_files(args, sample, size, clobber_overwrite=False)
+        print(
+            "Finished {} {} at {} after {:.3f} minutes".format(
+                ntodo,
+                suffix.upper(),
+                time.asctime(),
+                (time.time() - tall) / 60,
+            ),
+            flush=True,
+        )
+
+        _, groups, _, _ = legacyhalos.sv3.missing_files(
+            args, sample, size, clobber_overwrite=False
+        )
 
         if len(groups) > 0:
             stilltodo = len(np.hstack(groups))
         else:
             stilltodo = 0
 
-        print("{} left to do: {} / {}.".format(suffix.upper(), stilltodo, ntodo),flush=True)
+        print(
+            "{} left to do: {} / {}.".format(suffix.upper(), stilltodo, ntodo),
+            flush=True,
+        )
 
 
 if __name__ == "__main__":

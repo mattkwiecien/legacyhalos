@@ -147,12 +147,13 @@ import matplotlib.pyplot as plt
 from matplotlib import patches
 from scipy import signal, ndimage
 
-#--------------------------------------------------------------------
+# --------------------------------------------------------------------
+
 
 class find_galaxy(object):
-
-    def __init__(self, img, fraction=0.1, plot=False, quiet=False,
-                 nblob=1, level=None, binning=5):
+    def __init__(
+        self, img, fraction=0.1, plot=False, quiet=False, nblob=1, level=None, binning=5
+    ):
         """
         With nblob=1 find the ellipse of inertia of the largest
         connected region in the image, with nblob=2 find the second
@@ -164,16 +165,16 @@ class find_galaxy(object):
         a = signal.medfilt(img, binning)
 
         if level is None:
-            level = np.percentile(a, (1 - fraction)*100)
+            level = np.percentile(a, (1 - fraction) * 100)
 
         if type(img) is ma.MaskedArray:
             badmask = ma.getmask(img)
             a[badmask] = 0
 
         mask = a > level
-        labels, nb = ndimage.label(mask)   # Get blob indices
+        labels, nb = ndimage.label(mask)  # Get blob indices
         sizes = ndimage.sum(mask, labels, np.arange(nb + 1))
-        j = np.argsort(sizes)[-nblob]      # find the nblob-th largest blob
+        j = np.argsort(sizes)[-nblob]  # find the nblob-th largest blob
         ind = np.flatnonzero(labels == j)
         revind = np.flatnonzero(labels != j)
 
@@ -181,40 +182,52 @@ class find_galaxy(object):
         self.pa = np.mod(270 - self.theta, 180)  # astronomical PA
 
         if not quiet:
-            print(' Pixels used:', ind.size)
-            print(' Peak Img[j, k]:', self.xpeak, self.ypeak)
-            print(' Mean (j, k): %.2f %.2f' % (self.xmed, self.ymed))
-            print(' Theta (deg): %.1f' % self.theta)
-            print(' Astro PA (deg): %.1f' % self.pa)
-            print(' Eps: %.3f' % self.eps)
-            print(' Major axis (pix): %.1f' % self.majoraxis)
+            print(" Pixels used:", ind.size)
+            print(" Peak Img[j, k]:", self.xpeak, self.ypeak)
+            print(" Mean (j, k): %.2f %.2f" % (self.xmed, self.ymed))
+            print(" Theta (deg): %.1f" % self.theta)
+            print(" Astro PA (deg): %.1f" % self.pa)
+            print(" Eps: %.3f" % self.eps)
+            print(" Major axis (pix): %.1f" % self.majoraxis)
 
         if plot:
             ax = plt.gca()
-            im = ma.getdata(np.log(img.clip(img[self.xpeak, self.ypeak]/1e4)))
-            #im.flat[revind] = 0
+            im = ma.getdata(np.log(img.clip(img[self.xpeak, self.ypeak] / 1e4)))
+            # im.flat[revind] = 0
             if np.sum(mask) > 0:
                 im[mask] = 0
-            ax.imshow(im,
-                      cmap='hot', origin='lower', interpolation='nearest')
-            #mask[:] = False
-            #mask.flat[ind] = True
-            #ax.imshow(mask, cmap='binary', interpolation='nearest',
+            ax.imshow(im, cmap="hot", origin="lower", interpolation="nearest")
+            # mask[:] = False
+            # mask.flat[ind] = True
+            # ax.imshow(mask, cmap='binary', interpolation='nearest',
             #          origin='lower', alpha=0.3)
             ax.autoscale(False)  # prevents further scaling after imshow()
-            mjr = 1.1*self.majoraxis
+            mjr = 1.1 * self.majoraxis
             yc, xc = self.xmed, self.ymed
-            ellipse = patches.Ellipse(xy=(xc, yc), width=2*mjr, fill=False,
-                                      height=2*mjr*(1-self.eps), angle=-self.theta,
-                                      color='red', linewidth=3)
+            ellipse = patches.Ellipse(
+                xy=(xc, yc),
+                width=2 * mjr,
+                fill=False,
+                height=2 * mjr * (1 - self.eps),
+                angle=-self.theta,
+                color="red",
+                linewidth=3,
+            )
             ax.add_artist(ellipse)
             ang = np.array([0, np.pi]) - np.radians(self.theta)
-            ax.plot(xc - mjr*np.sin(ang), yc + mjr*np.cos(ang), 'g--',
-                    xc + mjr*np.cos(ang), yc + mjr*np.sin(ang), 'g-', linewidth=3)
+            ax.plot(
+                xc - mjr * np.sin(ang),
+                yc + mjr * np.cos(ang),
+                "g--",
+                xc + mjr * np.cos(ang),
+                yc + mjr * np.sin(ang),
+                "g-",
+                linewidth=3,
+            )
             ax.set_xlabel("pixels")
             ax.set_ylabel("pixels")
 
-#-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
 
     def second_moments(self, img, ind):
         #
@@ -228,22 +241,22 @@ class find_galaxy(object):
         # Compute coefficients of the moment of inertia tensor.
         #
         i = np.sum(img1)
-        self.xmed = np.sum(img1*x)/i
-        self.ymed = np.sum(img1*y)/i
+        self.xmed = np.sum(img1 * x) / i
+        self.ymed = np.sum(img1 * y) / i
         x1 = x - self.xmed
         y1 = y - self.ymed
-        x2 = np.sum(img1*x1**2)/i
-        y2 = np.sum(img1*y1**2)/i
-        xy = np.sum(img1*x1*y1)/i
+        x2 = np.sum(img1 * x1**2) / i
+        y2 = np.sum(img1 * y1**2) / i
+        xy = np.sum(img1 * x1 * y1) / i
 
         # Diagonalize the moment of inertia tensor.
         # theta is the angle, measured counter-clockwise,
         # from the image Y axis to the galaxy major axis.
         #
-        self.theta = np.degrees(np.arctan2(2*xy, x2 - y2)/2.) + 90.
-        a = (x2 + y2)/2.
-        b = np.sqrt(((x2 - y2)/2.)**2 + xy**2)
-        self.eps = 1. - np.sqrt((a - b)/(a + b))
+        self.theta = np.degrees(np.arctan2(2 * xy, x2 - y2) / 2.0) + 90.0
+        a = (x2 + y2) / 2.0
+        b = np.sqrt(((x2 - y2) / 2.0) ** 2 + xy**2)
+        self.eps = 1.0 - np.sqrt((a - b) / (a + b))
         self.majoraxis = np.sqrt(np.max(x1**2 + y1**2))
 
         # If the image has many pixels then compute the coordinates of the
@@ -253,12 +266,13 @@ class find_galaxy(object):
         #
         n = 20
         xmed1 = int(round(self.xmed))
-        ymed1 = int(round(self.ymed))   # Check if subimage fits...
-        if n <= xmed1 <= s[0]-n and n <= ymed1 <= s[1]-n:
-            img2 = img[xmed1-n:xmed1+n, ymed1-n:ymed1+n]
+        ymed1 = int(round(self.ymed))  # Check if subimage fits...
+        if n <= xmed1 <= s[0] - n and n <= ymed1 <= s[1] - n:
+            img2 = img[xmed1 - n : xmed1 + n, ymed1 - n : ymed1 + n]
             ij = np.unravel_index(np.argmax(img2), img2.shape)
             self.xpeak, self.ypeak = ij + np.array([xmed1, ymed1]) - n
-        else:            # ...otherwise use full image
+        else:  # ...otherwise use full image
             self.xpeak, self.ypeak = np.unravel_index(np.argmax(img), s)
 
-#-------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------

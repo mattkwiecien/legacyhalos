@@ -15,10 +15,12 @@ import itertools
 from astropy.io.fits import getdata
 from astropy.coordinates import SkyCoord
 from astropy import units as u
-#from desiutil.log import get_logger
-#log = get_logger()
 
-def extinction_total_to_selective_ratio(band, photsys, match_legacy_surveys=False) :
+# from desiutil.log import get_logger
+# log = get_logger()
+
+
+def extinction_total_to_selective_ratio(band, photsys, match_legacy_surveys=False):
     """Return the linear coefficient R_X = A(X)/E(B-V) where
     A(X) = -2.5*log10(transmission in X band),
     for band X in 'G','R' or 'Z' when
@@ -34,23 +36,24 @@ def extinction_total_to_selective_ratio(band, photsys, match_legacy_surveys=Fals
     Returns:
         scalar, total extinction A(band) = -2.5*log10(transmission(band))
     """
-    if match_legacy_surveys :
+    if match_legacy_surveys:
         # Based on the fit from the columns MW_TRANSMISSION_X and EBV
         # for the DR8 target catalogs and propagated in fibermaps
         # R_X = -2.5*log10(MW_TRANSMISSION_X) / EBV
         # It is the same value for the N and S surveys in DR8 and DR9 catalogs.
         # see also https://github.com/dstndstn/tractor/issues/99
-        R={"G_N":3.2140,
-           "R_N":2.1650,
-           "Z_N":1.2110,
-           "G_S":3.2140,
-           "R_S":2.1650,
-           "Z_S":1.2110,
-           "G_G":2.512,
-           "BP_G":3.143,
-           "RP_G":1.663,
+        R = {
+            "G_N": 3.2140,
+            "R_N": 2.1650,
+            "Z_N": 1.2110,
+            "G_S": 3.2140,
+            "R_S": 2.1650,
+            "Z_S": 1.2110,
+            "G_G": 2.512,
+            "BP_G": 3.143,
+            "RP_G": 1.663,
         }
-    else :
+    else:
         # From https://desi.lbl.gov/trac/wiki/ImagingStandardBandpass
         # DECam u  3881.6   3.994
         # DECam g  4830.8   3.212
@@ -63,40 +66,52 @@ def extinction_total_to_selective_ratio(band, photsys, match_legacy_surveys=Fals
         # MzLS z  9185.1   1.199
         # Consistent with the synthetic magnitudes and function dust_transmission
 
-        R={"G_N":3.258,
-           "R_N":2.176,
-           "Z_N":1.199,
-           "G_S":3.212,
-           "R_S":2.164,
-           "Z_S":1.211,
-           "G_G":2.197,
-           "BP_G":2.844,
-           "RP_G":1.622,
+        R = {
+            "G_N": 3.258,
+            "R_N": 2.176,
+            "Z_N": 1.199,
+            "G_S": 3.212,
+            "R_S": 2.164,
+            "Z_S": 1.211,
+            "G_G": 2.197,
+            "BP_G": 2.844,
+            "RP_G": 1.622,
         }
 
     # Add GALEX - see https://github.com/dstndstn/tractor/issues/99
-    R.update({
-        'FUV_N': 6.793,
-        'NUV_N': 6.620,
-        'FUV_S': 6.793,
-        'NUV_S': 6.620})
+    R.update({"FUV_N": 6.793, "NUV_N": 6.620, "FUV_S": 6.793, "NUV_S": 6.620})
 
     # Add WISE from
     # https://github.com/dstndstn/tractor/blob/main/tractor/sfd.py#L23-L35
-    R.update({
-        'W1_N': 0.184,
-        'W2_N': 0.113,
-        'W3_N': 0.0241,
-        'W4_N': 0.00910,
-        'W1_S': 0.184,
-        'W2_S': 0.113,
-        'W3_S': 0.0241,
-        'W4_S': 0.00910
-        })
+    R.update(
+        {
+            "W1_N": 0.184,
+            "W2_N": 0.113,
+            "W3_N": 0.0241,
+            "W4_N": 0.00910,
+            "W1_S": 0.184,
+            "W2_S": 0.113,
+            "W3_S": 0.0241,
+            "W4_S": 0.00910,
+        }
+    )
 
-    assert(band.upper() in ['FUV', 'NUV', "G","R","Z","BP","RP",'W1','W2','W3','W4'])
-    assert(photsys.upper() in ["N","S","G"])
-    return R["{}_{}".format(band.upper(),photsys.upper())]
+    assert band.upper() in [
+        "FUV",
+        "NUV",
+        "G",
+        "R",
+        "Z",
+        "BP",
+        "RP",
+        "W1",
+        "W2",
+        "W3",
+        "W4",
+    ]
+    assert photsys.upper() in ["N", "S", "G"]
+    return R["{}_{}".format(band.upper(), photsys.upper())]
+
 
 def mwdust_transmission(ebv, band, photsys, match_legacy_surveys=False):
     """Convert SFD E(B-V) value to dust transmission 0-1 for band and photsys
@@ -115,26 +130,32 @@ def mwdust_transmission(ebv, band, photsys, match_legacy_surveys=False):
     Also see `dust_transmission` which returns transmission vs input wavelength
     """
     if isinstance(photsys, str):
-        r_band = extinction_total_to_selective_ratio(band, photsys, match_legacy_surveys=match_legacy_surveys)
+        r_band = extinction_total_to_selective_ratio(
+            band, photsys, match_legacy_surveys=match_legacy_surveys
+        )
         a_band = r_band * ebv
-        transmission = 10**(-a_band / 2.5)
+        transmission = 10 ** (-a_band / 2.5)
         return transmission
     else:
         photsys = np.asarray(photsys)
         if np.isscalar(ebv):
-            raise ValueError('array photsys requires array ebv')
+            raise ValueError("array photsys requires array ebv")
         if len(ebv) != len(photsys):
-            raise ValueError('len(ebv) {} != len(photsys) {}'.format(
-                len(ebv), len(photsys)))
+            raise ValueError(
+                "len(ebv) {} != len(photsys) {}".format(len(ebv), len(photsys))
+            )
 
         transmission = np.zeros(len(ebv))
         for p in np.unique(photsys):
-            ii = (photsys == p)
-            r_band = extinction_total_to_selective_ratio(band, p, match_legacy_surveys=match_legacy_surveys)
+            ii = photsys == p
+            r_band = extinction_total_to_selective_ratio(
+                band, p, match_legacy_surveys=match_legacy_surveys
+            )
             a_band = r_band * ebv[ii]
-            transmission[ii] = 10**(-a_band / 2.5)
+            transmission[ii] = 10 ** (-a_band / 2.5)
 
         return transmission
+
 
 def ext_odonnell(wave, Rv=3.1):
     """Return extinction curve from Odonnell (1994), defined in the wavelength
@@ -151,17 +172,34 @@ def ext_odonnell(wave, Rv=3.1):
     # direct python translation of idlutils/pro/dust/ext_odonnell.pro
 
     A = np.zeros(wave.shape)
-    xx = 10000. / wave
+    xx = 10000.0 / wave
 
     optical_waves = (xx >= 1.1) & (xx <= 3.3)
     other_waves = (xx < 1.1) | (xx > 3.3)
 
     if np.sum(optical_waves) > 0:
         yy = xx[optical_waves] - 1.82
-        afac = (1.0 + 0.104*yy - 0.609*yy**2 + 0.701*yy**3 + 1.137*yy**4 -
-                1.718*yy**5 - 0.827*yy**6 + 1.647*yy**7 - 0.505*yy**8)
-        bfac = (1.952*yy + 2.908*yy**2 - 3.989*yy**3 - 7.985*yy**4 +
-                11.102*yy**5 + 5.491*yy**6 - 10.805*yy**7 + 3.347*yy**8)
+        afac = (
+            1.0
+            + 0.104 * yy
+            - 0.609 * yy**2
+            + 0.701 * yy**3
+            + 1.137 * yy**4
+            - 1.718 * yy**5
+            - 0.827 * yy**6
+            + 1.647 * yy**7
+            - 0.505 * yy**8
+        )
+        bfac = (
+            1.952 * yy
+            + 2.908 * yy**2
+            - 3.989 * yy**3
+            - 7.985 * yy**4
+            + 11.102 * yy**5
+            + 5.491 * yy**6
+            - 10.805 * yy**7
+            + 3.347 * yy**8
+        )
         A[optical_waves] = afac + bfac / Rv
     if np.sum(other_waves) > 0:
         A[other_waves] = ext_ccm(wave[other_waves], Rv=Rv)
@@ -185,14 +223,14 @@ def ext_ccm(wave, Rv=3.1):
     # numeric values checked with other implementation
 
     A = np.zeros(wave.shape)
-    xx = 10000. / wave
+    xx = 10000.0 / wave
 
     # Limits for CCM fitting function
-    qLO = (xx > 8.0)                   # No data, lambda < 1250 Ang
-    qUV = (xx > 3.3) & (xx <= 8.0)     # UV + FUV
-    qOPT = (xx > 1.1) & (xx <= 3.3)    # Optical/NIR
-    qIR = (xx > 0.3) & (xx <= 1.1)     # IR
-    qHI = (xx <= 0.3)                  # No data, lambda > 33,333 Ang
+    qLO = xx > 8.0  # No data, lambda < 1250 Ang
+    qUV = (xx > 3.3) & (xx <= 8.0)  # UV + FUV
+    qOPT = (xx > 1.1) & (xx <= 3.3)  # Optical/NIR
+    qIR = (xx > 0.3) & (xx <= 1.1)  # IR
+    qHI = xx <= 0.3  # No data, lambda > 33,333 Ang
 
     # For lambda < 1250 Ang, arbitrarily return Alam=5
     if np.sum(qLO) > 0:
@@ -200,13 +238,13 @@ def ext_ccm(wave, Rv=3.1):
 
     if np.sum(qUV) > 0:
         xt = xx[qUV]
-        afac = 1.752 - 0.316*xt - 0.104 / ((xt - 4.67)**2 + 0.341)
-        bfac = -3.090 + 1.825*xt + 1.206 / ((xt - 4.62)**2 + 0.263)
+        afac = 1.752 - 0.316 * xt - 0.104 / ((xt - 4.67) ** 2 + 0.341)
+        bfac = -3.090 + 1.825 * xt + 1.206 / ((xt - 4.62) ** 2 + 0.263)
 
         qq = (xt >= 5.9) & (xt <= 8.0)
         if np.sum(qq) > 0:
-            Fa = -0.04473*(xt[qq]-5.9)**2 - 0.009779*(xt[qq]-5.9)**3
-            Fb = 0.2130*(xt[qq]-5.9)**2 + 0.1207*(xt[qq]-5.9)**3
+            Fa = -0.04473 * (xt[qq] - 5.9) ** 2 - 0.009779 * (xt[qq] - 5.9) ** 3
+            Fb = 0.2130 * (xt[qq] - 5.9) ** 2 + 0.1207 * (xt[qq] - 5.9) ** 3
             afac[qq] += Fa
             bfac[qq] += Fb
 
@@ -214,30 +252,55 @@ def ext_ccm(wave, Rv=3.1):
 
     if np.sum(qOPT) > 0:
         yy = xx[qOPT] - 1.82
-        afac = (1.0 + 0.17699*yy - 0.50447*yy**2 - 0.02427*yy**3 +
-                0.72085*yy**4 + 0.01979*yy**5 - 0.77530*yy**6 + 0.32999*yy**7)
-        bfac = (1.41338*yy + 2.28305*yy**2 + 1.07233*yy**3 -
-                5.38434*yy**4 - 0.62251*yy**5 + 5.30260*yy**6 - 2.09002*yy**7)
+        afac = (
+            1.0
+            + 0.17699 * yy
+            - 0.50447 * yy**2
+            - 0.02427 * yy**3
+            + 0.72085 * yy**4
+            + 0.01979 * yy**5
+            - 0.77530 * yy**6
+            + 0.32999 * yy**7
+        )
+        bfac = (
+            1.41338 * yy
+            + 2.28305 * yy**2
+            + 1.07233 * yy**3
+            - 5.38434 * yy**4
+            - 0.62251 * yy**5
+            + 5.30260 * yy**6
+            - 2.09002 * yy**7
+        )
         A[qOPT] = afac + bfac / Rv
 
     if np.sum(qIR) > 0:
-        yy = xx[qIR]**1.61
-        afac = 0.574*yy
-        bfac = -0.527*yy
+        yy = xx[qIR] ** 1.61
+        afac = 0.574 * yy
+        bfac = -0.527 * yy
         A[qIR] = afac + bfac / Rv
 
     # For lambda > 33,333 Ang, arbitrarily extrapolate the IR curve
     if np.sum(qHI) > 0:
-        yy = xx[qHI]**1.61
-        afac = 0.574*yy
-        bfac = -0.527*yy
+        yy = xx[qHI] ** 1.61
+        afac = 0.574 * yy
+        bfac = -0.527 * yy
         A[qHI] = afac + bfac / Rv
 
     return A
 
-def ext_fitzpatrick(wave, R_V=3.1, avglmc=False, lmc2=False,
-                    x0=None,gamma=None,
-                    c1=None,c2=None,c3=None,c4=None) :
+
+def ext_fitzpatrick(
+    wave,
+    R_V=3.1,
+    avglmc=False,
+    lmc2=False,
+    x0=None,
+    gamma=None,
+    c1=None,
+    c2=None,
+    c3=None,
+    c4=None,
+):
     """
     Return extinction curve from Fitzpatrick (1999).
 
@@ -305,30 +368,48 @@ def ext_fitzpatrick(wave, R_V=3.1, avglmc=False, lmc2=False,
 
     from scipy.interpolate import CubicSpline
 
-    x = 10000. / np.array(wave)  # Convert to inverse microns
+    x = 10000.0 / np.array(wave)  # Convert to inverse microns
     curve = np.zeros(x.shape)
 
-    if lmc2 :
-        if x0 == None: x0 = 4.626
-        if gamma == None: gamma =  1.05
-        if c4 == None: c4 = 0.42
-        if c3 == None: c3 = 1.92
-        if c2 == None: c2 = 1.31
-        if c1 == None: c1 = -2.16
-    elif avglmc :
-        if x0 == None: x0 = 4.596
-        if gamma == None: gamma = 0.91
-        if c4 == None: c4 = 0.64
-        if c3 == None: c3 =  2.73
-        if c2 == None: c2 = 1.11
-        if c1 == None: c1 = -1.28
+    if lmc2:
+        if x0 == None:
+            x0 = 4.626
+        if gamma == None:
+            gamma = 1.05
+        if c4 == None:
+            c4 = 0.42
+        if c3 == None:
+            c3 = 1.92
+        if c2 == None:
+            c2 = 1.31
+        if c1 == None:
+            c1 = -2.16
+    elif avglmc:
+        if x0 == None:
+            x0 = 4.596
+        if gamma == None:
+            gamma = 0.91
+        if c4 == None:
+            c4 = 0.64
+        if c3 == None:
+            c3 = 2.73
+        if c2 == None:
+            c2 = 1.11
+        if c1 == None:
+            c1 = -1.28
     else:
-        if x0 == None: x0 = 4.596
-        if gamma == None: gamma = 0.99
-        if c4 == None: c4 = 0.41
-        if c3 == None: c3 =  3.23
-        if c2 == None: c2 = -0.824 + 4.717 / R_V
-        if c1 == None: c1 = 2.030 - 3.007 * c2
+        if x0 == None:
+            x0 = 4.596
+        if gamma == None:
+            gamma = 0.99
+        if c4 == None:
+            c4 = 0.41
+        if c3 == None:
+            c3 = 3.23
+        if c2 == None:
+            c2 = -0.824 + 4.717 / R_V
+        if c1 == None:
+            c1 = 2.030 - 3.007 * c2
 
     # Compute UV portion of A(lambda)/E(B-V) curve using FM fitting function and
     # R-dependent coefficients
@@ -339,39 +420,52 @@ def ext_fitzpatrick(wave, R_V=3.1, avglmc=False, lmc2=False,
     iuv = x >= xcutuv
     iuv_comp = ~iuv
 
-    if len(x[iuv]) > 0: xuv = np.concatenate( (xspluv, x[iuv]) )
-    else: xuv = xspluv.copy()
+    if len(x[iuv]) > 0:
+        xuv = np.concatenate((xspluv, x[iuv]))
+    else:
+        xuv = xspluv.copy()
 
-    yuv = c1  + c2 * xuv
-    yuv = yuv + c3 * xuv**2 / ( ( xuv**2 - x0**2 )**2 + ( xuv * gamma )**2 )
+    yuv = c1 + c2 * xuv
+    yuv = yuv + c3 * xuv**2 / ((xuv**2 - x0**2) ** 2 + (xuv * gamma) ** 2)
 
     filter1 = xuv.copy()
     filter1[xuv <= 5.9] = 5.9
 
-    yuv = yuv + c4 * ( 0.5392 * ( filter1 - 5.9 )**2 + 0.05644 * ( filter1 - 5.9 )**3 )
+    yuv = yuv + c4 * (0.5392 * (filter1 - 5.9) ** 2 + 0.05644 * (filter1 - 5.9) ** 3)
     yuv = yuv + R_V
-    yspluv = yuv[0:2].copy()                  # save spline points
+    yspluv = yuv[0:2].copy()  # save spline points
 
-    if len(x[iuv]) > 0: curve[iuv] = yuv[2:len(yuv)]      # remove spline points
+    if len(x[iuv]) > 0:
+        curve[iuv] = yuv[2 : len(yuv)]  # remove spline points
 
     # Compute optical portion of A(lambda)/E(B-V) curve
     # using cubic spline anchored in UV, optical, and IR
 
-    xsplopir = np.concatenate(([0], 10000.0 / np.array([26500.0, 12200.0, 6000.0, 5470.0, 4670.0, 4110.0])))
-    ysplir   = np.array([0.0, 0.26469, 0.82925]) * R_V / 3.1
-    ysplop   = [np.polyval(np.array([2.13572e-04, 1.00270, -4.22809e-01]), R_V ),
-                np.polyval(np.array([-7.35778e-05, 1.00216, -5.13540e-02]), R_V ),
-                np.polyval(np.array([-3.32598e-05, 1.00184, 7.00127e-01]), R_V ),
-                np.polyval(np.array([-4.45636e-05, 7.97809e-04, -5.46959e-03, 1.01707, 1.19456] ), R_V ) ]
+    xsplopir = np.concatenate(
+        ([0], 10000.0 / np.array([26500.0, 12200.0, 6000.0, 5470.0, 4670.0, 4110.0]))
+    )
+    ysplir = np.array([0.0, 0.26469, 0.82925]) * R_V / 3.1
+    ysplop = [
+        np.polyval(np.array([2.13572e-04, 1.00270, -4.22809e-01]), R_V),
+        np.polyval(np.array([-7.35778e-05, 1.00216, -5.13540e-02]), R_V),
+        np.polyval(np.array([-3.32598e-05, 1.00184, 7.00127e-01]), R_V),
+        np.polyval(
+            np.array([-4.45636e-05, 7.97809e-04, -5.46959e-03, 1.01707, 1.19456]), R_V
+        ),
+    ]
 
-    ysplopir = np.concatenate( (ysplir, ysplop) )
+    ysplopir = np.concatenate((ysplir, ysplop))
 
     if len(iuv_comp) > 0:
-        cubic = CubicSpline(np.concatenate( (xsplopir,xspluv) ),
-                            np.concatenate( (ysplopir,yspluv) ), bc_type='natural')
-        curve[iuv_comp] = cubic( x[iuv_comp] )
+        cubic = CubicSpline(
+            np.concatenate((xsplopir, xspluv)),
+            np.concatenate((ysplopir, yspluv)),
+            bc_type="natural",
+        )
+        curve[iuv_comp] = cubic(x[iuv_comp])
 
-    return curve/R_V
+    return curve / R_V
+
 
 # based on the work from https://ui.adsabs.harvard.edu/abs/2011ApJ...737..103S
 # note from Eddie: I recommend applying the SF11 calibration in the following way:
@@ -380,6 +474,7 @@ def ext_fitzpatrick(wave, R_V=3.1, avglmc=False, lmc2=False,
 # so a lot of ambiguity in what extinction means goes away.
 # That doesn't look like the 0.86 rescaling that we quote in abstract,
 # but it's convenient because it uses only monochromatic extinctions.
+
 
 def dust_transmission(wave, ebv_sfd, Rv=3.1):
     """
@@ -398,10 +493,16 @@ def dust_transmission(wave, ebv_sfd, Rv=3.1):
 
     Also see `mwdust_transmission` which return transmission within a filter
     """
-    extinction = ext_fitzpatrick(np.atleast_1d(wave),R_V=Rv) / ext_fitzpatrick(np.array([10000.]),R_V=Rv) * ebv_sfd * 1.029
-    if np.isscalar(wave) :
-        extinction=float(extinction[0])
-    return 10**(-extinction/2.5)
+    extinction = (
+        ext_fitzpatrick(np.atleast_1d(wave), R_V=Rv)
+        / ext_fitzpatrick(np.array([10000.0]), R_V=Rv)
+        * ebv_sfd
+        * 1.029
+    )
+    if np.isscalar(wave):
+        extinction = float(extinction[0])
+    return 10 ** (-extinction / 2.5)
+
 
 # The SFDMap and _Hemisphere classes and the _bilinear_interpolate and ebv
 # functions below were copied on Nov/20/2016 from
@@ -467,14 +568,16 @@ def _bilinear_interpolate(data, y, x):
     # clip locations out of range
     ny, nx = data.shape
     y0 = np.maximum(y0, 0)
-    y1 = np.minimum(y1, ny-1)
+    y1 = np.minimum(y1, ny - 1)
     x0 = np.maximum(x0, 0)
-    x1 = np.minimum(x1, nx-1)
+    x1 = np.minimum(x1, nx - 1)
 
-    return ((1.0 - xw) * (1.0 - yw) * data[y0, x0] +
-            xw * (1.0-yw) * data[y0, x1] +
-            (1.0 - xw) * yw * data[y1, x0] +
-            xw * yw * data[y1, x1])
+    return (
+        (1.0 - xw) * (1.0 - yw) * data[y0, x0]
+        + xw * (1.0 - yw) * data[y0, x1]
+        + (1.0 - xw) * yw * data[y1, x0]
+        + xw * yw * data[y1, x1]
+    )
 
 
 class _Hemisphere(object):
@@ -503,13 +606,14 @@ class _Hemisphere(object):
     -----
     Taken in full from https://github.com/kbarbary/sfdmap/
     """
+
     def __init__(self, fname, scaling):
         self.data, header = getdata(fname, header=True)
         self.data *= scaling
-        self.crpix1 = header['CRPIX1']
-        self.crpix2 = header['CRPIX2']
-        self.lam_scal = header['LAM_SCAL']
-        self.sign = header['LAM_NSGP']  # north = 1, south = -1
+        self.crpix1 = header["CRPIX1"]
+        self.crpix2 = header["CRPIX2"]
+        self.lam_scal = header["LAM_SCAL"]
+        self.sign = header["LAM_NSGP"]  # north = 1, south = -1
 
     def ebv(self, l, b, interpolate):
         """Project Galactic longitude/latitude to lambert pixels (See SFD98).
@@ -526,12 +630,19 @@ class _Hemisphere(object):
         :class:`~numpy.ndarray`
             Reddening values.
         """
-        x = (self.crpix1 - 1.0 +
-             self.lam_scal * np.cos(l) *
-             np.sqrt(1.0 - self.sign * np.sin(b)))
-        y = (self.crpix2 - 1.0 -
-             self.sign * self.lam_scal * np.sin(l) *
-             np.sqrt(1.0 - self.sign * np.sin(b)))
+        x = (
+            self.crpix1
+            - 1.0
+            + self.lam_scal * np.cos(l) * np.sqrt(1.0 - self.sign * np.sin(b))
+        )
+        y = (
+            self.crpix2
+            - 1.0
+            - self.sign
+            * self.lam_scal
+            * np.sin(l)
+            * np.sqrt(1.0 - self.sign * np.sin(b))
+        )
 
         # Get map values at these pixel coordinates.
         if interpolate:
@@ -541,8 +652,8 @@ class _Hemisphere(object):
             y = np.round(y).astype(np.int32)
 
             # some valid coordinates are right on the border (e.g., x/y = 4096)
-            x = np.clip(x, 0, self.data.shape[1]-1)
-            y = np.clip(y, 0, self.data.shape[0]-1)
+            x = np.clip(x, 0, self.data.shape[1] - 1)
+            y = np.clip(y, 0, self.data.shape[0] - 1)
             return self.data[y, x]
 
 
@@ -575,26 +686,31 @@ class SFDMap(object):
     -----
     Modified from https://github.com/kbarbary/sfdmap/
     """
-    def __init__(self, mapdir=None, north="SFD_dust_4096_ngp.fits",
-                 south="SFD_dust_4096_sgp.fits", scaling=1.):
 
+    def __init__(
+        self,
+        mapdir=None,
+        north="SFD_dust_4096_ngp.fits",
+        south="SFD_dust_4096_sgp.fits",
+        scaling=1.0,
+    ):
         if mapdir is None:
-            dustdir = os.environ.get('DUST_DIR')
+            dustdir = os.environ.get("DUST_DIR")
             if dustdir is None:
-                print('Pass mapdir or set $DUST_DIR')
-                raise ValueError('Pass mapdir or set $DUST_DIR')
+                print("Pass mapdir or set $DUST_DIR")
+                raise ValueError("Pass mapdir or set $DUST_DIR")
             else:
-                mapdir = os.path.join(dustdir, 'maps')
+                mapdir = os.path.join(dustdir, "maps")
 
         if not os.path.exists(mapdir):
-            print('Dust maps not found in directory {}'.format(mapdir))
-            raise ValueError('Dust maps not found in directory {}'.format(mapdir))
+            print("Dust maps not found in directory {}".format(mapdir))
+            raise ValueError("Dust maps not found in directory {}".format(mapdir))
 
         self.mapdir = mapdir
 
         # don't load maps initially
-        self.fnames = {'north': north, 'south': south}
-        self.hemispheres = {'north': None, 'south': None}
+        self.fnames = {"north": north, "south": south}
+        self.hemispheres = {"north": None, "south": None}
 
         self.scaling = scaling
 
@@ -627,20 +743,17 @@ class SFDMap(object):
         Modified from https://github.com/kbarbary/sfdmap/
         """
         # collect kwargs
-        frame = kwargs.get('frame', 'icrs')
-        unit = kwargs.get('unit', 'degree')
-        interpolate = kwargs.get('interpolate', True)
+        frame = kwargs.get("frame", "icrs")
+        unit = kwargs.get("unit", "degree")
+        interpolate = kwargs.get("interpolate", True)
 
         # ADM convert to a frame understood by SkyCoords
         # ADM (for backwards-compatibility)
-        if frame in ('fk5j2000', 'j2000'):
-            frame = 'fk5'
+        if frame in ("fk5j2000", "j2000"):
+            frame = "fk5"
 
         # compatibility: treat single argument 2-tuple as (RA, Dec)
-        if (
-                (len(args) == 1) and (type(args[0]) is tuple)
-                and (len(args[0]) == 2)
-        ):
+        if (len(args) == 1) and (type(args[0]) is tuple) and (len(args[0]) == 2):
             args = args[0]
 
         if len(args) == 1:
@@ -648,8 +761,9 @@ class SFDMap(object):
             try:
                 c = args[0]
             except AttributeError:
-                raise ValueError("single argument must be "
-                                 "astropy.coordinates.SkyCoord")
+                raise ValueError(
+                    "single argument must be " "astropy.coordinates.SkyCoord"
+                )
 
         elif len(args) == 2:
             lat, lon = args
@@ -671,7 +785,7 @@ class SFDMap(object):
         values = np.empty_like(l)
 
         # Treat north (b>0) separately from south (b<0).
-        for pole, mask in (('north', b >= 0), ('south', b < 0)):
+        for pole, mask in (("north", b >= 0), ("south", b < 0)):
             if not np.any(mask):
                 continue
 
@@ -680,8 +794,7 @@ class SFDMap(object):
                 fname = os.path.join(self.mapdir, self.fnames[pole])
                 self.hemispheres[pole] = _Hemisphere(fname, self.scaling)
 
-            values[mask] = self.hemispheres[pole].ebv(l[mask], b[mask],
-                                                      interpolate)
+            values[mask] = self.hemispheres[pole].ebv(l[mask], b[mask], interpolate)
 
         if return_scalar:
             return values[0]
@@ -689,19 +802,20 @@ class SFDMap(object):
             return values
 
     def __repr__(self):
-        return ("SFDMap(mapdir={!r}, north={!r}, south={!r}, scaling={!r})"
-                .format(self.mapdir, self.fnames['north'],
-                        self.fnames['south'], self.scaling))
+        return "SFDMap(mapdir={!r}, north={!r}, south={!r}, scaling={!r})".format(
+            self.mapdir, self.fnames["north"], self.fnames["south"], self.scaling
+        )
 
 
 def ebv(*args, **kwargs):
-    """Convenience function, equivalent to ``SFDMap().ebv(*args)``.
-    """
+    """Convenience function, equivalent to ``SFDMap().ebv(*args)``."""
 
-    m = SFDMap(mapdir=kwargs.get('mapdir', None),
-               north=kwargs.get('north', "SFD_dust_4096_ngp.fits"),
-               south=kwargs.get('south', "SFD_dust_4096_sgp.fits"),
-               scaling=kwargs.get('scaling', 1.))
+    m = SFDMap(
+        mapdir=kwargs.get("mapdir", None),
+        north=kwargs.get("north", "SFD_dust_4096_ngp.fits"),
+        south=kwargs.get("south", "SFD_dust_4096_sgp.fits"),
+        scaling=kwargs.get("scaling", 1.0),
+    )
     return m.ebv(*args, **kwargs)
 
 
@@ -709,36 +823,41 @@ def gaia_extinction(g, bp, rp, ebv_sfd):
     # return extinction of gaia magnitudes based on Babusiaux2018 (eqn1/tab1)
     # we assume the EBV the original SFD scale
     # we return A_G, A_BP, A_RP
-    gaia_poly_coeff = {'G':[0.9761, -0.1704,
-                           0.0086, 0.0011, -0.0438, 0.0013, 0.0099],
-                      'BP': [1.1517, -0.0871, -0.0333, 0.0173,
-                             -0.0230, 0.0006, 0.0043],
-                      'RP':[0.6104, -0.0170, -0.0026,
-                            -0.0017, -0.0078, 0.00005, 0.0006]}
-    ebv = 0.86 * ebv_sfd # Apply Schlafly+11 correction
+    gaia_poly_coeff = {
+        "G": [0.9761, -0.1704, 0.0086, 0.0011, -0.0438, 0.0013, 0.0099],
+        "BP": [1.1517, -0.0871, -0.0333, 0.0173, -0.0230, 0.0006, 0.0043],
+        "RP": [0.6104, -0.0170, -0.0026, -0.0017, -0.0078, 0.00005, 0.0006],
+    }
+    ebv = 0.86 * ebv_sfd  # Apply Schlafly+11 correction
 
     gaia_a0 = 3.1 * ebv
     # here I apply a second-order correction for extinction
     # i.e. I use corrected colors after 1 iteration to determine
     # the best final correction
-    inmag = {'G':g, 'RP':rp, 'BP':bp}
-    retmag= {'BP':bp * 1, 'RP':rp * 1, 'G': g * 1}
+    inmag = {"G": g, "RP": rp, "BP": bp}
+    retmag = {"BP": bp * 1, "RP": rp * 1, "G": g * 1}
     for i in range(10):
-        bprp = retmag['BP'] - retmag['RP']
-        for band in ['G','BP','RP']:
+        bprp = retmag["BP"] - retmag["RP"]
+        for band in ["G", "BP", "RP"]:
             curp = gaia_poly_coeff[band]
-            dmag = (np.poly1d(gaia_poly_coeff[band][:4][::-1])(bprp) +
-                 curp[4] * gaia_a0 + curp[5]*gaia_a0**2 + curp[6]*bprp*gaia_a0
-                 )*gaia_a0
+            dmag = (
+                np.poly1d(gaia_poly_coeff[band][:4][::-1])(bprp)
+                + curp[4] * gaia_a0
+                + curp[5] * gaia_a0**2
+                + curp[6] * bprp * gaia_a0
+            ) * gaia_a0
             retmag[band] = inmag[band] - dmag
-    return {'G':inmag['G']- retmag['G'],
-            'BP':inmag['BP']-retmag['BP'],
-            'RP':inmag['RP'] - retmag["RP"]}
+    return {
+        "G": inmag["G"] - retmag["G"],
+        "BP": inmag["BP"] - retmag["BP"],
+        "RP": inmag["RP"] - retmag["RP"],
+    }
 
 
-#-------------------------------------------------------------------------
-#- Used for dust development debugging, but not a core part of the
-#- desiutil.dust module for end-users
+# -------------------------------------------------------------------------
+# - Used for dust development debugging, but not a core part of the
+# - desiutil.dust module for end-users
+
 
 def _get_ext_coeff(temp, photsys, band, ebv_sfd, rv=3.1):
     """
@@ -759,7 +878,7 @@ def _get_ext_coeff(temp, photsys, band, ebv_sfd, rv=3.1):
     but it could be promoted if needed by external libraries.
     """
     wave = np.linspace(2900, 11000, 4000)
-    sed = 1. / (wave/6000)**5 / (np.exp(143877687. / wave / temp) - 1)
+    sed = 1.0 / (wave / 6000) ** 5 / (np.exp(143877687.0 / wave / temp) - 1)
     # code to use Munari library
     # http://cdsarc.u-strasbg.fr/ftp/J/A+A/442/1127/disp10A/fluxed_spectra/T_07000/
     # wave = np.loadtxt('LAMBDA_D10.DAT.txt')
@@ -769,98 +888,110 @@ def _get_ext_coeff(temp, photsys, band, ebv_sfd, rv=3.1):
 
     trans = dust_transmission(wave, ebv_sfd)
 
-    #- import speclite only if needed
+    # - import speclite only if needed
     import speclite.filters
 
-    if photsys == "N" :
-        if band.upper() in ["G","R"] :
+    if photsys == "N":
+        if band.upper() in ["G", "R"]:
             filtername = "BASS-{}".format(band.lower())
-        else :
+        else:
             filtername = "MzLS-z"
-    elif photsys == "S" :
+    elif photsys == "S":
         filtername = "decam2014-{}".format(band.lower())
     elif photsys == "G":
         filtername = "gaiadr2-{}".format(band)
     else:
-        raise Exception('unrecognized photsys')
+        raise Exception("unrecognized photsys")
 
     filter_response = speclite.filters.load_filter(filtername)
 
     fluxunits = 1e-17 * u.erg / u.s / u.cm**2 / u.Angstrom
-    mag_no_extinction = filter_response.get_ab_magnitude(sed * fluxunits,
-                                                           wave)
-    mag_with_extinction = filter_response.get_ab_magnitude(sed * trans * fluxunits, wave)
+    mag_no_extinction = filter_response.get_ab_magnitude(sed * fluxunits, wave)
+    mag_with_extinction = filter_response.get_ab_magnitude(
+        sed * trans * fluxunits, wave
+    )
 
     # f = np.interp(wave, filter_response.wavelength,filter_response.response)
     # fwave = np.sum(sed * f * wave)/np.sum(sed * f)
-    Rbis = (mag_with_extinction-mag_no_extinction)/ebv_sfd
+    Rbis = (mag_with_extinction - mag_no_extinction) / ebv_sfd
     return Rbis
 
+
 def _main():
-    #- Wrapper for development debugging of extinction coeffs
+    # - Wrapper for development debugging of extinction coeffs
     import argparse
     import matplotlib.pyplot as plt
 
-    parser=argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,description="Runs and displays a comparison between tabulated values of total to selective extinction ratios and values obtained with synthetic mags.")
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description="Runs and displays a comparison between tabulated values of total to selective extinction ratios and values obtained with synthetic mags.",
+    )
     args = parser.parse_args()
 
     plt.figure("reddening")
 
-    wave=np.linspace(3000-1,11000,1000)
-    rv=3.1
-    ebv_sfd = 1.
-    trans = dust_transmission(wave,ebv_sfd)
-    ext   = -2.5*np.log10(trans)
-    plt.plot(wave,ext,label="-2.5*log10(dust_transmission)")
+    wave = np.linspace(3000 - 1, 11000, 1000)
+    rv = 3.1
+    ebv_sfd = 1.0
+    trans = dust_transmission(wave, ebv_sfd)
+    ext = -2.5 * np.log10(trans)
+    plt.plot(wave, ext, label="-2.5*log10(dust_transmission)")
 
     # load filters and compute extinctions here
-    try :
+    try:
         import speclite.filters
 
         temp = 7000
-        sed=1./(wave/6000)**5/(np.exp( 143877687./wave/temp)-1) # dummy star with a spectrum close to a 7000K star (for wavelength>4000A)
+        sed = (
+            1.0 / (wave / 6000) ** 5 / (np.exp(143877687.0 / wave / temp) - 1)
+        )  # dummy star with a spectrum close to a 7000K star (for wavelength>4000A)
 
-        photsys_survey={"N":"BASS+MZLS","S":"DECALS", "G": "Gaia"}
-        count=0
+        photsys_survey = {"N": "BASS+MZLS", "S": "DECALS", "G": "Gaia"}
+        count = 0
 
-        photsys_bands = list(itertools.product('NS','GRZ')) + list(itertools.product('G',['G','BP','RP']))
-        for photsys,band in photsys_bands:
+        photsys_bands = list(itertools.product("NS", "GRZ")) + list(
+            itertools.product("G", ["G", "BP", "RP"])
+        )
+        for photsys, band in photsys_bands:
             count += 1
-            color="C{}".format(count%10)
+            color = "C{}".format(count % 10)
 
-            if photsys=="N" :
-                if band.upper() in ["G","R"] :
-                    filtername="BASS-{}".format(band.lower())
-                else :
-                    filtername="MzLS-z"
-            elif photsys=="S" :
-                filtername="decam2014-{}".format(band.lower())
+            if photsys == "N":
+                if band.upper() in ["G", "R"]:
+                    filtername = "BASS-{}".format(band.lower())
+                else:
+                    filtername = "MzLS-z"
+            elif photsys == "S":
+                filtername = "decam2014-{}".format(band.lower())
             elif photsys == "G":
-                filtername="gaiadr2-{}".format(band)
+                filtername = "gaiadr2-{}".format(band)
 
-            R=extinction_total_to_selective_ratio(band, photsys)
+            R = extinction_total_to_selective_ratio(band, photsys)
 
             Rbis = _get_ext_coeff(temp, photsys, band, ebv_sfd, rv=3.1)
 
-            filter_response=speclite.filters.load_filter(filtername)
+            filter_response = speclite.filters.load_filter(filtername)
 
-            f=np.interp(wave,filter_response.wavelength,filter_response.response)
-            fwave = np.sum(sed*f*wave)/np.sum(sed*f)
+            f = np.interp(wave, filter_response.wavelength, filter_response.response)
+            fwave = np.sum(sed * f * wave) / np.sum(sed * f)
 
-            if count==1 :
-                label1="with extinction_total_to_selective_ratio"
-            else :
-                label1=None
+            if count == 1:
+                label1 = "with extinction_total_to_selective_ratio"
+            else:
+                label1 = None
 
-            plt.plot(fwave,R,"x",color=color,label=label1)
+            plt.plot(fwave, R, "x", color=color, label=label1)
 
-            f=np.interp(wave,filter_response.wavelength,filter_response.response)
-            ii=(f>0.01)
-            plt.plot(wave[ii],f[ii],"--",color=color,label=filtername)
-            print("R_{}({}:{})= {:4.3f} =? {:4.3f}, delta = {:5.4f}".format(band,photsys,photsys_survey[photsys],R,Rbis,R-Rbis))
+            f = np.interp(wave, filter_response.wavelength, filter_response.response)
+            ii = f > 0.01
+            plt.plot(wave[ii], f[ii], "--", color=color, label=filtername)
+            print(
+                "R_{}({}:{})= {:4.3f} =? {:4.3f}, delta = {:5.4f}".format(
+                    band, photsys, photsys_survey[photsys], R, Rbis, R - Rbis
+                )
+            )
 
-
-    except ImportError as e :
+    except ImportError as e:
         print(e)
         print("Cannot import speclite, so no broadband comparison")
 
@@ -870,5 +1001,6 @@ def _main():
     plt.grid()
     plt.show()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     _main()

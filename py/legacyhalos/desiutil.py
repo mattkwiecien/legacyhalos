@@ -17,8 +17,19 @@ try:
 except NameError:  # For Python 3
     basestring = str
 
-def plot_slices(x, y, x_lo, x_hi, y_cut, num_slices=5, min_count=100, axis=None,
-                set_ylim_from_stats=True, scatter=True):
+
+def plot_slices(
+    x,
+    y,
+    x_lo,
+    x_hi,
+    y_cut,
+    num_slices=5,
+    min_count=100,
+    axis=None,
+    set_ylim_from_stats=True,
+    scatter=True,
+):
     """Scatter plot with 68, 95 percentiles superimposed in slices.
     Modified from code written by D. Kirkby
 
@@ -77,13 +88,13 @@ def plot_slices(x, y, x_lo, x_hi, y_cut, num_slices=5, min_count=100, axis=None,
         if counts[-1] > 0:
             limits.append(np.percentile(y_slice, (2.5, 16, 50, 84, 97.5)))
         else:
-            limits.append((0., 0., 0., 0., 0.))
+            limits.append((0.0, 0.0, 0.0, 0.0, 0.0))
     limits = np.array(limits)
     counts = np.array(counts)
 
     # Plot points
     if scatter:
-        axis.scatter(x, y, s=15, marker='.', lw=0, color='b', alpha=0.5, zorder=1)
+        axis.scatter(x, y, s=15, marker=".", lw=0, color="b", alpha=0.5, zorder=1)
 
     # Plot quantiles in slices with enough fits.
     stepify = lambda y: np.vstack([y, y]).transpose().flatten()
@@ -93,33 +104,34 @@ def plot_slices(x, y, x_lo, x_hi, y_cut, num_slices=5, min_count=100, axis=None,
     y_p1 = stepify(limits[:, 3])
     y_p2 = stepify(limits[:, 4])
     xstack = stepify(x_bins)[1:-1]
-    max_yr, max_p2, min_m2 = 0., -1e9, 1e9
+    max_yr, max_p2, min_m2 = 0.0, -1e9, 1e9
     for i in range(num_slices):
         s = slice(2 * i, 2 * i + 2)
         if counts[i] >= min_count:
             axis.fill_between(
-                xstack[s], y_m2[s], y_p2[s], alpha=0.15, color='red', zorder=10)
+                xstack[s], y_m2[s], y_p2[s], alpha=0.15, color="red", zorder=10
+            )
             axis.fill_between(
-                xstack[s], y_m1[s], y_p1[s], alpha=0.25, color='red', zorder=10)
-            axis.plot(xstack[s], y_med[s], 'r-', lw=2.)
+                xstack[s], y_m1[s], y_p1[s], alpha=0.25, color="red", zorder=10
+            )
+            axis.plot(xstack[s], y_med[s], "r-", lw=2.0)
             # For ylim
-            max_yr = max(max_yr, np.max(y_p2[s]-y_m2[s]))
+            max_yr = max(max_yr, np.max(y_p2[s] - y_m2[s]))
             max_p2 = max(max_p2, np.max(y_p2[s]))
             min_m2 = min(min_m2, np.min(y_m2[s]))
 
     # xlim
     xmin, xmax = np.min(x), np.max(x)
-    axis.set_xlim(np.min(x)-(xmax-xmin)*0.02, np.max(x)+(xmax-xmin)*0.02)
+    axis.set_xlim(np.min(x) - (xmax - xmin) * 0.02, np.max(x) + (xmax - xmin) * 0.02)
 
     # ylim
     if set_ylim_from_stats:
-        axis.set_ylim(min_m2-max_yr/2., max_p2+max_yr/2.)
-
+        axis.set_ylim(min_m2 - max_yr / 2.0, max_p2 + max_yr / 2.0)
 
     # Plot cut lines.
-    axis.axhline(+y_cut, ls=':', color='k')
-    axis.axhline(0., ls='-', color='k')
-    axis.axhline(-y_cut, ls=':', color='k')
+    axis.axhline(+y_cut, ls=":", color="k")
+    axis.axhline(0.0, ls="-", color="k")
+    axis.axhline(-y_cut, ls=":", color="k")
 
     return axis
 
@@ -148,15 +160,16 @@ class MaskedArrayWithLimits(numpy.ma.MaskedArray):
     vmax : :class:`float`
         Maximum value when used for clipping or masking.
     """
+
     def __new__(cls, *args, **kwargs):
         obj = super(MaskedArrayWithLimits, cls).__new__(cls, *args, **kwargs)
-        if 'vmin' in kwargs:
-            obj._optinfo['vmin'] = kwargs['vmin']
+        if "vmin" in kwargs:
+            obj._optinfo["vmin"] = kwargs["vmin"]
         #     obj.vmin = kwargs['vmin']
         # else:
         #     obj.vmin = None
-        if 'vmax' in kwargs:
-            obj._optinfo['vmax'] = kwargs['vmax']
+        if "vmax" in kwargs:
+            obj._optinfo["vmax"] = kwargs["vmax"]
         #     obj.vmax = kwargs['vmax']
         # else:
         #     obj.vmax = None
@@ -164,15 +177,14 @@ class MaskedArrayWithLimits(numpy.ma.MaskedArray):
 
     @property
     def vmin(self):
-        return self._optinfo.get('vmin', None)
+        return self._optinfo.get("vmin", None)
 
     @property
     def vmax(self):
-        return self._optinfo.get('vmax', None)
+        return self._optinfo.get("vmax", None)
 
 
-def prepare_data(data, mask=None, clip_lo=None, clip_hi=None,
-                 save_limits=False):
+def prepare_data(data, mask=None, clip_lo=None, clip_hi=None, save_limits=False):
     """Prepare array data for color mapping.
 
     Data is clipped and masked to be suitable for passing to matplotlib
@@ -281,7 +293,7 @@ def prepare_data(data, mask=None, clip_lo=None, clip_hi=None,
         #
         cmask = np.array(mask)
         if cmask.shape != data.shape:
-            raise ValueError('Invalid mask shape.')
+            raise ValueError("Invalid mask shape.")
     # Mask any non-finite values.
     cmask |= ~np.isfinite(data)
     unmasked_data = data[~cmask]
@@ -290,10 +302,10 @@ def prepare_data(data, mask=None, clip_lo=None, clip_hi=None,
     def get_clip(value):
         clip_mask = False
         if isinstance(value, basestring):
-            if value.startswith('!'):
+            if value.startswith("!"):
                 clip_mask = True
                 value = value[1:]
-            if value.endswith('%'):
+            if value.endswith("%"):
                 value = np.percentile(unmasked_data, float(value[:-1]))
         return float(value), clip_mask
 
@@ -308,14 +320,14 @@ def prepare_data(data, mask=None, clip_lo=None, clip_hi=None,
 
     if save_limits:
         clipped = MaskedArrayWithLimits(
-            np.clip(data, clip_lo, clip_hi), cmask, vmin=clip_lo, vmax=clip_hi)
+            np.clip(data, clip_lo, clip_hi), cmask, vmin=clip_lo, vmax=clip_hi
+        )
     else:
-        clipped = numpy.ma.MaskedArray(
-            np.clip(data, clip_lo, clip_hi), cmask)
+        clipped = numpy.ma.MaskedArray(np.clip(data, clip_lo, clip_hi), cmask)
 
     # Mask values outside the clip range, if requested.  The comparisons
     # below might trigger warnings for non-finite data.
-    settings = np.seterr(all='ignore')
+    settings = np.seterr(all="ignore")
     if mask_lo:
         clipped.mask[data < clip_lo] = True
     if mask_hi:
@@ -325,9 +337,14 @@ def prepare_data(data, mask=None, clip_lo=None, clip_hi=None,
     return clipped
 
 
-def init_sky(projection='eck4', ra_center=120, galactic_plane_color='red',
-             ra_labels=np.arange(0, 360, 60),
-             dec_labels=np.arange(-60, 90, 30), ax=None):
+def init_sky(
+    projection="eck4",
+    ra_center=120,
+    galactic_plane_color="red",
+    ra_labels=np.arange(0, 360, 60),
+    dec_labels=np.arange(-60, 90, 30),
+    ax=None,
+):
     """Initialize a basemap projection of the full sky.
 
     The returned Basemap object is augmented with an ``ellipse()`` method to
@@ -375,8 +392,9 @@ def init_sky(projection='eck4', ra_center=120, galactic_plane_color='red',
        additional projection and plotting operations.
     """
     import matplotlib
-    if 'TRAVIS_JOB_ID' in os.environ:
-        matplotlib.use('agg')
+
+    if "TRAVIS_JOB_ID" in os.environ:
+        matplotlib.use("agg")
     from matplotlib.patches import Polygon
     from mpl_toolkits.basemap import pyproj
     from mpl_toolkits.basemap import Basemap
@@ -389,6 +407,7 @@ def init_sky(projection='eck4', ra_center=120, galactic_plane_color='red',
         drawing-ellipses-on-matplotlib-basemap-projections
         It adds ellipses to the class Basemap.
         """
+
         def ellipse(self, x0, y0, a, b, n, ax=None, **kwargs):
             """Extension to Basemap class from `basemap` to draw ellipses.
 
@@ -410,16 +429,17 @@ def init_sky(projection='eck4', ra_center=120, galactic_plane_color='red',
             :class: `Basemap`
                 It returns one Basemap ellipse at a time.
             """
-            ax = kwargs.pop('ax', None) or self._check_ax()
+            ax = kwargs.pop("ax", None) or self._check_ax()
             g = pyproj.Geod(a=self.rmajor, b=self.rminor)
-            azf, azb, dist = g.inv([x0, x0], [y0, y0], [x0+a, x0], [y0, y0+b])
+            azf, azb, dist = g.inv([x0, x0], [y0, y0], [x0 + a, x0], [y0, y0 + b])
             tsid = dist[0] * dist[1]  # a * b
-            seg = [self(x0+a, y0)]
-            AZ = np.linspace(azf[0], 360. + azf[0], n)
+            seg = [self(x0 + a, y0)]
+            AZ = np.linspace(azf[0], 360.0 + azf[0], n)
             for i, az in enumerate(AZ):
                 # Skips segments along equator (Geod can't handle equatorial arcs).
-                if np.allclose(0., y0) and (np.allclose(90., az) or
-                                            np.allclose(270., az)):
+                if np.allclose(0.0, y0) and (
+                    np.allclose(90.0, az) or np.allclose(270.0, az)
+                ):
                     continue
 
                 # In polar coordinates, with the origin at the center of the
@@ -432,10 +452,10 @@ def init_sky(projection='eck4', ra_center=120, galactic_plane_color='red',
                 #
                 # Azymuth angle in radial coordinates and corrected for reference
                 # angle.
-                azr = 2. * np.pi / 360. * (az + 90.)
+                azr = 2.0 * np.pi / 360.0 * (az + 90.0)
                 A = dist[0] * np.sin(azr)
                 B = dist[1] * np.cos(azr)
-                r = tsid / (B**2. + A**2.)**0.5
+                r = tsid / (B**2.0 + A**2.0) ** 0.5
                 lon, lat, azb = g.fwd(x0, y0, az, r)
                 x, y = self(lon, lat)
 
@@ -453,18 +473,16 @@ def init_sky(projection='eck4', ra_center=120, galactic_plane_color='red',
 
     # Create an instance of our custom Basemap.
     m = BasemapWithEllipse(
-        projection=projection, lon_0=ra_center, resolution=None,
-        celestial=False, ax=ax)
+        projection=projection, lon_0=ra_center, resolution=None, celestial=False, ax=ax
+    )
     if ra_labels is not None:
-        if projection in ('hammer', 'moll'):
+        if projection in ("hammer", "moll"):
             labels = [0, 0, 0, 0]
         else:
             labels = [0, 0, 1, 0]
-        m.drawmeridians(
-            ra_labels, labels=labels, labelstyle='+/-')
+        m.drawmeridians(ra_labels, labels=labels, labelstyle="+/-")
     if dec_labels is not None:
-        m.drawparallels(
-            dec_labels, labels=[1, 1, 0, 0], labelstyle='+/-')
+        m.drawparallels(dec_labels, labels=[1, 1, 0, 0], labelstyle="+/-")
     m.drawmapboundary()
 
     # Draw the optional galactic plane.
@@ -472,25 +490,33 @@ def init_sky(projection='eck4', ra_center=120, galactic_plane_color='red',
         # Generate coordinates of a line in galactic coordinates and convert
         # to equatorial coordinates.
         galactic_l = np.linspace(0, 2 * np.pi, 1000)
-        galactic_plane = SkyCoord(l=galactic_l*u.radian,
-                                  b=np.zeros_like(galactic_l)*u.radian,
-                                  frame='galactic').fk5
+        galactic_plane = SkyCoord(
+            l=galactic_l * u.radian,
+            b=np.zeros_like(galactic_l) * u.radian,
+            frame="galactic",
+        ).fk5
         # Project to map coordinates and display.  Use a scatter plot to
         # avoid wrap-around complications.
-        galactic_x, galactic_y = m(galactic_plane.ra.degree,
-                                   galactic_plane.dec.degree)
+        galactic_x, galactic_y = m(galactic_plane.ra.degree, galactic_plane.dec.degree)
 
         paths = m.scatter(
-            galactic_x, galactic_y, marker='.', s=10, lw=0, alpha=0.5,
-            c=galactic_plane_color)
+            galactic_x,
+            galactic_y,
+            marker=".",
+            s=10,
+            lw=0,
+            alpha=0.5,
+            c=galactic_plane_color,
+        )
         # Make sure the galactic plane stays above other displayed objects.
         paths.set_zorder(20)
 
     return m
 
 
-def plot_healpix_map(data, nest=False, cmap='viridis', colorbar=True,
-                     label=None, basemap=None):
+def plot_healpix_map(
+    data, nest=False, cmap="viridis", colorbar=True, label=None, basemap=None
+):
     """Plot a healpix map using an all-sky projection.
 
     Pass the data array through :func:`prepare_data` to select a subset to plot
@@ -535,7 +561,7 @@ def plot_healpix_map(data, nest=False, cmap='viridis', colorbar=True,
 
     data = prepare_data(data)
     if len(data.shape) != 1:
-        raise ValueError('Invalid data array, should be 1D.')
+        raise ValueError("Invalid data array, should be 1D.")
     nside = hp.npix2nside(len(data))
 
     if basemap is None:
@@ -544,16 +570,19 @@ def plot_healpix_map(data, nest=False, cmap='viridis', colorbar=True,
     # Get pixel boundaries as quadrilaterals.
     corners = hp.boundaries(nside, np.arange(len(data)), step=1, nest=nest)
     corner_theta, corner_phi = hp.vec2ang(corners.transpose(0, 2, 1))
-    corner_ra, corner_dec = (np.degrees(corner_phi),
-                             np.degrees(np.pi/2-corner_theta))
+    corner_ra, corner_dec = (
+        np.degrees(corner_phi),
+        np.degrees(np.pi / 2 - corner_theta),
+    )
     # Convert sky coords to map coords.
     x, y = basemap(corner_ra, corner_dec)
     # Regroup into pixel corners.
     verts = np.array([x.reshape(-1, 4), y.reshape(-1, 4)]).transpose(1, 2, 0)
 
     # Find and mask any pixels that wrap around in RA.
-    uv_verts = np.array([corner_phi.reshape(-1, 4),
-                         corner_theta.reshape(-1, 4)]).transpose(1, 2, 0)
+    uv_verts = np.array(
+        [corner_phi.reshape(-1, 4), corner_theta.reshape(-1, 4)]
+    ).transpose(1, 2, 0)
     theta_edge = np.unique(uv_verts[:, :, 1])
     phi_edge = np.radians(basemap.lonmax)
     eps = 0.1 * np.sqrt(hp.nside2pixarea(nside))
@@ -570,7 +599,8 @@ def plot_healpix_map(data, nest=False, cmap='viridis', colorbar=True,
 
     # Make the collection and add it to the plot.
     collection = PolyCollection(
-        verts, array=data, cmap=cmap, norm=norm, edgecolors='none')
+        verts, array=data, cmap=cmap, norm=norm, edgecolors="none"
+    )
 
     axes = plt.gca() if basemap.ax is None else basemap.ax
     axes.add_collection(collection)
@@ -578,16 +608,22 @@ def plot_healpix_map(data, nest=False, cmap='viridis', colorbar=True,
 
     if colorbar:
         bar = plt.colorbar(
-            collection, ax=basemap.ax, orientation='horizontal',
-            spacing='proportional', pad=0.01, aspect=50)
+            collection,
+            ax=basemap.ax,
+            orientation="horizontal",
+            spacing="proportional",
+            pad=0.01,
+            aspect=50,
+        )
         if label:
             bar.set_label(label)
 
     return basemap
 
 
-def plot_grid_map(data, ra_edges, dec_edges, cmap='viridis', colorbar=True,
-                  label=None, basemap=None):
+def plot_grid_map(
+    data, ra_edges, dec_edges, cmap="viridis", colorbar=True, label=None, basemap=None
+):
     """Plot an array of 2D values using an all-sky projection.
 
     Pass the data array through :func:`prepare_data` to select a subset to plot
@@ -633,7 +669,7 @@ def plot_grid_map(data, ra_edges, dec_edges, cmap='viridis', colorbar=True,
 
     data = prepare_data(data)
     if len(data.shape) != 2:
-        raise ValueError('Expected 2D data array.')
+        raise ValueError("Expected 2D data array.")
     n_dec, n_ra = data.shape
 
     # Normalize the data using its vmin, vmax attributes, if present.
@@ -647,18 +683,18 @@ def plot_grid_map(data, ra_edges, dec_edges, cmap='viridis', colorbar=True,
     ra_edges = np.unique(ra_edges)
     dec_edges = np.unique(dec_edges)
     if len(ra_edges) != n_ra + 1:
-        raise ValueError('Invalid ra_edges.')
+        raise ValueError("Invalid ra_edges.")
     if len(dec_edges) != n_dec + 1:
-        raise ValueError('Invalid dec_edges.')
+        raise ValueError("Invalid dec_edges.")
 
     if ra_edges[0] != ra_edges[-1] - 360:
-        raise ValueError('Invalid ra_edges, do not span 360 degrees.')
+        raise ValueError("Invalid ra_edges, do not span 360 degrees.")
 
     if basemap is None:
         basemap = init_sky()
 
     if basemap.lonmin + 360 != basemap.lonmax:
-        raise RuntimeError('Can only handle all-sky projections for now.')
+        raise RuntimeError("Can only handle all-sky projections for now.")
 
     # Shift RA gridlines so they overlap the map's left-edge RA.
     while ra_edges[0] > basemap.lonmin:
@@ -674,36 +710,68 @@ def plot_grid_map(data, ra_edges, dec_edges, cmap='viridis', colorbar=True,
         # Remember to use numpy.ma.hstack for the data to preserve the mask.
         if ra_edges[first] > basemap.lonmin:
             # Split a wrap-around column into separate left and right columns.
-            ra_edges = np.hstack(([basemap.lonmin], ra_edges[first:],
-                                  ra_edges[:first] + 360, [basemap.lonmax]))
+            ra_edges = np.hstack(
+                (
+                    [basemap.lonmin],
+                    ra_edges[first:],
+                    ra_edges[:first] + 360,
+                    [basemap.lonmax],
+                )
+            )
             data = numpy.ma.hstack(
-                (data[:, first - 1:first], data[:, first:],
-                 data[:, :first], data[:, first:first + 1]))
+                (
+                    data[:, first - 1 : first],
+                    data[:, first:],
+                    data[:, :first],
+                    data[:, first : first + 1],
+                )
+            )
         else:
-            ra_edges = np.hstack((ra_edges[first:], ra_edges[:first + 1] + 360))
-            data = numpy.ma.hstack((data[:, first:], data[:, :first + 1]))
+            ra_edges = np.hstack((ra_edges[first:], ra_edges[: first + 1] + 360))
+            data = numpy.ma.hstack((data[:, first:], data[:, : first + 1]))
 
     # Build a 2D array of grid line intersections.
     grid_ra, grid_dec = np.meshgrid(ra_edges, dec_edges)
 
     mesh = basemap.pcolormesh(
-        grid_ra, grid_dec, data, cmap=cmap, norm=norm,
-        edgecolor='none', lw=0, latlon=True)
+        grid_ra,
+        grid_dec,
+        data,
+        cmap=cmap,
+        norm=norm,
+        edgecolor="none",
+        lw=0,
+        latlon=True,
+    )
 
     if colorbar:
         bar = plt.colorbar(
-            mesh, ax=basemap.ax, orientation='horizontal',
-            spacing='proportional', pad=0.01, aspect=50)
+            mesh,
+            ax=basemap.ax,
+            orientation="horizontal",
+            spacing="proportional",
+            pad=0.01,
+            aspect=50,
+        )
         if label:
             bar.set_label(label)
 
     return basemap
 
 
-def plot_sky_circles(ra_center, dec_center, field_of_view=3.2, data=None,
-                     cmap='viridis', facecolors='skyblue', edgecolor='none',
-                     colorbar=True, colorbar_ticks=None, label=None,
-                     basemap=None):
+def plot_sky_circles(
+    ra_center,
+    dec_center,
+    field_of_view=3.2,
+    data=None,
+    cmap="viridis",
+    facecolors="skyblue",
+    edgecolor="none",
+    colorbar=True,
+    colorbar_ticks=None,
+    label=None,
+    basemap=None,
+):
     """Plot circles on an all-sky projection.
 
     Pass the optional data array through :func:`prepare_data` to select a
@@ -755,17 +823,17 @@ def plot_sky_circles(ra_center, dec_center, field_of_view=3.2, data=None,
     ra_center = np.asarray(ra_center)
     dec_center = np.asarray(dec_center)
     if len(ra_center.shape) != 1:
-        raise ValueError('Invalid ra_center, must be a 1D array.')
+        raise ValueError("Invalid ra_center, must be a 1D array.")
     if len(dec_center.shape) != 1:
-        raise ValueError('Invalid dec_center, must be a 1D array.')
+        raise ValueError("Invalid dec_center, must be a 1D array.")
     if len(ra_center) != len(dec_center):
-        raise ValueError('Arrays ra_center, dec_center must have same size.')
+        raise ValueError("Arrays ra_center, dec_center must have same size.")
 
     if data is not None:
         data = prepare_data(data)
         # Facecolors are determined by the data, when specified.
         if data.shape != ra_center.shape:
-            raise ValueError('Invalid data shape, must match ra_center.')
+            raise ValueError("Invalid data shape, must match ra_center.")
         # Colors associated with masked values in data will be ignored later.
         try:
             # Normalize the data using its vmin, vmax attributes, if present.
@@ -781,19 +849,20 @@ def plot_sky_circles(ra_center, dec_center, field_of_view=3.2, data=None,
         try:
             facecolors = np.tile(
                 [matplotlib.colors.colorConverter.to_rgba(facecolors)],
-                (len(ra_center), 1))
+                (len(ra_center), 1),
+            )
         except ValueError:
             # Assume that facecolor is already an array.
             facecolors = np.asarray(facecolors)
 
     if len(facecolors) != len(ra_center):
-        raise ValueError('Invalid facecolor array.')
+        raise ValueError("Invalid facecolor array.")
 
     if basemap is None:
         basemap = init_sky()
 
     if basemap.lonmin + 360 != basemap.lonmax:
-        raise RuntimeError('Can only handle all-sky projections for now.')
+        raise RuntimeError("Can only handle all-sky projections for now.")
 
     if len(ra_center) == 0:
         return
@@ -811,28 +880,45 @@ def plot_sky_circles(ra_center, dec_center, field_of_view=3.2, data=None,
     n_pt = max(8, int(np.ceil(field_of_view)))
 
     # Loop over non-wrapped circles.
-    for ra, dec, dra, fc in zip(ra_center[~wrapped], dec_center[~wrapped],
-                                dRA[~wrapped], facecolors[~wrapped]):
-        basemap.ellipse(ra, dec, dra, dDEC, n_pt, facecolor=fc,
-                        edgecolor=edgecolor)
+    for ra, dec, dra, fc in zip(
+        ra_center[~wrapped], dec_center[~wrapped], dRA[~wrapped], facecolors[~wrapped]
+    ):
+        basemap.ellipse(ra, dec, dra, dDEC, n_pt, facecolor=fc, edgecolor=edgecolor)
 
     if colorbar:
         mappable = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap)
         mappable.set_array(data)
         bar = plt.colorbar(
-            mappable, ax=basemap.ax, orientation='horizontal',
-            spacing='proportional', pad=0.01, aspect=50,
-            ticks=colorbar_ticks)
+            mappable,
+            ax=basemap.ax,
+            orientation="horizontal",
+            spacing="proportional",
+            pad=0.01,
+            aspect=50,
+            ticks=colorbar_ticks,
+        )
         if label:
             bar.set_label(label)
 
     return basemap
 
 
-def plot_sky_binned(ra, dec, weights=None, data=None, plot_type='grid',
-                    max_bin_area=5, clip_lo=None, clip_hi=None, verbose=False,
-                    cmap='viridis', colorbar=True, label=None, basemap=None,
-                    return_grid_data=False):
+def plot_sky_binned(
+    ra,
+    dec,
+    weights=None,
+    data=None,
+    plot_type="grid",
+    max_bin_area=5,
+    clip_lo=None,
+    clip_hi=None,
+    verbose=False,
+    cmap="viridis",
+    colorbar=True,
+    label=None,
+    basemap=None,
+    return_grid_data=False,
+):
     """Show objects on the sky using a binned plot.
 
     Bin values either show object counts per unit sky area or, if an array
@@ -895,66 +981,69 @@ def plot_sky_binned(ra, dec, weights=None, data=None, plot_type='grid',
     ra = np.asarray(ra).reshape(-1)
     dec = np.asarray(dec).reshape(-1)
     if len(ra) != len(dec):
-        raise ValueError('Arrays ra,dec must have same size.')
+        raise ValueError("Arrays ra,dec must have same size.")
 
-    plot_types = ('grid', 'healpix',)
+    plot_types = (
+        "grid",
+        "healpix",
+    )
     if plot_type not in plot_types:
         raise ValueError(
-            'Invalid plot_type, should be one of {0}.'
-            .format(', '.join(plot_types)))
+            "Invalid plot_type, should be one of {0}.".format(", ".join(plot_types))
+        )
 
     if data is not None and weights is None:
         weights = np.ones_like(data)
 
-    if plot_type == 'grid':
+    if plot_type == "grid":
         # Convert the maximum pixel area to steradians.
-        max_bin_area = max_bin_area * (np.pi / 180.) ** 2
+        max_bin_area = max_bin_area * (np.pi / 180.0) ** 2
 
         # Pick the number of bins in cos(DEC) and RA to use.
         n_cos_dec = int(np.ceil(2 / np.sqrt(max_bin_area)))
         n_ra = int(np.ceil(4 * np.pi / max_bin_area / n_cos_dec))
         # Calculate the actual pixel area in sq. degrees.
-        bin_area = 360 ** 2 / np.pi / (n_cos_dec * n_ra)
+        bin_area = 360**2 / np.pi / (n_cos_dec * n_ra)
         if verbose:
             print(
-                'Using {0} x {1} grid in cos(DEC) x RA'.format(n_cos_dec, n_ra),
-                'with pixel area {:.3f} sq.deg.'.format(bin_area))
+                "Using {0} x {1} grid in cos(DEC) x RA".format(n_cos_dec, n_ra),
+                "with pixel area {:.3f} sq.deg.".format(bin_area),
+            )
 
         # Calculate the bin edges in degrees.
-        ra_edges = np.linspace(-180., +180., n_ra + 1)
-        dec_edges = np.degrees(np.arcsin(np.linspace(-1., +1., n_cos_dec + 1)))
+        ra_edges = np.linspace(-180.0, +180.0, n_ra + 1)
+        dec_edges = np.degrees(np.arcsin(np.linspace(-1.0, +1.0, n_cos_dec + 1)))
 
         # Put RA values in the range [-180, 180).
-        ra = np.fmod(ra, 360.)
-        ra[ra >= 180.] -= 360.
+        ra = np.fmod(ra, 360.0)
+        ra[ra >= 180.0] -= 360.0
 
         # Histogram the input coordinates.
-        counts, _, _ = np.histogram2d(
-            dec, ra, [dec_edges, ra_edges], weights=weights)
+        counts, _, _ = np.histogram2d(dec, ra, [dec_edges, ra_edges], weights=weights)
 
         if data is None:
             grid_data = counts / bin_area
         else:
             sums, _, _ = np.histogram2d(
-                dec, ra, [dec_edges, ra_edges], weights=weights * data)
+                dec, ra, [dec_edges, ra_edges], weights=weights * data
+            )
             # This ratio might result in some nan (0/0) or inf (1/0) values,
             # but these will be masked by prepare_data().
-            settings = np.seterr(all='ignore')
+            settings = np.seterr(all="ignore")
             grid_data = sums / counts
             np.seterr(**settings)
 
-        grid_data = prepare_data(
-            grid_data, clip_lo=clip_lo, clip_hi=clip_hi)
+        grid_data = prepare_data(grid_data, clip_lo=clip_lo, clip_hi=clip_hi)
 
         basemap = plot_grid_map(
-            grid_data, ra_edges, dec_edges, cmap, colorbar, label, basemap)
+            grid_data, ra_edges, dec_edges, cmap, colorbar, label, basemap
+        )
 
-    elif plot_type == 'healpix':
-
+    elif plot_type == "healpix":
         import healpy as hp
 
         for n in range(1, 25):
-            nside = 2 ** n
+            nside = 2**n
             bin_area = hp.nside2pixarea(nside, degrees=True)
             if bin_area <= max_bin_area:
                 break
@@ -962,8 +1051,9 @@ def plot_sky_binned(ra, dec, weights=None, data=None, plot_type='grid',
         nest = False
         if verbose:
             print(
-                'Using healpix map with NSIDE={0}'.format(nside),
-                'and pixel area {:.3f} sq.deg.'.format(bin_area))
+                "Using healpix map with NSIDE={0}".format(nside),
+                "and pixel area {:.3f} sq.deg.".format(bin_area),
+            )
 
         pixels = hp.ang2pix(nside, np.radians(90 - dec), np.radians(ra), nest)
         counts = np.bincount(pixels, weights=weights, minlength=npix)
@@ -977,8 +1067,7 @@ def plot_sky_binned(ra, dec, weights=None, data=None, plot_type='grid',
 
         grid_data = prepare_data(grid_data, clip_lo=clip_lo, clip_hi=clip_hi)
 
-        basemap = plot_healpix_map(
-            grid_data, nest, cmap, colorbar, label, basemap)
+        basemap = plot_healpix_map(grid_data, nest, cmap, colorbar, label, basemap)
 
     if return_grid_data:
         return basemap, grid_data
@@ -1002,6 +1091,8 @@ Note that this code was originally in desispec_, so earlier commit information
 is in the desispec_ repository.
 
 """
+
+
 class Bricks(object):
     """The Bricks object describes bricks of a certain size.
 
@@ -1014,15 +1105,16 @@ class Bricks(object):
     ----------
     bricksize
     """
+
     def __init__(self, bricksize=0.25):
         # Brick row centers and edges
-        center_dec = np.arange(-90.0, +90.0+bricksize/2, bricksize)
+        center_dec = np.arange(-90.0, +90.0 + bricksize / 2, bricksize)
         # clip the north pole to +90
-        center_dec[-1] = min(90., center_dec[-1])
-        edges_dec = np.arange(-90.0-bricksize/2, +90.0+bricksize, bricksize)
+        center_dec[-1] = min(90.0, center_dec[-1])
+        edges_dec = np.arange(-90.0 - bricksize / 2, +90.0 + bricksize, bricksize)
         # poles
-        edges_dec[0] = -90.
-        edges_dec[-1] = 90.
+        edges_dec[0] = -90.0
+        edges_dec[-1] = 90.0
 
         nrow = len(center_dec)
 
@@ -1032,31 +1124,39 @@ class Bricks(object):
             # The widest part of the brick is at the Dec closest to
             # the equator.  max(0, ...) handles a row that spans the
             # Dec=0 equator.
-            declo = max(0, np.abs(center_dec[i]) - bricksize/2)
-            n = (360/bricksize * np.cos(np.deg2rad(declo)))
-            ncol_per_row[i] = int(np.ceil(n/2)*2)
+            declo = max(0, np.abs(center_dec[i]) - bricksize / 2)
+            n = 360 / bricksize * np.cos(np.deg2rad(declo))
+            ncol_per_row[i] = int(np.ceil(n / 2) * 2)
 
         # special cases at the poles
         ncol_per_row[0] = 1
-        if center_dec[-1] == 90.:
+        if center_dec[-1] == 90.0:
             ncol_per_row[-1] = 1
 
         # ra
         center_ra = list()
         edges_ra = list()
         for i in range(nrow):
-            edges = np.linspace(0, 360, ncol_per_row[i]+1)
+            edges = np.linspace(0, 360, ncol_per_row[i] + 1)
             edges_ra.append(edges)
-            center_ra.append(0.5*(edges[0:-1] + edges[1:]))
+            center_ra.append(0.5 * (edges[0:-1] + edges[1:]))
             # dra = edges[1]-edges[0]
             # center_ra.append(dra/2 + np.arange(ncol_per_row[i])*dra)
 
         # More special cases at the poles
         edges_ra[0] = np.array([0, 360])
-        center_ra[0] = np.array([180, ])
-        if center_dec[-1] == 90.:
+        center_ra[0] = np.array(
+            [
+                180,
+            ]
+        )
+        if center_dec[-1] == 90.0:
             edges_ra[-1] = np.array([0, 360])
-            center_ra[-1] = np.array([180, ])
+            center_ra[-1] = np.array(
+                [
+                    180,
+                ]
+            )
 
         # Brick names [row, col]
         brickname = list()
@@ -1068,17 +1168,17 @@ class Bricks(object):
             # This hack allows numbers like 39.599999999999994 to be
             # converted into 0396.
             #
-            pm = 'p' if center_dec[i] >= 0 else 'm'
-            dec = "{0:06.0f}".format(np.absolute(center_dec[i])*10000)
+            pm = "p" if center_dec[i] >= 0 else "m"
+            dec = "{0:06.0f}".format(np.absolute(center_dec[i]) * 10000)
             names = list()
             for j in range(ncol_per_row[i]):
-                ra = "{0:07.0f}".format(center_ra[i][j]*10000)
-                names.append(ra[0:4]+pm+dec[0:3])
+                ra = "{0:07.0f}".format(center_ra[i][j] * 10000)
+                names.append(ra[0:4] + pm + dec[0:3])
             brickname.append(names)
             # ADM integrate area factors between Dec edges and RA edges in degrees
-            decfac = np.diff(np.degrees(np.sin(np.radians(edges_dec[i:i+2]))))
+            decfac = np.diff(np.degrees(np.sin(np.radians(edges_dec[i : i + 2]))))
             rafac = np.diff(edges_ra[i])
-            brickarea.append(list(rafac*decfac))
+            brickarea.append(list(rafac * decfac))
 
         self._bricksize = bricksize
         self._ncol_per_row = ncol_per_row
@@ -1095,23 +1195,20 @@ class Bricks(object):
 
     @property
     def bricksize(self):
-        """Size of a brick in degrees.
-        """
+        """Size of a brick in degrees."""
         return self._bricksize
 
     def _array_radec(self, ra, dec):
-        """Convert (`ra`, `dec`) to arrays and clean up the data.
-        """
+        """Convert (`ra`, `dec`) to arrays and clean up the data."""
         adec = np.atleast_1d(dec)
         ara = np.atleast_1d(ra) % 360
         return ara, adec
 
     def _row_col(self, ra, dec):
-        """Determine the brick row and column, given `ra`, `dec`.
-        """
-        row = ((dec+90.0+self._bricksize/2)/self._bricksize).astype(int)
-        row = np.clip(row, 0, len(self._ncol_per_row)-1)
-        return (row, (ra/360.0 * self._ncol_per_row[row]).astype(int))
+        """Determine the brick row and column, given `ra`, `dec`."""
+        row = ((dec + 90.0 + self._bricksize / 2) / self._bricksize).astype(int)
+        row = np.clip(row, 0, len(self._ncol_per_row) - 1)
+        return (row, (ra / 360.0 * self._ncol_per_row[row]).astype(int))
 
     def brickname(self, ra, dec):
         """Return brick name of brick covering (`ra`, `dec`).
@@ -1130,7 +1227,7 @@ class Bricks(object):
         """
         ara, adec = self._array_radec(ra, dec)
         irow, icol = self._row_col(ara, adec)
-        names = np.empty(len(ara), dtype='U8')
+        names = np.empty(len(ara), dtype="U8")
         for thisrow in set(irow):
             these = np.where(thisrow == irow)[0]
             names[these] = np.array(self._brickname[thisrow])[icol[these]]
@@ -1182,7 +1279,7 @@ class Bricks(object):
         """
         ara, adec = self._array_radec(ra, dec)
         irow, icol = self._row_col(ara, adec)
-        brickq = (icol % 2) + (irow % 2)*2
+        brickq = (icol % 2) + (irow % 2) * 2
         brickq[irow == 0] = 1
         if np.isscalar(ra):
             return brickq[0]
@@ -1206,7 +1303,7 @@ class Bricks(object):
         ara, adec = self._array_radec(ra, dec)
         irow, icol = self._row_col(ara, adec)
         # ADM the list of areas to return
-        areas = np.empty(len(ara), dtype='<f4')
+        areas = np.empty(len(ara), dtype="<f4")
         # ADM grab the areas from the class
         for row in set(irow):
             cols = np.where(row == irow)
@@ -1238,14 +1335,14 @@ class Bricks(object):
         ara, adec = self._array_radec(ra, dec)
         irow, icol = self._row_col(ara, adec)
         # ADM grab the edges from the class
-        ramin, ramax = np.array([self._edges_ra[row][col:col+2]
-                                 for row, col in zip(irow, icol)]).T
-        decmin, decmax = self._edges_dec[irow], self._edges_dec[irow+1]
-        vertices = np.reshape(np.vstack([ramin, decmin,
-                                         ramax, decmin,
-                                         ramax, decmax,
-                                         ramin, decmax]).T,
-                              (len(ara), 4, 2))
+        ramin, ramax = np.array(
+            [self._edges_ra[row][col : col + 2] for row, col in zip(irow, icol)]
+        ).T
+        decmin, decmax = self._edges_dec[irow], self._edges_dec[irow + 1]
+        vertices = np.reshape(
+            np.vstack([ramin, decmin, ramax, decmin, ramax, decmax, ramin, decmax]).T,
+            (len(ara), 4, 2),
+        )
         # ADM return the vertex array with one less dimension if a scalar was passed
         if np.isscalar(ra):
             return vertices[0]
@@ -1287,43 +1384,48 @@ class Bricks(object):
         """
         if self._brick_table is None:
             from astropy.table import Table
-            dtype = [('BRICKNAME', 'U8'),
-                     ('BRICKID', 'i4'),
-                     ('BRICKQ', 'i2'),
-                     ('BRICKROW', 'i4'),
-                     ('BRICKCOL', 'i4'),
-                     ('RA', 'f8'), ('DEC', 'f8'),
-                     ('RA1', 'f8'), ('RA2', 'f8'),
-                     ('DEC1', 'f8'), ('DEC2', 'f8'),
-                     ('AREA', 'f8')]
+
+            dtype = [
+                ("BRICKNAME", "U8"),
+                ("BRICKID", "i4"),
+                ("BRICKQ", "i2"),
+                ("BRICKROW", "i4"),
+                ("BRICKCOL", "i4"),
+                ("RA", "f8"),
+                ("DEC", "f8"),
+                ("RA1", "f8"),
+                ("RA2", "f8"),
+                ("DEC1", "f8"),
+                ("DEC2", "f8"),
+                ("AREA", "f8"),
+            ]
             brick_dict = dict([(n[0], list()) for n in dtype])
             brick_id = 0
             for row in range(len(self._center_dec)):
                 for col in range(len(self._center_ra[row])):
                     brick_id += 1
-                    brick_dict['BRICKNAME'].append(self._brickname[row][col])
-                    brick_dict['BRICKID'].append(brick_id)
+                    brick_dict["BRICKNAME"].append(self._brickname[row][col])
+                    brick_dict["BRICKID"].append(brick_id)
                     if row == 0:
                         q = 1
                     else:
-                        q = (col % 2) + (row % 2)*2
-                    brick_dict['BRICKQ'].append(q)
-                    brick_dict['BRICKROW'].append(row)
-                    brick_dict['BRICKCOL'].append(col)
-                    brick_dict['RA'].append(self._center_ra[row][col])
-                    brick_dict['DEC'].append(self._center_dec[row])
-                    brick_dict['RA1'].append(self._edges_ra[row][col])
-                    brick_dict['DEC1'].append(self._edges_dec[row])
-                    brick_dict['RA2'].append(self._edges_ra[row][col+1])
-                    brick_dict['DEC2'].append(self._edges_dec[row+1])
-                    brick_dict['AREA'].append(self._brickarea[row][col])
+                        q = (col % 2) + (row % 2) * 2
+                    brick_dict["BRICKQ"].append(q)
+                    brick_dict["BRICKROW"].append(row)
+                    brick_dict["BRICKCOL"].append(col)
+                    brick_dict["RA"].append(self._center_ra[row][col])
+                    brick_dict["DEC"].append(self._center_dec[row])
+                    brick_dict["RA1"].append(self._edges_ra[row][col])
+                    brick_dict["DEC1"].append(self._edges_dec[row])
+                    brick_dict["RA2"].append(self._edges_ra[row][col + 1])
+                    brick_dict["DEC2"].append(self._edges_dec[row + 1])
+                    brick_dict["AREA"].append(self._brickarea[row][col])
             brick_data = np.zeros((brick_id,), dtype=dtype)
             for n in dtype:
                 brick_data[n[0]] = brick_dict[n[0]]
-            self._brick_table = Table(brick_data,
-                                      meta={'bricksize': self._bricksize})
-            for n in ('RA', 'DEC', 'RA1', 'RA2', 'DEC1', 'DEC2'):
-                self._brick_table[n].unit = 'deg'
+            self._brick_table = Table(brick_data, meta={"bricksize": self._bricksize})
+            for n in ("RA", "DEC", "RA1", "RA2", "DEC1", "DEC2"):
+                self._brick_table[n].unit = "deg"
         return self._brick_table
 
 
@@ -1358,4 +1460,3 @@ def brickname(ra, dec, bricksize=0.25):
         _bricks = Bricks(bricksize=bricksize)
 
     return _bricks.brickname(ra, dec)
-

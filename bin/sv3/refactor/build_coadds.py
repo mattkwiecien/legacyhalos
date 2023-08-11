@@ -4,13 +4,12 @@ import os
 from astropy.table import Table
 from .mpi_step import MpiStep
 
-class BuildCoadds(MpiStep):
 
-    def __init__(self, args, sample : Table):
+class BuildCoadds(MpiStep):
+    def __init__(self, args, sample: Table):
         super.__init__(args, sample)
 
     def run(self):
-        
         samplefile = os.path.join(self.galaxydir, "{}-sample.fits".format(self.galaxy))
 
         if self.args.clobber or not os.path.isfile(samplefile):
@@ -45,4 +44,3 @@ class BuildCoadds(MpiStep):
             logfile=self.logfile,
             write_wise_psf=False,
         )
-    

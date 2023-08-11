@@ -17,43 +17,44 @@ import legacyhalos.qa
 import legacyhalos.misc
 import legacyhalos.io
 
+
 def lsbs_dir():
     """Top-level LSBs directory."""
-    if 'LEGACYLSBS_DIR' not in os.environ:
-        print('Required ${LEGACYLSBS_DIR environment variable not set.')
+    if "LEGACYLSBS_DIR" not in os.environ:
+        print("Required ${LEGACYLSBS_DIR environment variable not set.")
         raise EnvironmentError
-    ldir = os.path.abspath(os.getenv('LEGACYLSBS_DIR'))
+    ldir = os.path.abspath(os.getenv("LEGACYLSBS_DIR"))
     if not os.path.isdir(ldir):
         os.makedirs(ldir, exist_ok=True)
     return ldir
+
 
 def lsbs_data_dir():
-    if 'LEGACYLSBS_DATA_DIR' not in os.environ:
-        print('Required ${LEGACYLSBS_DATA_DIR environment variable not set.')
+    if "LEGACYLSBS_DATA_DIR" not in os.environ:
+        print("Required ${LEGACYLSBS_DATA_DIR environment variable not set.")
         raise EnvironmentError
-    ldir = os.path.abspath(os.getenv('LEGACYLSBS_DATA_DIR'))
+    ldir = os.path.abspath(os.getenv("LEGACYLSBS_DATA_DIR"))
     if not os.path.isdir(ldir):
         os.makedirs(ldir, exist_ok=True)
     return ldir
+
 
 def lsbs_html_dir():
-    print('Should really have an environment variable for LEGACYLSBS_HTML_DIR!')
-    ldir = os.path.join(os.getenv('LEGACYHALOS_HTML_DIR'), 'lsbs')
+    print("Should really have an environment variable for LEGACYLSBS_HTML_DIR!")
+    ldir = os.path.join(os.getenv("LEGACYHALOS_HTML_DIR"), "lsbs")
     if not os.path.isdir(ldir):
         os.makedirs(ldir, exist_ok=True)
     return ldir
 
-def get_galaxy_galaxydir(cat, datadir=None, htmldir=None, html=False,
-                         candidates=False):
-    """Retrieve the galaxy name and the (nested) directory.
 
-    """
+def get_galaxy_galaxydir(cat, datadir=None, htmldir=None, html=False, candidates=False):
+    """Retrieve the galaxy name and the (nested) directory."""
     import astropy
     import healpy as hp
     from legacyhalos.misc import radec2pix
-    
-    nside = 8 # keep hard-coded
-    
+
+    nside = 8  # keep hard-coded
+
     if datadir is None:
         datadir = lsbs_data_dir()
     if htmldir is None:
@@ -65,10 +66,10 @@ def get_galaxy_galaxydir(cat, datadir=None, htmldir=None, html=False,
 
     if type(cat) is astropy.table.row.Row:
         ngal = 1
-        galaxy = [cat['GALAXY']]
+        galaxy = [cat["GALAXY"]]
     else:
         ngal = len(cat)
-        galaxy = cat['GALAXY']
+        galaxy = cat["GALAXY"]
 
     galaxydir = np.array([os.path.join(datadir, gal) for gal in galaxy])
     if html:
@@ -85,27 +86,33 @@ def get_galaxy_galaxydir(cat, datadir=None, htmldir=None, html=False,
     else:
         return galaxy, galaxydir
 
+
 def read_sample(verbose=False):
-    """Read/generate the parent LSBs catalog.
-    
-    """
+    """Read/generate the parent LSBs catalog."""
     # Really should be reading this from disk.
     sample = Table()
-    sample['GALAXY'] = np.array(['M87'])
-    sample['RA'] = np.array([187.705930]).astype('f8')
-    sample['DEC'] = np.array([12.391123]).astype('f8')
-    sample['RADIUS_MOSAIC'] = np.array([10.0 * 60]).astype('f4') # mosaic half-width and half-height [arcsec]
-    sample['RADIUS_GALAXY'] = np.array([4.0 * 60]).astype('f4')  # galaxy radius [arcsec]
-    sample['RELEASE'] = np.array([7000]).astype(int)
+    sample["GALAXY"] = np.array(["M87"])
+    sample["RA"] = np.array([187.705930]).astype("f8")
+    sample["DEC"] = np.array([12.391123]).astype("f8")
+    sample["RADIUS_MOSAIC"] = np.array([10.0 * 60]).astype(
+        "f4"
+    )  # mosaic half-width and half-height [arcsec]
+    sample["RADIUS_GALAXY"] = np.array([4.0 * 60]).astype(
+        "f4"
+    )  # galaxy radius [arcsec]
+    sample["RELEASE"] = np.array([7000]).astype(int)
 
     if False:
         sample = Table()
-        sample['GALAXY'] = np.array(['NGC1052-F2'])
-        sample['RA'] = np.array([40.4455]).astype('f8')
-        sample['DEC'] = np.array([-8.4031]).astype('f8')
-        sample['RADIUS_MOSAIC'] = np.array([20.0 * 60]).astype('f4') # mosaic half-width and half-height [arcsec]
-        sample['RADIUS_GALAXY'] = np.array([20.0]).astype('f4')      # galaxy radius [arcsec]
-        sample['RELEASE'] = np.array([7000]).astype(int)
+        sample["GALAXY"] = np.array(["NGC1052-F2"])
+        sample["RA"] = np.array([40.4455]).astype("f8")
+        sample["DEC"] = np.array([-8.4031]).astype("f8")
+        sample["RADIUS_MOSAIC"] = np.array([20.0 * 60]).astype(
+            "f4"
+        )  # mosaic half-width and half-height [arcsec]
+        sample["RADIUS_GALAXY"] = np.array([20.0]).astype(
+            "f4"
+        )  # galaxy radius [arcsec]
+        sample["RELEASE"] = np.array([7000]).astype(int)
 
     return sample
-
