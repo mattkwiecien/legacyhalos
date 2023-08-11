@@ -15,6 +15,8 @@ def main():
     mpi_setup = Sv3Builder(args)
     mpi_setup.run_step()
 
+
+""" Leaving here for reference
     if args.coadds:
         from legacyhalos.mpi import call_custom_coadds
 
@@ -135,7 +137,7 @@ def main():
             "{} left to do: {} / {}.".format(suffix.upper(), stilltodo, ntodo),
             flush=True,
         )
-
+"""
 
 if __name__ == "__main__":
     main()

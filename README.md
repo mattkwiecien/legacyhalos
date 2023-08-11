@@ -1,5 +1,6 @@
-Stellar Mass Content of Dark Matter Halos in Legacy Surveys Imaging
-===================================================================
+[![Coverage Status](https://coveralls.io/repos/github/mattkwiecien/legacyhalos/badge.svg?branch=main)](https://coveralls.io/github/mattkwiecien/legacyhalos?branch=main)
+
+# Stellar Mass Content of Dark Matter Halos in Legacy Surveys Imaging
 
 The `DESI Legacy Imaging Surveys`_ have delivered deep *grz* optical imaging and
 unWISE *W1* and *W2* mid-infrared imaging of over 20,000 sq. deg of the
@@ -33,15 +34,44 @@ Science Foundation under grants AST-1616414 and AST-1909374, and the
 U.S. Department of Energy, Office of Science, Office of High Energy Physics
 under Award Number DE-SC0020086.
 
-.. _`DESI Legacy Imaging Surveys`: http://legacysurvey.org
+`DESI Legacy Imaging Surveys`: http://legacysurvey.org
 
-Automated build & testing
--------------------------
+## Development 
 
-.. image:: https://img.shields.io/circleci/project/github/moustakas/legacyhalos.svg
-  :alt: Build
-  :target: https://circleci.com/gh/moustakas/legacyhalos
+To install legacyhalos to do development it's recommended to use conda (or mamba).  
 
-.. image:: https://coveralls.io/repos/github/moustakas/legacyhalos/badge.svg?branch=master
-  :alt: Coverage
-  :target: https://coveralls.io/github/moustakas/legacyhalos?branch=master
+First clone the repository
+
+`git clone https://github.com/mattkwiecien/legacyhalos`
+
+Create the conda environment
+
+```
+conda env create -n legacyhalos -f environment.yml
+conda activate legacyhalos
+```
+
+Lastly, install `legacyhalos` with pip from within your `legacyhalos` directory
+
+`pip install -e .`
+
+### Tests
+
+Tests are run with `pytest`.  Run 
+
+`pytest -vv py/test/` 
+
+from the root directory to run all tests.
+
+### Publishing new Docker images
+
+Docker images can automatically be published by pushing tags to `main`.  To publish a new docker image, create a new tag that begins with `docker` e.g.
+
+```
+git tag docker-img-0.1.0.1
+git push origin docker-img-0.1.0.1
+```
+
+This will kick off a build of your docker image and publish it on github's docker image host.  This image is then pullable using the web address
+
+`docker:ghcr.io/mattkwiecien/legacyhalos:docker-img-0.1.0.1`

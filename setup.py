@@ -10,9 +10,7 @@ def _munge_req(r):
 
 
 __version__: Optional[str] = None
-pth = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), "py/legacyhalos", "version.py"
-)
+pth = os.path.join(os.path.dirname(os.path.realpath(__file__)), "py/legacyhalos", "version.py")
 with open(pth, "r") as fp:
     exec(fp.read())
 
@@ -40,8 +38,8 @@ setup(
     url="https://github.com/moustakas/legacyhalos",
     version=__version__,
     description="Stellar mass content of dark matter halos in DESI Legacy Surveys imaging.",
-    author="John Moustakas",
-    author_email="jmoustakas@siena.edu",
+    author="John Moustakas, Matt Kwiecien",
+    author_email="jmoustakas@siena.edu, mkwiecien@ucsc.edu",
     packages=find_packages("py"),
     package_dir={"": "py"},
     include_package_data=True,

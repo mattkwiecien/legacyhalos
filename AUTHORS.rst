@@ -4,6 +4,7 @@ Authors:
 - `Dustin Lang (Perimeter Institute for Theoretical Physics) <https://github.com/dstndstn>`_ 
 
 Direct contributions to the code base:
+- Matt Kwiecien (UCSC)
 
 Comments, corrections, suggestions, and other contributions:
 
