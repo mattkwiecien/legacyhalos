@@ -1,23 +1,31 @@
-#!/usr/bin/env python
-
-# Supports:
-# - python setup.py install
-# - python setup.py test
-#
-# Does not support:
-# - python setup.py version
-
-import os, glob
+import os
 from setuptools import setup, find_packages
+from typing import Optional
 
-def _get_version():
-    import subprocess
-    version = subprocess.check_output('git rev-parse HEAD', shell=True)
-    version = version.decode('utf-8').replace('\n', '')
-    return version
+def _munge_req(r):
+    for sym in ["~", "=", "<", ">", ",", "!", "!"]:
+        r = r.split(sym)[0]
+    return 
 
-# Get the SHA of the current commit as the "version"
-version = _get_version()
+__version__: Optional[str] = None
+pth = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), "py/legacyhalos", "version.py"
+)
+with open(pth, "r") as fp:
+    exec(fp.read())
+
+pth = os.path.join(os.path.dirname(os.path.realpath(__file__)), "environment.yml")
+rqs = []
+with open(pth, "r") as fp:
+    start = False
+    for line in fp.readlines():
+        if line.strip() == "dependencies:":
+            start = False
+        if start:
+            if "- pip:" in line.strip():
+                continue
+            r = line.strip()[3:].strip()
+            rqs.append(_munge_req(r))
 
 with open('README.rst') as f:
     readme = f.read()
@@ -25,34 +33,22 @@ with open('README.rst') as f:
 with open('LICENSE') as f:
     license = f.read()
 
-setup_kwargs=dict(
-    name='legacyhalos',
-    url='https://github.com/moustakas/legacyhalos',
-    # version=version,
-    author='John Moustakas',
-    author_email='jmoustakas@siena.edu',
-    #packages=[],
-    license=license,
+setup(
+    name="legacyhalos",
+    url="https://github.com/moustakas/legacyhalos",
+    version=__version__,
     description='Stellar mass content of dark matter halos in DESI Legacy Surveys imaging.',
+    author='John Moustakas',
+    author_email='jmoustakas@siena.edu',    
+    packages=find_packages('py'),
+    package_dir={'':'py'},
+    include_package_data=True,
+    scripts=[],
+    install_requires=rqs,
+    license=license,
     long_description=readme,
+    test_suite='legacyhalos.test.test_suite'
 )
-
-# /Users/matt/opt/anaconda3/bin/python3.8 -c 
-# '
-# import io, os, sys, setuptools, tokenize; 
-# sys.argv[0] = '"'"'/Users/matt/Repos/legacyhalos/setup.py'"'"'; 
-# __file__='"'"'/Users/matt/Repos/legacyhalos/setup.py'"'"';
-# f = getattr(tokenize, '"'"'open'"'"', open)(__file__) 
-#     if os.path.exists(__file__) 
-#     else io.StringIO('"'"'from setuptools import setup; setup()'"'"');
-# code = f.read().replace('"'"'\r\n'"'"', '"'"'\n'"'"');
-# f.close();
-# exec(compile(code, __file__, '"'"'exec'"'"'))'
-# develop --no-deps
-
-#- What to install
-setup_kwargs['packages'] = find_packages('py')
-setup_kwargs['package_dir'] = {'':'py'}
 
 #- Treat everything in bin/ as a script to be installed
 # This currently doesn't work as it attempts to install directory names rather than scri
@@ -63,9 +59,3 @@ setup_kwargs['package_dir'] = {'':'py'}
 #     'legacyhalos': ['data/*',],
 #     'legacyhalos.test': ['data/*',],
 # }
-
-#- Testing
-setup_kwargs['test_suite'] = 'legacyhalos.test.test_suite'
-
-#- Go!
-setup(**setup_kwargs)

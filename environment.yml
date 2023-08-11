@@ -1,0 +1,22 @@
+name: legacyhalos
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - fitsio
+  - scipy
+  - numpy
+  - matplotlib
+  - astropy
+  - astrometry
+  - ipykernel
+  - seaborn
+  - h5py
+  - pydl
+  - pyyaml
+  - corner
+  - scikit-image
+  - mpi4py
+  - pip
+  - pip:
+    - colossus

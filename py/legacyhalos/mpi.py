@@ -14,9 +14,10 @@ import legacyhalos.html
 
 def _start(galaxy, log=None, seed=None):
     if seed:
-        print('Random seed = {}'.format(seed), flush=True)        
-    print('Started working on galaxy {} at {}'.format(
-        galaxy, time.asctime()), flush=True, file=log)
+        print('Random seed = {}'.format(seed), flush=True)   
+    print('Started working on galaxy {} at {}'.format(galaxy, time.asctime()), flush=True, file=log)
+    
+    return
 
 def _done(galaxy, galaxydir, err, t0, stage, filesuffix=None, log=None):
     if filesuffix is None:
@@ -34,6 +35,7 @@ def _done(galaxy, galaxydir, err, t0, stage, filesuffix=None, log=None):
         
     print('Finished galaxy {} in {:.3f} minutes.'.format(
           galaxy, (time.time() - t0)/60), flush=True, file=log)
+    return
     
 def call_ellipse(galaxy, galaxydir, data, galaxyinfo=None,
                  pixscale=0.262, nproc=1, bands=['g', 'r', 'z'], refband='r',
@@ -64,20 +66,20 @@ def call_ellipse(galaxy, galaxydir, data, galaxyinfo=None,
             verbose=verbose, debug=debug, clobber=clobber)
         if write_donefile:
             _done(galaxy, galaxydir, err, t0, 'ellipse', data['filesuffix'])
-    else:
-        with open(logfile, 'a') as log:
-            with redirect_stdout(log), redirect_stderr(log):
-                _start(galaxy, log=log)
-                err = legacyhalos.ellipse.legacyhalos_ellipse(
-                    galaxy, galaxydir, data, galaxyinfo=galaxyinfo,
-                    bands=bands, refband=refband,
-                    pixscale=pixscale, nproc=nproc,
-                    sbthresh=sbthresh, apertures=apertures, input_ellipse=input_ellipse,
-                    delta_logsma=delta_logsma, maxsma=maxsma, logsma=logsma,
-                    copy_mw_transmission=copy_mw_transmission,
-                    verbose=verbose, clobber=clobber)
-                if write_donefile:
-                    _done(galaxy, galaxydir, err, t0, 'ellipse', data['filesuffix'], log=log)
+        return err
+    with open(logfile, 'a') as log:
+        with redirect_stdout(log), redirect_stderr(log):
+            _start(galaxy, log=log)
+            err = legacyhalos.ellipse.legacyhalos_ellipse(
+                galaxy, galaxydir, data, galaxyinfo=galaxyinfo,
+                bands=bands, refband=refband,
+                pixscale=pixscale, nproc=nproc,
+                sbthresh=sbthresh, apertures=apertures, input_ellipse=input_ellipse,
+                delta_logsma=delta_logsma, maxsma=maxsma, logsma=logsma,
+                copy_mw_transmission=copy_mw_transmission,
+                verbose=verbose, clobber=clobber)
+            if write_donefile:
+                _done(galaxy, galaxydir, err, t0, 'ellipse', data['filesuffix'], log=log)
 
     return err
 
@@ -152,23 +154,26 @@ def call_htmlplots(onegal, galaxy, survey, pixscale=0.262, nproc=1,
             qa_multiwavelength_sed=qa_multiwavelength_sed)
         if write_donefile:
             _done(galaxy, survey.output_dir, err, t0, 'html')
-    else:
-        with open(logfile, 'a') as log:
-            with redirect_stdout(log), redirect_stderr(log):
-                _start(galaxy, log=log)
-                err = legacyhalos.html.make_plots(
-                    onegal, datadir=datadir, htmldir=htmldir, survey=survey, 
-                    pixscale=pixscale, zcolumn=zcolumn, galaxy_id=galaxy_id,
-                    nproc=nproc, barlen=barlen, barlabel=barlabel,
-                    radius_mosaic_arcsec=radius_mosaic_arcsec,
-                    maketrends=False, ccdqa=ccdqa,
-                    clobber=clobber, verbose=verbose,
-                    cosmo=cosmo, galex=galex, unwise=unwise, just_coadds=just_coadds,
-                    get_galaxy_galaxydir=get_galaxy_galaxydir,
-                    read_multiband=read_multiband,
-                    qa_multiwavelength_sed=qa_multiwavelength_sed)
-                if write_donefile:
-                    _done(galaxy, survey.output_dir, err, t0, 'html')
+        return
+
+    with open(logfile, 'a') as log:
+        with redirect_stdout(log), redirect_stderr(log):
+            _start(galaxy, log=log)
+            err = legacyhalos.html.make_plots(
+                onegal, datadir=datadir, htmldir=htmldir, survey=survey, 
+                pixscale=pixscale, zcolumn=zcolumn, galaxy_id=galaxy_id,
+                nproc=nproc, barlen=barlen, barlabel=barlabel,
+                radius_mosaic_arcsec=radius_mosaic_arcsec,
+                maketrends=False, ccdqa=ccdqa,
+                clobber=clobber, verbose=verbose,
+                cosmo=cosmo, galex=galex, unwise=unwise, just_coadds=just_coadds,
+                get_galaxy_galaxydir=get_galaxy_galaxydir,
+                read_multiband=read_multiband,
+                qa_multiwavelength_sed=qa_multiwavelength_sed)
+            if write_donefile:
+                _done(galaxy, survey.output_dir, err, t0, 'html')
+    
+    return
 
 def call_custom_coadds(onegal, galaxy, survey, run, radius_mosaic, nproc=1,
                        pixscale=0.262, racolumn='RA', deccolumn='DEC', nsigma=None,
@@ -192,6 +197,7 @@ def call_custom_coadds(onegal, galaxy, survey, run, radius_mosaic, nproc=1,
     import legacyhalos.coadds
     
     t0 = time.time()
+
     if debug:
         _start(galaxy)
         err, filesuffix = legacyhalos.coadds.custom_coadds(
@@ -209,23 +215,27 @@ def call_custom_coadds(onegal, galaxy, survey, run, radius_mosaic, nproc=1,
             require_grz=require_grz, no_gaia=no_gaia, no_tycho=no_tycho,
             no_galex_ceres=no_galex_ceres)
         _done(galaxy, survey.output_dir, err, t0, 'coadds', filesuffix)
-    else:
-        with open(logfile, 'a') as log:
-            with redirect_stdout(log), redirect_stderr(log):
-                _start(galaxy, log=log)
-                err, filesuffix = legacyhalos.coadds.custom_coadds(
-                    onegal, galaxy=galaxy, survey=survey, 
-                    radius_mosaic=radius_mosaic, nproc=nproc, 
-                    pixscale=pixscale, racolumn=racolumn, deccolumn=deccolumn,
-                    nsigma=nsigma, custom=custom,
-                    bands=bands,
-                    run=run, apodize=apodize, unwise=unwise, galex=galex, force=force, plots=plots,
-                    verbose=verbose, cleanup=cleanup, write_all_pickles=write_all_pickles,
-                    write_wise_psf=write_wise_psf,
-                    #no_subsky=no_subsky,
-                    subsky_radii=subsky_radii, #ubercal_sky=ubercal_sky,
-                    just_coadds=just_coadds,
-                    require_grz=require_grz, no_gaia=no_gaia, no_tycho=no_tycho,
-                    no_galex_ceres=no_galex_ceres,
-                    log=log)
-                _done(galaxy, survey.output_dir, err, t0, 'coadds', filesuffix, log=log)
+        
+        return
+    
+    with open(logfile, 'a') as log:
+        with redirect_stdout(log), redirect_stderr(log):
+            _start(galaxy, log=log)
+            err, filesuffix = legacyhalos.coadds.custom_coadds(
+                onegal, galaxy=galaxy, survey=survey, 
+                radius_mosaic=radius_mosaic, nproc=nproc, 
+                pixscale=pixscale, racolumn=racolumn, deccolumn=deccolumn,
+                nsigma=nsigma, custom=custom,
+                bands=bands,
+                run=run, apodize=apodize, unwise=unwise, galex=galex, force=force, plots=plots,
+                verbose=verbose, cleanup=cleanup, write_all_pickles=write_all_pickles,
+                write_wise_psf=write_wise_psf,
+                #no_subsky=no_subsky,
+                subsky_radii=subsky_radii, #ubercal_sky=ubercal_sky,
+                just_coadds=just_coadds,
+                require_grz=require_grz, no_gaia=no_gaia, no_tycho=no_tycho,
+                no_galex_ceres=no_galex_ceres,
+                log=log)
+            _done(galaxy, survey.output_dir, err, t0, 'coadds', filesuffix, log=log)
+            return
+    return
