@@ -9,6 +9,7 @@ dependencies:
   - matplotlib
   - astropy
   - astrometry
+  - photutils
   - ipykernel
   - seaborn
   - h5py

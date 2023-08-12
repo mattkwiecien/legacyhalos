@@ -1,12 +1,15 @@
 FROM legacysurvey/legacypipe:DR10.1.3
 
+# Tractor isn't added to the pythonpath in the parent image.
+ENV PYTHONPATH=$PYTHONPATH:/src/tractor
+
 # Remove the policy.xml file so we do not get an 'exhausted cache resources'
 # error when we build mosaics for very large systems.
 RUN echo '<policymap></policymap>' > /etc/ImageMagick-6/policy.xml
 RUN /sbin/ldconfig
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
-ENV PATH /opt/conda/bin:$PATH
+ENV PATH=/opt/conda/bin:$PATH
 
 # Get non python dependencies
 RUN apt-get update && \
@@ -21,27 +24,25 @@ RUN /usr/sbin/groupadd -g 1000 user && \
     chown legacyhalos.user /opt/legacyhalos && \
     chown -R legacyhalos.user /opt
 
-COPY . /opt/legacyhalos/workdir
-RUN chown -R legacyhalos.user /opt/legacyhalos/workdir
+# Copy codebase to /opt/legacyhalos/src
+COPY . /opt/legacyhalos/src
+RUN chown -R legacyhalos.user /opt/legacyhalos/src
 
 RUN mkdir /opt/legacyhalos/env && \
     chown -R legacyhalos.user /opt/legacyhalos/env
-
-COPY docker/entrypoint.sh /opt/legacyhalos/entrypoint.sh
-RUN chown legacyhalos.user /opt/legacyhalos/entrypoint.sh && \
-    chmod u+x /opt/legacyhalos/entrypoint.sh
 
 # Install mamba/conda
 RUN curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh && \
     /bin/bash ~/mambaforge.sh -b -p /opt/conda && \
     rm ~/mambaforge.sh
-RUN chown -R legacyhalos.user /homedir
 
-# Finally, swap to non-root user
+# Finally, swap to non-root user and set their home directory
 USER legacyhalos
+ENV HOME=/opt/legacyhalos
 
+# Install the development environment
 RUN . /opt/conda/etc/profile.d/conda.sh && \
-    cd /opt/legacyhalos/workdir && \
+    cd /opt/legacyhalos/src && \
     mamba env create -p /opt/legacyhalos/env -f environment.yml && \
     conda clean -af --yes
 
@@ -52,8 +53,9 @@ RUN . /opt/conda/etc/profile.d/conda.sh && \
     mamba remove mpi4py && \
     mamba install -c conda-forge  "mpich=4.0.3=external_*" mpi4py 
 
+# Install legacyhalos into the conda environment
 RUN . /opt/conda/etc/profile.d/conda.sh && \
-    cd /opt/legacyhalos/workdir && \
+    cd /opt/legacyhalos/src && \
     conda activate /opt/legacyhalos/env && \
     pip install . --no-deps
 
