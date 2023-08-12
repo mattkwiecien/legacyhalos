@@ -24,6 +24,10 @@ RUN /usr/sbin/groupadd -g 1000 user && \
 COPY . /opt/legacyhalos/workdir
 RUN chown -R legacyhalos.user /opt/legacyhalos/workdir
 
+COPY docker/entrypoint.sh /opt/legacyhalos/entrypoint.sh
+RUN chown legacyhalos.user /opt/legacyhalos/entrypoint.sh && \
+    chmod u+x /opt/legacyhalos/entrypoint.sh
+
 # Install mamba/conda
 RUN curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh && \
     /bin/bash ~/mambaforge.sh -b -p /opt/conda && \
@@ -51,7 +55,7 @@ ENV IPYTHONDIR /tmp/ipython-config
 ENV PYTHONPATH=/home/legacyhalos/src:$PYTHONPATH
 ENV PATH=/home/legacyhalos/src:$PATH
 
-# ENTRYPOINT [ "/opt/legacyhalos/startup.sh" ]
+ENTRYPOINT [ "/opt/legacyhalos/entrypoint.sh" ]
 
 
 # # # MPI install needs to be done explicitly 

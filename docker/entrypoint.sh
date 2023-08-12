@@ -1,6 +1,4 @@
 #!/bin/bash --login
 set -e
-
-source $CONDA_DIR/etc/profile.d/conda.sh
-conda activate legacyhalos-env
+source /opt/legacyhalos/startup.sh
 exec "$@"
