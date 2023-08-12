@@ -60,9 +60,7 @@ class MpiStep(ABC):
             )
             galaxy, galaxydir = get_galaxy_galaxydir(self.sample[failures])
 
-            for ii, dd, diam in zip(
-                failures, np.atleast_1d(galaxydir), self.sample[failures][diam_column]
-            ):
+            for ii, dd, diam in zip(failures, np.atleast_1d(galaxydir), self.sample[failures][diam_column]):
                 print(f"  {ii} {dd} (r={diam:.3f} arcsec)", flush=True)
 
             return
@@ -90,9 +88,7 @@ class MpiStep(ABC):
                     flush=True,
                 )
                 galaxy, galaxydir = get_galaxy_galaxydir(self.sample[todo])
-                for ii, dd, diam in zip(
-                    todo, np.atleast_1d(galaxydir), self.sample[todo][diam_column]
-                ):
+                for ii, dd, diam in zip(todo, np.atleast_1d(galaxydir), self.sample[todo][diam_column]):
                     print(f"  {ii} {dd} (r={diam:.3f} arcsec)")
             return
 
@@ -111,17 +107,11 @@ class MpiStep(ABC):
                 os.makedirs(galaxydir, exist_ok=True)
 
             print(
-                "Rank {:03d} ({} / {}): {} (index {})".format(
-                    rank, count + 1, len(my_groups), galaxydir, ii
-                ),
+                "Rank {:03d} ({} / {}): {} (index {})".format(rank, count + 1, len(my_groups), galaxydir, ii),
                 flush=True,
             )
 
-            self.logfile = (
-                os.path.join(galaxydir, f"{galaxy}-{suffix}.log")
-                if self.args.debug
-                else None
-            )
+            self.logfile = os.path.join(galaxydir, f"{galaxy}-{suffix}.log") if self.args.debug else None
             # Need the cluster "radius" to build the coadds.
             self.radius_mosaic_arcsec = self.onegal[diam_column] / 2  # radius [arcsec]
             self.subsky_radii = self.radius_mosaic_arcsec * np.array(
@@ -137,9 +127,7 @@ class MpiStep(ABC):
                 ]
             )  # annulus 3
 
-            self.lh_run = legacyhalos.io.get_run(
-                self.onegal, racolumn=ra_column, deccolumn=dec_column
-            )
+            self.lh_run = legacyhalos.io.get_run(self.onegal, racolumn=ra_column, deccolumn=dec_column)
             self.survey = legacypipe.runs.get_survey(self.lh_run, output_dir=galaxydir)
 
             self.run()
@@ -160,9 +148,7 @@ class MpiStep(ABC):
                     flush=True,
                 )
 
-                _, groups, _, _ = legacyhalos.sv3.missing_files(
-                    self.args, self.sample, self.size, clobber_overwrite=False
-                )
+                _, groups, _, _ = legacyhalos.sv3.missing_files(self.args, self.sample, self.size, clobber_overwrite=False)
 
                 if len(groups) > 0:
                     stilltodo = len(np.hstack(groups))

@@ -78,9 +78,7 @@ def main():
             ref["mag_leda"] = sample[MAGCOLUMN]
             ref["ba"] = np.repeat(1.0, ngal).astype("f4")  # fixed b/a
             ref["pa"] = np.repeat(0.0, ngal).astype("f4")  # fixed position angle
-            ref["diam"] = np.repeat(10.0 / 60.0, ngal).astype(
-                "f4"
-            )  # fixed diameter = 10 arcsec [arcmin]
+            ref["diam"] = np.repeat(10.0 / 60.0, ngal).astype("f4")  # fixed diameter = 10 arcsec [arcmin]
 
             # Directly get the path to the reference catalog from the environment.
             reffile = os.environ["LARGEGALAXIES_CAT"]
@@ -138,9 +136,7 @@ def main():
     if rank == 0:
         ntodo = len(np.hstack(groups))
         print(
-            "{} left to do: {} / {} divided across {} rank(s).".format(
-                suffix.upper(), ntodo, len(sample), size
-            ),
+            "{} left to do: {} / {} divided across {} rank(s).".format(suffix.upper(), ntodo, len(sample), size),
             flush=True,
         )
 
@@ -151,9 +147,7 @@ def main():
     if len(groups[rank]) == 0:
         # This MPI rank has no more work to do, so early exit.
         print(
-            "{} for all {} galaxies on rank {} are complete!".format(
-                suffix.upper(), len(sample), rank
-            ),
+            "{} for all {} galaxies on rank {} are complete!".format(suffix.upper(), len(sample), rank),
             flush=True,
         )
 
@@ -163,36 +157,26 @@ def main():
                 return
 
             print(
-                "{} failures: {} / {}".format(
-                    suffix.upper(), len(fail[rank]), len(sample)
-                ),
+                "{} failures: {} / {}".format(suffix.upper(), len(fail[rank]), len(sample)),
                 flush=True,
             )
             galaxy, galaxydir = get_galaxy_galaxydir(sample[fail[rank]])
 
-            for ii, dd, diam in zip(
-                fail[rank], np.atleast_1d(galaxydir), sample[fail[rank]][DIAMCOLUMN]
-            ):
+            for ii, dd, diam in zip(fail[rank], np.atleast_1d(galaxydir), sample[fail[rank]][DIAMCOLUMN]):
                 print("  {} {} (r={:.3f} arcsec)".format(ii, dd, diam), flush=True)
 
         return
 
-    print(
-        "Rank {}: {} galaxies left to do.".format(rank, len(groups[rank])), flush=True
-    )
+    print("Rank {}: {} galaxies left to do.".format(rank, len(groups[rank])), flush=True)
 
     if rank == 0 and args.count and args.debug:
         if len(fail[rank]) > 0:
             print(
-                "{} failures: {} / {}".format(
-                    suffix.upper(), len(fail[rank]), len(sample)
-                ),
+                "{} failures: {} / {}".format(suffix.upper(), len(fail[rank]), len(sample)),
                 flush=True,
             )
             galaxy, galaxydir = get_galaxy_galaxydir(sample[fail[rank]])
-            for ii, dd, diam in zip(
-                fail[rank], np.atleast_1d(galaxydir), sample[fail[rank]][DIAMCOLUMN]
-            ):
+            for ii, dd, diam in zip(fail[rank], np.atleast_1d(galaxydir), sample[fail[rank]][DIAMCOLUMN]):
                 print("  {} {} (r={:.3f} arcsec)".format(ii, dd, diam))
 
         todo = np.hstack(groups)
@@ -202,9 +186,7 @@ def main():
                 flush=True,
             )
             galaxy, galaxydir = get_galaxy_galaxydir(sample[todo])
-            for ii, dd, diam in zip(
-                todo, np.atleast_1d(galaxydir), sample[todo][DIAMCOLUMN]
-            ):
+            for ii, dd, diam in zip(todo, np.atleast_1d(galaxydir), sample[todo][DIAMCOLUMN]):
                 print("  {} {} (r={:.3f} arcsec)".format(ii, dd, diam))
         return
 
@@ -225,9 +207,7 @@ def main():
             os.makedirs(galaxydir, exist_ok=True)
 
         print(
-            "Rank {:03d} ({} / {}): {} (index {})".format(
-                rank, count + 1, len(groups[rank]), galaxydir, ii
-            ),
+            "Rank {:03d} ({} / {}): {} (index {})".format(rank, count + 1, len(groups[rank]), galaxydir, ii),
             flush=True,
         )
 
@@ -362,9 +342,7 @@ def main():
             flush=True,
         )
 
-        _, groups, _, _ = legacyhalos.sv3.missing_files(
-            args, sample, size, clobber_overwrite=False
-        )
+        _, groups, _, _ = legacyhalos.sv3.missing_files(args, sample, size, clobber_overwrite=False)
 
         if len(groups) > 0:
             stilltodo = len(np.hstack(groups))

@@ -51,9 +51,7 @@ def isolate_central(cat, wcs, psf_sigma=1.1, radius_search=5.0, centrals=True):
     if centrals:
         # Build a model image with all the sources whose centroids are within
         # the inner XX% of the mosaic and then "find" the central galaxy.
-        m1, m2, d12 = match_radec(
-            cat.ra, cat.dec, racen, deccen, 0.5 * radius_mosaic / 3600.0, nearest=False
-        )
+        m1, m2, d12 = match_radec(cat.ra, cat.dec, racen, deccen, 0.5 * radius_mosaic / 3600.0, nearest=False)
         srcs = read_fits_catalog(cat[m1], fluxPrefix="")
         mod = legacyhalos.misc.srcs2image(srcs, wcs, psf_sigma=psf_sigma)
         if np.sum(np.isnan(mod)) > 0:
@@ -86,26 +84,20 @@ def isolate_central(cat, wcs, psf_sigma=1.1, radius_search=5.0, centrals=True):
             these = np.zeros(len(cat), dtype=bool)
 
         # Also add the sources nearest to the central coordinates.
-        m1, m2, d12 = match_radec(
-            cat.ra, cat.dec, racen, deccen, radius_search / 3600.0, nearest=False
-        )
+        m1, m2, d12 = match_radec(cat.ra, cat.dec, racen, deccen, radius_search / 3600.0, nearest=False)
         if len(m1) > 0:
             these[m1] = True
 
         if np.sum(these) > 0:
             keep[these] = False
         else:
-            m1, m2, d12 = match_radec(
-                cat.ra, cat.dec, racen, deccen, radius_search / 3600.0, nearest=False
-            )
+            m1, m2, d12 = match_radec(cat.ra, cat.dec, racen, deccen, radius_search / 3600.0, nearest=False)
             if len(d12) > 0:
                 keep = ~np.isin(cat.objid, cat[m1].objid)
     else:
         # Find and remove all the objects within XX arcsec of the target
         # coordinates.
-        m1, m2, d12 = match_radec(
-            cat.ra, cat.dec, racen, deccen, radius_search / 3600.0, nearest=False
-        )
+        m1, m2, d12 = match_radec(cat.ra, cat.dec, racen, deccen, radius_search / 3600.0, nearest=False)
         if len(d12) > 0:
             keep = ~np.isin(cat.objid, cat[m1].objid)
         else:
@@ -148,10 +140,7 @@ def _build_objmask(img, ivar, skypix, boxcar=5, boxsize=1024):
     skyobj.addTo(skymod)
 
     bskysig1 = skysig1 / boxcar  # sigma of boxcar-smoothed image.
-    objmask = np.abs(
-        uniform_filter(img - skyval - skymod, size=boxcar, mode="constant")
-        > (3 * bskysig1)
-    )
+    objmask = np.abs(uniform_filter(img - skyval - skymod, size=boxcar, mode="constant") > (3 * bskysig1))
     objmask = binary_dilation(objmask, iterations=3)
 
     return objmask
@@ -171,9 +160,7 @@ def _get_skystats(img, ivarmask, refmask, galmask, objmask, skymask, tim):
         print("No viable sky pixels; using pipeline sky statistics!", file=log)
         pipesky = np.zeros_like(img)
         tim.sky.addTo(pipesky)
-        skymean, skymedian, skysig = sigma_clipped_stats(
-            pipesky, mask=~skymask, sigma=3.0
-        )
+        skymean, skymedian, skysig = sigma_clipped_stats(pipesky, mask=~skymask, sigma=3.0)
         try:
             skymode = estimate_mode(pipesky[skymask], raiseOnWarn=True).astype("f4")
         except:
@@ -183,9 +170,7 @@ def _get_skystats(img, ivarmask, refmask, galmask, objmask, skymask, tim):
         skypix = ((ivarmask * 1 + galmask * 1 + objmask * 1) == 0) * skymask
 
         try:
-            skymean, skymedian, skysig = sigma_clipped_stats(
-                img, mask=~skypix, sigma=3.0
-            )
+            skymean, skymedian, skysig = sigma_clipped_stats(img, mask=~skypix, sigma=3.0)
         except:
             print("Warning: sky statistic estimates failed!", file=log)
             skymean, skymedian, skysig = 0.0, 0.0, 0.0
@@ -205,9 +190,7 @@ def _custom_sky(args):
     return custom_sky(*args)
 
 
-def custom_sky(
-    survey, brickname, brickwcs, onegal, radius_mask_arcsec, apodize, sky_annulus, ccd
-):
+def custom_sky(survey, brickname, brickwcs, onegal, radius_mask_arcsec, apodize, sky_annulus, ccd):
     """Perform custom sky-subtraction on a single CCD."""
     from astrometry.util.resample import resample_with_wcs
     from legacypipe.reference import get_reference_sources
@@ -236,9 +219,7 @@ def custom_sky(
 
     radius_mask = np.round(radius_mask_arcsec / im.pixscale).astype("int")  # [pixels]
 
-    tim = im.get_tractor_image(
-        splinesky=True, subsky=False, hybridPsf=True, normalizePsf=True, apodize=apodize
-    )
+    tim = im.get_tractor_image(splinesky=True, subsky=False, hybridPsf=True, normalizePsf=True, apodize=apodize)
 
     targetwcs, bands = tim.subwcs, tim.band
     H, W = targetwcs.shape
@@ -249,9 +230,7 @@ def custom_sky(
 
     # Next, read the splinesky model (for comparison purposes).
     T = fits_table(im.merged_splineskyfn)
-    (I,) = np.nonzero(
-        (T.expnum == im.expnum) * np.array([c.strip() == im.ccdname for c in T.ccdname])
-    )
+    (I,) = np.nonzero((T.expnum == im.expnum) * np.array([c.strip() == im.ccdname for c in T.ccdname]))
     if len(I) != 1:
         print("Multiple splinesky models!", file=log)
         return 0
@@ -286,12 +265,8 @@ def custom_sky(
     # Next, optionally define an annulus of sky pixels centered on the object of
     # interest.
     if sky_annulus:
-        skyfactor_in = np.array(
-            [0.5, 0.5, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0], dtype="f4"
-        )
-        skyfactor_out = np.array(
-            [1.0, 2.0, 2.0, 3.0, 4.0, 3.0, 4.0, 5.0, 5.0], dtype="f4"
-        )
+        skyfactor_in = np.array([0.5, 0.5, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0], dtype="f4")
+        skyfactor_out = np.array([1.0, 2.0, 2.0, 3.0, 4.0, 3.0, 4.0, 5.0, 5.0], dtype="f4")
         # skyrow_use = (skyfactor_in == 2.0) * (skyfactor_out == 4.0)
         skyrow_use = np.zeros(len(skyfactor_in)).astype(bool)
         skyrow_use[7] = True
@@ -311,9 +286,7 @@ def custom_sky(
             if np.sum(skymask) == 0:
                 skymask = np.ones_like(img).astype(bool)
 
-            skymean1, skymedian1, skysig1, skymode1 = _get_skystats(
-                img, ivarmask, refmask, galmask, objmask, skymask, tim
-            )
+            skymean1, skymedian1, skysig1, skymode1 = _get_skystats(img, ivarmask, refmask, galmask, objmask, skymask, tim)
             skymean[ii], skymedian[ii], skysig[ii], skymode[ii] = (
                 skymean1,
                 skymedian1,
@@ -322,15 +295,11 @@ def custom_sky(
             )
     else:
         nsky = 1
-        skyfactor_in, skyfactor_out = np.array(0.0, dtype="f4"), np.array(
-            0.0, dtype="f4"
-        )
+        skyfactor_in, skyfactor_out = np.array(0.0, dtype="f4"), np.array(0.0, dtype="f4")
         skyrow_use = np.array(False)
 
         skymask = np.ones_like(img).astype(bool)
-        skymean, skymedian, skysig, skymode = _get_skystats(
-            img, ivarmask, refmask, galmask, objmask, skymask, tim
-        )
+        skymean, skymedian, skysig, skymode = _get_skystats(img, ivarmask, refmask, galmask, objmask, skymask, tim)
 
     # Final steps:
 
@@ -363,9 +332,7 @@ def custom_sky(
     hdr.add_record(dict(name="CAMERA", value=im.camera))
     hdr.add_record(dict(name="EXPNUM", value=im.expnum))
     hdr.add_record(dict(name="CCDNAME", value=im.ccdname))
-    hdr.add_record(
-        dict(name="RADMASK", value=np.array(radius_mask, dtype="f4"), comment="pixels")
-    )
+    hdr.add_record(dict(name="RADMASK", value=np.array(radius_mask, dtype="f4"), comment="pixels"))
     hdr.add_record(dict(name="XCEN", value=x0 - 1, comment="zero-indexed"))
     hdr.add_record(dict(name="YCEN", value=y0 - 1, comment="zero-indexed"))
 
@@ -478,9 +445,7 @@ def obsolete_custom_coadds(
     opt.tycho_stars = False
     opt.gaia_stars = False
     opt.large_galaxies = False
-    opt.outlier_mask_file = os.path.join(
-        survey.output_dir, "{}-outlier-mask.fits.fz".format(galaxy)
-    )
+    opt.outlier_mask_file = os.path.join(survey.output_dir, "{}-outlier-mask.fits.fz".format(galaxy))
 
     _, kwargs = legacypipe.runbrick.get_runbrick_kwargs(**vars(opt))
 
@@ -545,18 +510,14 @@ def obsolete_custom_coadds(
     del P
 
     # Read and apply the outlier masks.
-    outliersfile = os.path.join(
-        survey.output_dir, "{}-outlier-mask.fits.fz".format(galaxy)
-    )
+    outliersfile = os.path.join(survey.output_dir, "{}-outlier-mask.fits.fz".format(galaxy))
     if not os.path.isfile(outliersfile):
         print("Missing outliers masks {}".format(outliersfile), flush=True, file=log)
         return 0
 
     outliers = fitsio.FITS(outliersfile)
     for tim in tims:
-        ext = "{}-{}-{}".format(
-            tim.imobj.camera, tim.imobj.expnum, tim.imobj.ccdname.lower().strip()
-        )
+        ext = "{}-{}-{}".format(tim.imobj.camera, tim.imobj.expnum, tim.imobj.ccdname.lower().strip())
         if ext in outliers:
             mask = outliers[ext].read()
             maskhdr = outliers[ext].read_header()
@@ -571,10 +532,7 @@ def obsolete_custom_coadds(
 
     # [2] Derive the custom mask and sky background for each (full) CCD and
     # write out a MEF -custom-mask.fits.gz file.
-    skyargs = [
-        (survey, brickname, brickwcs, onegal, radius_mask, apodize, sky_annulus, _ccd)
-        for _ccd in survey.ccds
-    ]
+    skyargs = [(survey, brickname, brickwcs, onegal, radius_mask, apodize, sky_annulus, _ccd) for _ccd in survey.ccds]
     result = mp.map(_custom_sky, skyargs)
     # result = list( zip( *mp.map(_custom_sky, args) ) )
     sky = dict()
@@ -591,9 +549,7 @@ def obsolete_custom_coadds(
     hdr.delete("IMAGEW")
     hdr.delete("IMAGEH")
 
-    maskfile = os.path.join(
-        survey.output_dir, "{}-custom-mask-grz.fits.gz".format(galaxy)
-    )
+    maskfile = os.path.join(survey.output_dir, "{}-custom-mask-grz.fits.gz".format(galaxy))
     fitsio.write(maskfile, comask, header=hdr, clobber=True)
     print("Writing {}".format(maskfile), flush=True, file=log)
     del comask
@@ -614,27 +570,21 @@ def obsolete_custom_coadds(
     for ii, ccd in enumerate(survey.ccds):
         im = survey.get_image_object(ccd)
         ext = "{}-{}-{}".format(im.camera, im.expnum, im.ccdname.lower().strip())
-        sky["{}-customsky".format(ext)].write_to(
-            skyfile, append=ii > 0, extname=ext, header=sky["{}-header".format(ext)]
-        )
+        sky["{}-customsky".format(ext)].write_to(skyfile, append=ii > 0, extname=ext, header=sky["{}-header".format(ext)])
 
     # Optionally write out separate CCD-level files with the images/data and
     # individual masks (converted to unsigned integer).  These are still pretty
     # big and I'm not sure we will ever need them.  Keep the code here for
     # legacy value but don't write out.
     if write_ccddata:
-        ccdfile = os.path.join(
-            survey.output_dir, "{}-custom-ccdmask-grz.fits.gz".format(galaxy)
-        )
+        ccdfile = os.path.join(survey.output_dir, "{}-custom-ccdmask-grz.fits.gz".format(galaxy))
         print("Writing {}".format(ccdfile), flush=True, file=log)
         if os.path.isfile(ccdfile):
             os.remove(ccdfile)
         with fitsio.FITS(ccdfile, "rw") as ff:
             for ii, ccd in enumerate(survey.ccds):
                 im = survey.get_image_object(ccd)
-                ext = "{}-{}-{}".format(
-                    im.camera, im.expnum, im.ccdname.lower().strip()
-                )
+                ext = "{}-{}-{}".format(im.camera, im.expnum, im.ccdname.lower().strip())
                 hdr = sky["{}-header".format(ext)]
                 ff.write(sky["{}-mask".format(ext)], extname=ext, header=hdr)
 
@@ -642,18 +592,14 @@ def obsolete_custom_coadds(
         # the code here for legacy purposes but I'm not sure we should ever
         # write it out.
         if False:
-            ccdfile = os.path.join(
-                survey.output_dir, "{}-ccddata-grz.fits.fz".format(galaxy)
-            )
+            ccdfile = os.path.join(survey.output_dir, "{}-ccddata-grz.fits.fz".format(galaxy))
             print("Writing {}".format(ccdfile), flush=True, file=log)
             if os.path.isfile(ccdfile):
                 os.remove(ccdfile)
             with fitsio.FITS(ccdfile, "rw") as ff:
                 for ii, ccd in enumerate(survey.ccds):
                     im = survey.get_image_object(ccd)
-                    ext = "{}-{}-{}".format(
-                        im.camera, im.expnum, im.ccdname.lower().strip()
-                    )
+                    ext = "{}-{}-{}".format(im.camera, im.expnum, im.ccdname.lower().strip())
                     hdr = sky["{}-header".format(ext)]
                     ff.write(
                         sky["{}-image".format(ext)].astype("f4"),
@@ -694,9 +640,7 @@ def obsolete_custom_coadds(
 
     # [4] Read the pipeline Tractor catalog and update the individual-object
     # photometry measured from the custom sky-subtracted CCDs.
-    tractorfile = os.path.join(
-        survey.output_dir, "{}-pipeline-tractor.fits".format(galaxy)
-    )
+    tractorfile = os.path.join(survey.output_dir, "{}-pipeline-tractor.fits".format(galaxy))
     if not os.path.isfile(tractorfile):
         print("Missing Tractor catalog {}".format(tractorfile), flush=True, file=log)
         return 0
@@ -718,9 +662,7 @@ def obsolete_custom_coadds(
             flush=True,
             file=log,
         )
-        forcedflx = mp.map(
-            _forced_phot, [(custom_tims, custom_srcs, band) for band in bands]
-        )
+        forcedflx = mp.map(_forced_phot, [(custom_tims, custom_srcs, band) for band in bands])
         # forcedflx = []
         # for band in bands:
         #    forcedflx.append(forced_phot(custom_tims, custom_srcs, band))
@@ -735,9 +677,7 @@ def obsolete_custom_coadds(
             custom_cat.set("flux_{}".format(band), flux.astype("f4"))
             custom_cat.set("flux_ivar_{}".format(band), ivar.astype("f4"))
 
-        tractorfile = os.path.join(
-            survey.output_dir, "{}-custom-tractor.fits".format(galaxy)
-        )
+        tractorfile = os.path.join(survey.output_dir, "{}-custom-tractor.fits".format(galaxy))
         if os.path.isfile(tractorfile):
             os.remove(tractorfile)
         custom_cat.writeto(tractorfile)
@@ -773,12 +713,8 @@ def obsolete_custom_coadds(
     custom_mods = mp.map(_get_mod, [(tim, custom_srcs) for tim in custom_tims])
     pipeline_mods = mp.map(_get_mod, [(tim, pipeline_srcs) for tim in pipeline_tims])
 
-    custom_mods_nocentral = mp.map(
-        _get_mod, [(tim, custom_srcs_nocentral) for tim in custom_tims]
-    )
-    pipeline_mods_nocentral = mp.map(
-        _get_mod, [(tim, pipeline_srcs_nocentral) for tim in pipeline_tims]
-    )
+    custom_mods_nocentral = mp.map(_get_mod, [(tim, custom_srcs_nocentral) for tim in custom_tims])
+    pipeline_mods_nocentral = mp.map(_get_mod, [(tim, pipeline_srcs_nocentral) for tim in pipeline_tims])
 
     # import matplotlib.pyplot as plt ; plt.imshow(np.log10(mod), origin='lower') ; plt.savefig('junk.png')
     # pdb.set_trace()
@@ -894,9 +830,7 @@ def obsolete_custom_coadds(
         for suffix, ims, rgbkw in coadd_list:
             rgb = get_rgb(ims, bands, **rgbkw)
             kwa = {}
-            outfn = os.path.join(
-                survey.output_dir, "{}-{}-grz.jpg".format(galaxy, suffix)
-            )
+            outfn = os.path.join(survey.output_dir, "{}-{}-grz.jpg".format(galaxy, suffix))
             print("Writing {}".format(outfn), flush=True, file=log)
             imsave_jpeg(outfn, rgb, origin="lower", **kwa)
             del rgb
@@ -908,9 +842,7 @@ def obsolete_custom_coadds(
     if cleanup:
         shutil.rmtree(os.path.join(survey.output_dir, "coadd"))
         for stage in ("srcs", "checkpoint"):
-            picklefile = os.path.join(
-                survey.output_dir, "{}-runbrick-{}.p".format(galaxy, stage)
-            )
+            picklefile = os.path.join(survey.output_dir, "{}-runbrick-{}.p".format(galaxy, stage))
             if os.path.isfile(picklefile):
                 os.remove(picklefile)
 
@@ -1019,11 +951,7 @@ def coadds_skysub(
             ax.set_aspect("equal")
 
         plt.subplots_adjust(bottom=0.12, wspace=0.05, left=0.12, right=0.97, top=0.95)
-        plt.savefig(
-            os.path.join(
-                survey.output_dir, "metrics", "cus", "{}-ccdpos.jpg".format(ps.basefn)
-            )
-        )
+        plt.savefig(os.path.join(survey.output_dir, "metrics", "cus", "{}-ccdpos.jpg".format(ps.basefn)))
 
     if plots:
         plt.figure(figsize=(8, 6))
@@ -1046,9 +974,7 @@ def coadds_skysub(
 
     for tim in tims:
         # full-field mosaic with no sky-subtraction
-        tim.imobj.get_tractor_image(
-            gaussPsf=True, pixPsf=False, subsky=False, dq=True, apodize=False
-        )
+        tim.imobj.get_tractor_image(gaussPsf=True, pixPsf=False, subsky=False, dq=True, apodize=False)
         H, W = tim.subwcs.shape
         H, W = np.int(H), np.int(W)
         pixel_scale = tim.subwcs.pixel_scale()
@@ -1082,10 +1008,7 @@ def coadds_skysub(
         I = np.where(allbands == band)[0]
 
         bandtims = [
-            tims[ii].imobj.get_tractor_image(
-                gaussPsf=True, pixPsf=False, subsky=False, dq=True, apodize=False
-            )
-            for ii in I
+            tims[ii].imobj.get_tractor_image(gaussPsf=True, pixPsf=False, subsky=False, dq=True, apodize=False) for ii in I
         ]
 
     C = make_coadds(tims, bands, targetwcs, callback=None, sbscale=False, mp=mp)

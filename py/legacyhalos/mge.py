@@ -151,9 +151,7 @@ from scipy import signal, ndimage
 
 
 class find_galaxy(object):
-    def __init__(
-        self, img, fraction=0.1, plot=False, quiet=False, nblob=1, level=None, binning=5
-    ):
+    def __init__(self, img, fraction=0.1, plot=False, quiet=False, nblob=1, level=None, binning=5):
         """
         With nblob=1 find the ellipse of inertia of the largest
         connected region in the image, with nblob=2 find the second

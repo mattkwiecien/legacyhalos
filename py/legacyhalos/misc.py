@@ -55,10 +55,7 @@ def srcs2image(cat, wcs, band="r", allbands="grz", pixelized_psf=None, psf_sigma
     import tractor, legacypipe, astrometry
     from legacypipe.catalog import read_fits_catalog
 
-    if (
-        type(wcs) is tractor.wcs.ConstantFitsWcs
-        or type(wcs) is legacypipe.survey.LegacySurveyWcs
-    ):
+    if type(wcs) is tractor.wcs.ConstantFitsWcs or type(wcs) is legacypipe.survey.LegacySurveyWcs:
         shape = wcs.wcs.shape
     else:
         shape = wcs.shape
@@ -322,9 +319,7 @@ def statsinbins(xx, yy, binsize=0.1, minpts=10, xmin=None, xmax=None):
 
 
 def custom_brickname(ra, dec):
-    brickname = "{:06d}{}{:05d}".format(
-        int(1000 * ra), "m" if dec < 0 else "p", int(1000 * np.abs(dec))
-    )
+    brickname = "{:06d}{}{:05d}".format(int(1000 * ra), "m" if dec < 0 else "p", int(1000 * np.abs(dec)))
     return brickname
 
 
@@ -372,11 +367,7 @@ def radec2pix(nside, ra, dec):
         raise ValueError("some NaN theta values")
 
     if np.sum((theta < 0) | (theta > np.pi)) > 0:
-        raise ValueError(
-            "some theta values are outside [0,pi]: {}".format(
-                theta[(theta < 0) | (theta > np.pi)]
-            )
-        )
+        raise ValueError("some theta values are outside [0,pi]: {}".format(theta[(theta < 0) | (theta > np.pi)]))
 
     return hp.ang2pix(nside, theta, phi, nest=True)
 
@@ -465,9 +456,7 @@ def missing_files(sample, size=1, filetype="coadds", clobber=False):
     indices = np.arange(ngal)
     todo = np.ones(ngal, dtype=bool)
 
-    for ii, (objid1, objdir1) in enumerate(
-        zip(np.atleast_1d(objid), np.atleast_1d(objdir))
-    ):
+    for ii, (objid1, objdir1) in enumerate(zip(np.atleast_1d(objid), np.atleast_1d(objdir))):
         residfile = os.path.join(objdir1, "{}-{}".format(objid1, filesuffix))
         if os.path.exists(residfile) and clobber is False:
             todo[ii] = False
@@ -508,18 +497,12 @@ def get_area(cen, nside=256, qaplot=False):
 
     areaperpix = hp.nside2pixarea(nside, degrees=True)
     samplepix = radec2pix(nside, cen["RA"], cen["DEC"])
-    print(
-        "Subdividing the sample into nside={} healpixels with area={:.4f} deg2 per pixel.".format(
-            nside, areaperpix
-        )
-    )
+    print("Subdividing the sample into nside={} healpixels with area={:.4f} deg2 per pixel.".format(nside, areaperpix))
 
     outpixmap = []
     for dr, release in zip(("dr6.0", "dr7.1"), (6000, 7000)):
         # Read the pixel weight map which quantifies the imaging footprint
-        pixfile = os.path.join(
-            legacyhalos.io.sample_dir(), "pixweight-{}-0.22.0.fits".format(dr)
-        )
+        pixfile = os.path.join(legacyhalos.io.sample_dir(), "pixweight-{}-0.22.0.fits".format(dr))
         pixmap = Table(fitsio.read(pixfile))
         pixmap["DR"] = dr.upper()
 

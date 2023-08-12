@@ -130,9 +130,7 @@ def mwdust_transmission(ebv, band, photsys, match_legacy_surveys=False):
     Also see `dust_transmission` which returns transmission vs input wavelength
     """
     if isinstance(photsys, str):
-        r_band = extinction_total_to_selective_ratio(
-            band, photsys, match_legacy_surveys=match_legacy_surveys
-        )
+        r_band = extinction_total_to_selective_ratio(band, photsys, match_legacy_surveys=match_legacy_surveys)
         a_band = r_band * ebv
         transmission = 10 ** (-a_band / 2.5)
         return transmission
@@ -141,16 +139,12 @@ def mwdust_transmission(ebv, band, photsys, match_legacy_surveys=False):
         if np.isscalar(ebv):
             raise ValueError("array photsys requires array ebv")
         if len(ebv) != len(photsys):
-            raise ValueError(
-                "len(ebv) {} != len(photsys) {}".format(len(ebv), len(photsys))
-            )
+            raise ValueError("len(ebv) {} != len(photsys) {}".format(len(ebv), len(photsys)))
 
         transmission = np.zeros(len(ebv))
         for p in np.unique(photsys):
             ii = photsys == p
-            r_band = extinction_total_to_selective_ratio(
-                band, p, match_legacy_surveys=match_legacy_surveys
-            )
+            r_band = extinction_total_to_selective_ratio(band, p, match_legacy_surveys=match_legacy_surveys)
             a_band = r_band * ebv[ii]
             transmission[ii] = 10 ** (-a_band / 2.5)
 
@@ -441,17 +435,13 @@ def ext_fitzpatrick(
     # Compute optical portion of A(lambda)/E(B-V) curve
     # using cubic spline anchored in UV, optical, and IR
 
-    xsplopir = np.concatenate(
-        ([0], 10000.0 / np.array([26500.0, 12200.0, 6000.0, 5470.0, 4670.0, 4110.0]))
-    )
+    xsplopir = np.concatenate(([0], 10000.0 / np.array([26500.0, 12200.0, 6000.0, 5470.0, 4670.0, 4110.0])))
     ysplir = np.array([0.0, 0.26469, 0.82925]) * R_V / 3.1
     ysplop = [
         np.polyval(np.array([2.13572e-04, 1.00270, -4.22809e-01]), R_V),
         np.polyval(np.array([-7.35778e-05, 1.00216, -5.13540e-02]), R_V),
         np.polyval(np.array([-3.32598e-05, 1.00184, 7.00127e-01]), R_V),
-        np.polyval(
-            np.array([-4.45636e-05, 7.97809e-04, -5.46959e-03, 1.01707, 1.19456]), R_V
-        ),
+        np.polyval(np.array([-4.45636e-05, 7.97809e-04, -5.46959e-03, 1.01707, 1.19456]), R_V),
     ]
 
     ysplopir = np.concatenate((ysplir, ysplop))
@@ -493,12 +483,7 @@ def dust_transmission(wave, ebv_sfd, Rv=3.1):
 
     Also see `mwdust_transmission` which return transmission within a filter
     """
-    extinction = (
-        ext_fitzpatrick(np.atleast_1d(wave), R_V=Rv)
-        / ext_fitzpatrick(np.array([10000.0]), R_V=Rv)
-        * ebv_sfd
-        * 1.029
-    )
+    extinction = ext_fitzpatrick(np.atleast_1d(wave), R_V=Rv) / ext_fitzpatrick(np.array([10000.0]), R_V=Rv) * ebv_sfd * 1.029
     if np.isscalar(wave):
         extinction = float(extinction[0])
     return 10 ** (-extinction / 2.5)
@@ -630,19 +615,8 @@ class _Hemisphere(object):
         :class:`~numpy.ndarray`
             Reddening values.
         """
-        x = (
-            self.crpix1
-            - 1.0
-            + self.lam_scal * np.cos(l) * np.sqrt(1.0 - self.sign * np.sin(b))
-        )
-        y = (
-            self.crpix2
-            - 1.0
-            - self.sign
-            * self.lam_scal
-            * np.sin(l)
-            * np.sqrt(1.0 - self.sign * np.sin(b))
-        )
+        x = self.crpix1 - 1.0 + self.lam_scal * np.cos(l) * np.sqrt(1.0 - self.sign * np.sin(b))
+        y = self.crpix2 - 1.0 - self.sign * self.lam_scal * np.sin(l) * np.sqrt(1.0 - self.sign * np.sin(b))
 
         # Get map values at these pixel coordinates.
         if interpolate:
@@ -761,9 +735,7 @@ class SFDMap(object):
             try:
                 c = args[0]
             except AttributeError:
-                raise ValueError(
-                    "single argument must be " "astropy.coordinates.SkyCoord"
-                )
+                raise ValueError("single argument must be " "astropy.coordinates.SkyCoord")
 
         elif len(args) == 2:
             lat, lon = args
@@ -907,9 +879,7 @@ def _get_ext_coeff(temp, photsys, band, ebv_sfd, rv=3.1):
 
     fluxunits = 1e-17 * u.erg / u.s / u.cm**2 / u.Angstrom
     mag_no_extinction = filter_response.get_ab_magnitude(sed * fluxunits, wave)
-    mag_with_extinction = filter_response.get_ab_magnitude(
-        sed * trans * fluxunits, wave
-    )
+    mag_with_extinction = filter_response.get_ab_magnitude(sed * trans * fluxunits, wave)
 
     # f = np.interp(wave, filter_response.wavelength,filter_response.response)
     # fwave = np.sum(sed * f * wave)/np.sum(sed * f)
@@ -949,9 +919,7 @@ def _main():
         photsys_survey = {"N": "BASS+MZLS", "S": "DECALS", "G": "Gaia"}
         count = 0
 
-        photsys_bands = list(itertools.product("NS", "GRZ")) + list(
-            itertools.product("G", ["G", "BP", "RP"])
-        )
+        photsys_bands = list(itertools.product("NS", "GRZ")) + list(itertools.product("G", ["G", "BP", "RP"]))
         for photsys, band in photsys_bands:
             count += 1
             color = "C{}".format(count % 10)

@@ -24,9 +24,7 @@ import legacyhalos.misc
 
 sns, _ = legacyhalos.misc.plot_style()
 
-fonttype = os.path.join(
-    os.getenv("LEGACYHALOS_CODE_DIR"), "py", "legacyhalos", "data", "Georgia-Italic.ttf"
-)
+fonttype = os.path.join(os.getenv("LEGACYHALOS_CODE_DIR"), "py", "legacyhalos", "data", "Georgia-Italic.ttf")
 prop = mpl.font_manager.FontProperties(fname=fonttype, size=12)
 
 # color-blind friendly color cycle:
@@ -240,12 +238,8 @@ def qa_maskbits(mask, tractor, ellipsefitall, colorimg, largegalaxy=False, png=N
             1 - ellipsefit["eps_moment"],
         )
 
-        reff, e1, e2 = EllipseE.fromRAbPhi(
-            diam * 60 / 2, ba, 180 - pa
-        )  # note the 180 rotation
-        inellipse = np.where(
-            is_in_ellipse(tractor["RA"], tractor["DEC"], ragal, decgal, reff, e1, e2)
-        )[0]
+        reff, e1, e2 = EllipseE.fromRAbPhi(diam * 60 / 2, ba, 180 - pa)  # note the 180 rotation
+        inellipse = np.where(is_in_ellipse(tractor["RA"], tractor["DEC"], ragal, decgal, reff, e1, e2))[0]
         if len(inellipse) < 3:
             continue
 
@@ -287,9 +281,7 @@ def qa_maskbits(mask, tractor, ellipsefitall, colorimg, largegalaxy=False, png=N
             np.radians(ellipsefit["pa_moment"] - 90),
         )
         if igal == 0:
-            ellaper.plot(
-                color=cb_colors["blue"], lw=2, ax=ax2, alpha=0.9, label="R(26)"
-            )
+            ellaper.plot(color=cb_colors["blue"], lw=2, ax=ax2, alpha=0.9, label="R(26)")
         else:
             ellaper.plot(color=cb_colors["blue"], lw=2, ax=ax2, alpha=0.9)
         ellaper.plot(color=cb_colors["blue"], lw=2, ls="-", ax=ax3, alpha=0.9)
@@ -317,9 +309,7 @@ def qa_maskbits(mask, tractor, ellipsefitall, colorimg, largegalaxy=False, png=N
             )
 
             # Hyperleda geometry
-            maxis = (
-                ellipsefit["d25_leda"] * 60 / ellipsefit["refpixscale"] / 2
-            )  # [pixels]
+            maxis = ellipsefit["d25_leda"] * 60 / ellipsefit["refpixscale"] / 2  # [pixels]
             ellaper = EllipticalAperture(
                 (ellipsefit["x0_moment"], ellipsefit["y0_moment"]),
                 maxis,
@@ -341,9 +331,7 @@ def qa_maskbits(mask, tractor, ellipsefitall, colorimg, largegalaxy=False, png=N
 
     # color mosaic
     draw = ImageDraw.Draw(colorimg)
-    ax1.imshow(
-        np.flipud(colorimg), interpolation="none"
-    )  # not sure why I have to flip here...
+    ax1.imshow(np.flipud(colorimg), interpolation="none")  # not sure why I have to flip here...
     ax1.set_aspect("equal")
     ax1.get_xaxis().set_visible(False)
     ax1.get_yaxis().set_visible(False)
@@ -414,9 +402,7 @@ def qa_curveofgrowth(
         cogflux = ellipsefit["cog_flux_{}".format(filt.lower())]
         cogivar = ellipsefit["cog_flux_ivar_{}".format(filt.lower())]
         chi2 = ellipsefit["cog_chi2_{}".format(filt.lower())]
-        if (
-            np.atleast_1d(cogsma)[0] == -1.0 or chi2 == -1.0
-        ):  # no measurement, or failed
+        if np.atleast_1d(cogsma)[0] == -1.0 or chi2 == -1.0:  # no measurement, or failed
             continue
 
         good = np.where((cogflux > 0) * (cogivar > 0))[0]
@@ -443,9 +429,7 @@ def qa_curveofgrowth(
             # label = r'{}={:.3f} ($\chi^2_\nu={:.1f}$)'.format(filt, magtot, chi2)
 
         # ax.plot(sma, cog, label=label)
-        ax.fill_between(
-            radius, cog - cogerr, cog + cogerr, label=label, color=col, alpha=0.9
-        )
+        ax.fill_between(radius, cog - cogerr, cog + cogerr, label=label, color=col, alpha=0.9)
         # facecolor=col, edgecolor='k', lw=2)
         # if np.any(np.iscomplex(sma)) or np.any(np.iscomplex(cog)) or np.any(np.iscomplex(cogerr)):
         #    pdb.set_trace()
@@ -455,9 +439,7 @@ def qa_curveofgrowth(
             _cog = pipeline_ellipsefit["cog_flux_{}".format(filt.lower())]
             _cogerr = pipeline_ellipsefit["cog_flux_ivar_{}".format(filt.lower())]
             # ax.plot(_sma, _cog, alpha=0.5, color='gray')
-            ax.fill_between(
-                _sma, _cog - _cogerr, _cog + _cogerr, facecolor=col, alpha=0.5
-            )  # , edgecolor='k', lw=1)
+            ax.fill_between(_sma, _cog - _cogerr, _cog + _cogerr, facecolor=col, alpha=0.5)  # , edgecolor='k', lw=1)
 
         smamodel = np.linspace(np.min(sma), xlim[1], 50)
         # smamodel = np.linspace(np.min(sma), np.max(sma), 50)
@@ -566,9 +548,7 @@ def qa_curveofgrowth(
             lline.append(ll), llabel.append("Moment Size")
 
         if len(lline) > 0:
-            leg2 = ax.legend(
-                lline, llabel, loc="lower left", fontsize=14, frameon=False
-            )
+            leg2 = ax.legend(lline, llabel, loc="lower left", fontsize=14, frameon=False)
             ax.add_artist(leg1)
 
     if smascale:
@@ -694,9 +674,7 @@ def qa_multiwavelength_sed(ellipsefit, tractor=None, png=None, verbose=True):
                 phot["tractor"]["abmag"][ifilt] = 22.5 - 2.5 * np.log10(flux)
                 phot["tractor"]["abmagerr"][ifilt] = 0.1
             if flux <= 0 and ivar > 0:
-                phot["tractor"]["abmag"][ifilt] = 22.5 - 2.5 * np.log10(
-                    1 / np.sqrt(ivar)
-                )
+                phot["tractor"]["abmag"][ifilt] = 22.5 - 2.5 * np.log10(1 / np.sqrt(ivar))
                 phot["tractor"]["abmagerr"][ifilt] = 0.75
                 phot["tractor"]["lower"][ifilt] = True
 
@@ -766,12 +744,8 @@ def qa_multiwavelength_sed(ellipsefit, tractor=None, png=None, verbose=True):
     if np.abs(ymax - ymin) > 15:
         ax.yaxis.set_major_locator(ticker.MultipleLocator(5))
     ax.set_ylim(ymin, ymax)
-    _addphot(
-        phot["mag_tot"], color="red", marker="s", alpha=1.0, label=r"$m_{\mathrm{tot}}$"
-    )
-    _addphot(
-        phot["mag_sb25"], color="orange", marker="^", alpha=0.9, label=r"$m(r<R_{25})$"
-    )
+    _addphot(phot["mag_tot"], color="red", marker="s", alpha=1.0, label=r"$m_{\mathrm{tot}}$")
+    _addphot(phot["mag_sb25"], color="orange", marker="^", alpha=0.9, label=r"$m(r<R_{25})$")
     _addphot(phot["tractor"], color="blue", marker="o", alpha=0.75, label="Tractor")
 
     # thisphot = phot['tractor']
@@ -842,17 +816,11 @@ def display_sersic(sersic, png=None, cosmo=None, verbose=False):
     ymnmax = [40, 0]
 
     fig, ax = plt.subplots(figsize=(7, 5))
-    for band, lam in zip(
-        sersic["bands"], (sersic["lambda_g"], sersic["lambda_r"], sersic["lambda_z"])
-    ):
+    for band, lam in zip(sersic["bands"], (sersic["lambda_g"], sersic["lambda_r"], sersic["lambda_z"])):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             # good = (lam == sersic['wave']) * np.isfinite(sersic['sb'])
-            good = (
-                (lam == sersic["wave"])
-                * np.isfinite(sersic["sb"])
-                * (sersic["sb"] / sersic["sberr"] > 1)
-            )
+            good = (lam == sersic["wave"]) * np.isfinite(sersic["sb"]) * (sersic["sb"] / sersic["sberr"] > 1)
 
         wave = sersic["wave"][good]
         rad = sersic["radius"][good]
@@ -865,78 +833,42 @@ def display_sersic(sersic, png=None, cosmo=None, verbose=False):
         if model is not None:
             filt = "${}$:".format(band)
             if "single" in sersic["modeltype"]:
-                n = r"$n={:.2f}$".format(
-                    model.get_sersicn(nref=model.nref, lam=lam, alpha=model.alpha)
-                )
-                r50 = r"$r_{{50}}={:.2f}\ kpc$".format(
-                    model.get_r50(r50ref=model.r50ref, lam=lam, beta=model.beta)
-                    * smascale
-                )
+                n = r"$n={:.2f}$".format(model.get_sersicn(nref=model.nref, lam=lam, alpha=model.alpha))
+                r50 = r"$r_{{50}}={:.2f}\ kpc$".format(model.get_r50(r50ref=model.r50ref, lam=lam, beta=model.beta) * smascale)
                 label = "{} {}, {}".format(filt, n, r50)
                 labelfont = 14
             elif "exponential" in sersic["modeltype"]:
-                n1 = r"$n_{{1}}={:.2f}$".format(
-                    model.get_sersicn(nref=model.nref1, lam=lam, alpha=model.alpha1)
-                )
+                n1 = r"$n_{{1}}={:.2f}$".format(model.get_sersicn(nref=model.nref1, lam=lam, alpha=model.alpha1))
                 n2 = r"$n_{{2}}={:.2f}$".format(model.nref2.value)
-                r50_1 = r"$r_{{50,1}}={:.2f}$".format(
-                    model.get_r50(r50ref=model.r50ref1, lam=lam, beta=model.beta1)
-                    * smascale
-                )
+                r50_1 = r"$r_{{50,1}}={:.2f}$".format(model.get_r50(r50ref=model.r50ref1, lam=lam, beta=model.beta1) * smascale)
                 r50_2 = r"$r_{{50,2}}={:.2f}\ kpc$".format(
-                    model.get_r50(r50ref=model.r50ref2, lam=lam, beta=model.beta2)
-                    * smascale
+                    model.get_r50(r50ref=model.r50ref2, lam=lam, beta=model.beta2) * smascale
                 )
                 label = "{} {}, {}, {}, {}".format(filt, n1, n2, r50_1, r50_2)
                 labelfont = 12
             elif "double" in sersic["modeltype"]:
-                n1 = r"$n_{{1}}={:.2f}$".format(
-                    model.get_sersicn(nref=model.nref1, lam=lam, alpha=model.alpha1)
-                )
-                n2 = r"$n_{{2}}={:.2f}$".format(
-                    model.get_sersicn(nref=model.nref2, lam=lam, alpha=model.alpha2)
-                )
-                r50_1 = r"$r_{{50,1}}={:.2f}$".format(
-                    model.get_r50(r50ref=model.r50ref1, lam=lam, beta=model.beta1)
-                    * smascale
-                )
+                n1 = r"$n_{{1}}={:.2f}$".format(model.get_sersicn(nref=model.nref1, lam=lam, alpha=model.alpha1))
+                n2 = r"$n_{{2}}={:.2f}$".format(model.get_sersicn(nref=model.nref2, lam=lam, alpha=model.alpha2))
+                r50_1 = r"$r_{{50,1}}={:.2f}$".format(model.get_r50(r50ref=model.r50ref1, lam=lam, beta=model.beta1) * smascale)
                 r50_2 = r"$r_{{50,2}}={:.2f}\ kpc$".format(
-                    model.get_r50(r50ref=model.r50ref2, lam=lam, beta=model.beta2)
-                    * smascale
+                    model.get_r50(r50ref=model.r50ref2, lam=lam, beta=model.beta2) * smascale
                 )
                 label = "{} {}, {}, {}, {}".format(filt, n1, n2, r50_1, r50_2)
                 labelfont = 12
             elif "triple" in sersic["modeltype"]:
-                n1 = r"$n_{{1}}={:.2f}$".format(
-                    model.get_sersicn(nref=model.nref1, lam=lam, alpha=model.alpha1)
-                )
-                n2 = r"$n_{{2}}={:.2f}$".format(
-                    model.get_sersicn(nref=model.nref2, lam=lam, alpha=model.alpha2)
-                )
-                n3 = r"$n_{{3}}={:.2f}$".format(
-                    model.get_sersicn(nref=model.nref3, lam=lam, alpha=model.alpha3)
-                )
-                r50_1 = r"$r_{{50,1}}={:.2f}$".format(
-                    model.get_r50(r50ref=model.r50ref1, lam=lam, beta=model.beta1)
-                    * smascale
-                )
-                r50_2 = r"$r_{{50,2}}={:.2f}$".format(
-                    model.get_r50(r50ref=model.r50ref2, lam=lam, beta=model.beta2)
-                    * smascale
-                )
+                n1 = r"$n_{{1}}={:.2f}$".format(model.get_sersicn(nref=model.nref1, lam=lam, alpha=model.alpha1))
+                n2 = r"$n_{{2}}={:.2f}$".format(model.get_sersicn(nref=model.nref2, lam=lam, alpha=model.alpha2))
+                n3 = r"$n_{{3}}={:.2f}$".format(model.get_sersicn(nref=model.nref3, lam=lam, alpha=model.alpha3))
+                r50_1 = r"$r_{{50,1}}={:.2f}$".format(model.get_r50(r50ref=model.r50ref1, lam=lam, beta=model.beta1) * smascale)
+                r50_2 = r"$r_{{50,2}}={:.2f}$".format(model.get_r50(r50ref=model.r50ref2, lam=lam, beta=model.beta2) * smascale)
                 r50_3 = r"$r_{{50,3}}={:.2f}\ kpc$".format(
-                    model.get_r50(r50ref=model.r50ref3, lam=lam, beta=model.beta3)
-                    * smascale
+                    model.get_r50(r50ref=model.r50ref3, lam=lam, beta=model.beta3) * smascale
                 )
                 # label = '{}, {}, {}\n{}, {}, {}'.format(n1, n2, n3, r50_1, r50_2, r50_3)
-                label = "{} {}, {}, {}\n    {}, {}, {}".format(
-                    filt, n1, n2, n3, r50_1, r50_2, r50_3
-                )
+                label = "{} {}, {}, {}\n    {}, {}, {}".format(filt, n1, n2, n3, r50_1, r50_2, r50_3)
                 labelfont = 12
             else:
-                raise ValueError(
-                    "Unrecognized model type {}".format(sersic["modeltype"])
-                )
+                raise ValueError("Unrecognized model type {}".format(sersic["modeltype"]))
         else:
             label = band
             labelfont = 12
@@ -948,9 +880,7 @@ def display_sersic(sersic, png=None, cosmo=None, verbose=False):
         mu = 22.5 - 2.5 * np.log10(sb)
         muerr = 2.5 * sberr / np.log(10) / sb
 
-        ax.fill_between(
-            rad, mu - muerr, mu + muerr, facecolor=col, label=label, alpha=1
-        )
+        ax.fill_between(rad, mu - muerr, mu + muerr, facecolor=col, label=label, alpha=1)
 
         if np.nanmin(mu - muerr) < ymnmax[0]:
             ymnmax[0] = np.nanmin(mu - muerr)
@@ -963,9 +893,7 @@ def display_sersic(sersic, png=None, cosmo=None, verbose=False):
             # sb_model = model(sersic['radius_uniform'][ww], sersic['wave_uniform'][ww])
             # ax.plot(sersic['radius_uniform'][ww], 22.5-2.5*np.log10(sb_model), color='k', ls='--', lw=2, alpha=1)
             sb_model = model(rad, wave)
-            ax.plot(
-                rad, 22.5 - 2.5 * np.log10(sb_model), color="k", ls="--", lw=2, alpha=1
-            )
+            ax.plot(rad, 22.5 - 2.5 * np.log10(sb_model), color="k", ls="--", lw=2, alpha=1)
 
             if False:
                 # wave_model = wave ; rad_model = rad
@@ -996,11 +924,7 @@ def display_sersic(sersic, png=None, cosmo=None, verbose=False):
                 # pdb.set_trace()
 
             # plot the individual Sersic profiles
-            if (
-                model.__class__.__name__ == "SersicDoubleWaveModel"
-                and band == "r"
-                and 0 == 1
-            ):
+            if model.__class__.__name__ == "SersicDoubleWaveModel" and band == "r" and 0 == 1:
                 from legacyhalos.sersic import SersicSingleWaveModel
 
                 rad_model = np.linspace(0, 200, 150)
@@ -1050,9 +974,7 @@ def display_sersic(sersic, png=None, cosmo=None, verbose=False):
                 alpha = "{:.2f}\pm{:.2f}".format(sersic["alpha"], sersic["alpha_err"])
                 beta = "{:.2f}\pm{:.2f}".format(sersic["beta"], sersic["beta_err"])
                 nref = "{:.2f}\pm{:.2f}".format(sersic["nref"], sersic["nref_err"])
-                r50ref = "{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref"], sersic["r50ref_err"]
-                )
+                r50ref = "{:.2f}\pm{:.2f}".format(sersic["r50ref"], sersic["r50ref_err"])
                 n = r"$n(\lambda) = ({nref})(\lambda/{lambdaref})^{{{alpha}}}$".format(
                     nref=nref, lambdaref=lambdaref, alpha=alpha
                 )
@@ -1072,14 +994,10 @@ def display_sersic(sersic, png=None, cosmo=None, verbose=False):
                 )
             txt = chi2 + "\n" + n + "\n" + r50
         elif sersic["modeltype"] == "single-nowavepower":
-            alphabeta = r"$\alpha={:.2f},\ \beta={:.2f}$".format(
-                sersic["alpha"], sersic["beta"]
-            )
+            alphabeta = r"$\alpha={:.2f},\ \beta={:.2f}$".format(sersic["alpha"], sersic["beta"])
             if sersic["converged"]:
                 nref = r"{:.2f}\pm{:.2f}".format(sersic["nref"], sersic["nref_err"])
-                r50ref = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref"], sersic["r50ref_err"]
-                )
+                r50ref = r"{:.2f}\pm{:.2f}".format(sersic["r50ref"], sersic["r50ref_err"])
                 n = r"$n = {nref}$".format(nref=nref)
                 r50 = r"$r_{{50}} = {r50ref}\ arcsec$".format(r50ref=r50ref)
             else:
@@ -1090,19 +1008,13 @@ def display_sersic(sersic, png=None, cosmo=None, verbose=False):
             txt = chi2 + "\n" + alphabeta + "\n" + n + "\n" + r50
         elif sersic["modeltype"] == "exponential":
             if sersic["converged"]:
-                alpha1 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["alpha1"], sersic["alpha1_err"]
-                )
+                alpha1 = r"{:.2f}\pm{:.2f}".format(sersic["alpha1"], sersic["alpha1_err"])
                 beta1 = r"{:.2f}\pm{:.2f}".format(sersic["beta1"], sersic["beta1_err"])
                 beta2 = r"{:.2f}\pm{:.2f}".format(sersic["beta2"], sersic["beta2_err"])
                 nref1 = r"{:.2f}\pm{:.2f}".format(sersic["nref1"], sersic["nref1_err"])
                 nref2 = r"{:.2f}".format(sersic["nref2"])
-                r50ref1 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref1"], sersic["r50ref1_err"]
-                )
-                r50ref2 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref2"], sersic["r50ref2_err"]
-                )
+                r50ref1 = r"{:.2f}\pm{:.2f}".format(sersic["r50ref1"], sersic["r50ref1_err"])
+                r50ref2 = r"{:.2f}\pm{:.2f}".format(sersic["r50ref2"], sersic["r50ref2_err"])
                 n1 = r"$n_1(\lambda) = ({nref1})(\lambda/{lambdaref})^{{{alpha1}}}$".format(
                     nref1=nref1, lambdaref=lambdaref, alpha1=alpha1
                 )
@@ -1138,40 +1050,26 @@ def display_sersic(sersic, png=None, cosmo=None, verbose=False):
             if sersic["converged"]:
                 nref1 = r"{:.2f}\pm{:.2f}".format(sersic["nref1"], sersic["nref1_err"])
                 nref2 = r"{:.2f}".format(sersic["nref2"])
-                r50ref1 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref1"], sersic["r50ref1_err"]
-                )
-                r50ref2 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref2"], sersic["r50ref2_err"]
-                )
+                r50ref1 = r"{:.2f}\pm{:.2f}".format(sersic["r50ref1"], sersic["r50ref1_err"])
+                r50ref2 = r"{:.2f}\pm{:.2f}".format(sersic["r50ref2"], sersic["r50ref2_err"])
             else:
                 nref1 = r"{:.2f}".format(sersic["nref1"])
                 nref2 = r"{:.2f}".format(sersic["nref2"])
                 r50ref1 = r"{:.2f}".format(sersic["r50ref1"])
                 r50ref2 = r"{:.2f}".format(sersic["r50ref2"])
             n = r"$n_1 = {nref1},\ n_2 = {nref2}$".format(nref1=nref1, nref2=nref2)
-            r50 = r"$r_{{50,1}} = {r50ref1}\ r_{{50,2}} = {r50ref2}\ arcsec$".format(
-                r50ref1=r50ref1, r50ref2=r50ref2
-            )
+            r50 = r"$r_{{50,1}} = {r50ref1}\ r_{{50,2}} = {r50ref2}\ arcsec$".format(r50ref1=r50ref1, r50ref2=r50ref2)
             txt = chi2 + "\n" + alpha + "\n" + beta + "\n" + n + "\n" + r50
         elif sersic["modeltype"] == "double":
             if sersic["converged"]:
-                alpha1 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["alpha1"], sersic["alpha1_err"]
-                )
-                alpha2 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["alpha2"], sersic["alpha2_err"]
-                )
+                alpha1 = r"{:.2f}\pm{:.2f}".format(sersic["alpha1"], sersic["alpha1_err"])
+                alpha2 = r"{:.2f}\pm{:.2f}".format(sersic["alpha2"], sersic["alpha2_err"])
                 beta1 = r"{:.2f}\pm{:.2f}".format(sersic["beta1"], sersic["beta1_err"])
                 beta2 = r"{:.2f}\pm{:.2f}".format(sersic["beta2"], sersic["beta2_err"])
                 nref1 = r"{:.2f}\pm{:.2f}".format(sersic["nref1"], sersic["nref1_err"])
                 nref2 = r"{:.2f}\pm{:.2f}".format(sersic["nref2"], sersic["nref2_err"])
-                r50ref1 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref1"], sersic["r50ref1_err"]
-                )
-                r50ref2 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref2"], sersic["r50ref2_err"]
-                )
+                r50ref1 = r"{:.2f}\pm{:.2f}".format(sersic["r50ref1"], sersic["r50ref1_err"])
+                r50ref2 = r"{:.2f}\pm{:.2f}".format(sersic["r50ref2"], sersic["r50ref2_err"])
                 n1 = r"$n_1(\lambda) = ({nref1})(\lambda/{lambdaref})^{{{alpha1}}}$".format(
                     nref1=nref1, lambdaref=lambdaref, alpha1=alpha1
                 )
@@ -1212,48 +1110,30 @@ def display_sersic(sersic, png=None, cosmo=None, verbose=False):
             if sersic["converged"]:
                 nref1 = r"{:.2f}\pm{:.2f}".format(sersic["nref1"], sersic["nref1_err"])
                 nref2 = r"{:.2f}\pm{:.2f}".format(sersic["nref2"], sersic["nref2_err"])
-                r50ref1 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref1"], sersic["r50ref1_err"]
-                )
-                r50ref2 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref2"], sersic["r50ref2_err"]
-                )
+                r50ref1 = r"{:.2f}\pm{:.2f}".format(sersic["r50ref1"], sersic["r50ref1_err"])
+                r50ref2 = r"{:.2f}\pm{:.2f}".format(sersic["r50ref2"], sersic["r50ref2_err"])
             else:
                 nref1 = r"{:.2f}".format(sersic["nref1"])
                 nref2 = r"{:.2f}".format(sersic["nref2"])
                 r50ref1 = r"{:.2f}".format(sersic["r50ref1"])
                 r50ref2 = r"{:.2f}".format(sersic["r50ref2"])
             n = r"$n_1 = {nref1},\ n_2 = {nref2}$".format(nref1=nref1, nref2=nref2)
-            r50 = r"$r_{{50,1}} = {r50ref1}\ r_{{50,2}} = {r50ref2}\ arcsec$".format(
-                r50ref1=r50ref1, r50ref2=r50ref2
-            )
+            r50 = r"$r_{{50,1}} = {r50ref1}\ r_{{50,2}} = {r50ref2}\ arcsec$".format(r50ref1=r50ref1, r50ref2=r50ref2)
             txt = chi2 + "\n" + alpha + "\n" + beta + "\n" + n + "\n" + r50
         elif sersic["modeltype"] == "triple":
             if sersic["converged"]:
-                alpha1 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["alpha1"], sersic["alpha1_err"]
-                )
-                alpha2 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["alpha2"], sersic["alpha2_err"]
-                )
-                alpha3 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["alpha3"], sersic["alpha3_err"]
-                )
+                alpha1 = r"{:.2f}\pm{:.2f}".format(sersic["alpha1"], sersic["alpha1_err"])
+                alpha2 = r"{:.2f}\pm{:.2f}".format(sersic["alpha2"], sersic["alpha2_err"])
+                alpha3 = r"{:.2f}\pm{:.2f}".format(sersic["alpha3"], sersic["alpha3_err"])
                 beta1 = r"{:.2f}\pm{:.2f}".format(sersic["beta1"], sersic["beta1_err"])
                 beta2 = r"{:.2f}\pm{:.2f}".format(sersic["beta2"], sersic["beta2_err"])
                 beta3 = r"{:.2f}\pm{:.2f}".format(sersic["beta3"], sersic["beta3_err"])
                 nref1 = r"{:.2f}\pm{:.2f}".format(sersic["nref1"], sersic["nref1_err"])
                 nref2 = r"{:.2f}\pm{:.2f}".format(sersic["nref2"], sersic["nref2_err"])
                 nref3 = r"{:.2f}\pm{:.2f}".format(sersic["nref3"], sersic["nref3_err"])
-                r50ref1 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref1"], sersic["r50ref1_err"]
-                )
-                r50ref2 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref2"], sersic["r50ref2_err"]
-                )
-                r50ref3 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref3"], sersic["r50ref3_err"]
-                )
+                r50ref1 = r"{:.2f}\pm{:.2f}".format(sersic["r50ref1"], sersic["r50ref1_err"])
+                r50ref2 = r"{:.2f}\pm{:.2f}".format(sersic["r50ref2"], sersic["r50ref2_err"])
+                r50ref3 = r"{:.2f}\pm{:.2f}".format(sersic["r50ref3"], sersic["r50ref3_err"])
                 n1 = r"$n_1(\lambda) = ({nref1})(\lambda/{lambdaref})^{{{alpha1}}}$".format(
                     nref1=nref1, lambdaref=lambdaref, alpha1=alpha1
                 )
@@ -1303,21 +1183,7 @@ def display_sersic(sersic, png=None, cosmo=None, verbose=False):
                 r50_3 = r"$r_{{50,3}}(\lambda) = {r50ref3}\ (\lambda/{lambdaref})^{{{beta3}}}\ arcsec$".format(
                     r50ref3=r50ref3, lambdaref=lambdaref, beta3=beta3
                 )
-            txt = (
-                chi2
-                + "\n"
-                + n1
-                + ", "
-                + r50_1
-                + "\n"
-                + n2
-                + ", "
-                + r50_2
-                + "\n"
-                + n3
-                + ", "
-                + r50_3
-            )
+            txt = chi2 + "\n" + n1 + ", " + r50_1 + "\n" + n2 + ", " + r50_2 + "\n" + n3 + ", " + r50_3
             # txt = chi2+'\n'+n1+'\n'+n2+'\n'+n3+'\n'+r50_1+'\n'+r50_2+'\n'+r50_3
         elif sersic["modeltype"] == "triple-nowavepower":
             alpha = r"$\alpha_1=\alpha_2=\alpha_3={:.2f}$".format(sersic["alpha1"])
@@ -1326,15 +1192,9 @@ def display_sersic(sersic, png=None, cosmo=None, verbose=False):
                 nref1 = r"{:.2f}\pm{:.2f}".format(sersic["nref1"], sersic["nref1_err"])
                 nref2 = r"{:.2f}\pm{:.2f}".format(sersic["nref2"], sersic["nref2_err"])
                 nref3 = r"{:.2f}\pm{:.2f}".format(sersic["nref3"], sersic["nref3_err"])
-                r50ref1 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref1"], sersic["r50ref1_err"]
-                )
-                r50ref2 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref2"], sersic["r50ref2_err"]
-                )
-                r50ref3 = r"{:.2f}\pm{:.2f}".format(
-                    sersic["r50ref3"], sersic["r50ref3_err"]
-                )
+                r50ref1 = r"{:.2f}\pm{:.2f}".format(sersic["r50ref1"], sersic["r50ref1_err"])
+                r50ref2 = r"{:.2f}\pm{:.2f}".format(sersic["r50ref2"], sersic["r50ref2_err"])
+                r50ref3 = r"{:.2f}\pm{:.2f}".format(sersic["r50ref3"], sersic["r50ref3_err"])
             else:
                 nref1 = r"{:.2f}".format(sersic["nref1"])
                 nref2 = r"{:.2f}".format(sersic["nref2"])
@@ -1342,9 +1202,7 @@ def display_sersic(sersic, png=None, cosmo=None, verbose=False):
                 r50ref1 = r"{:.2f}".format(sersic["r50ref1"])
                 r50ref2 = r"{:.2f}".format(sersic["r50ref2"])
                 r50ref3 = r"{:.2f}".format(sersic["r50ref3"])
-            n = r"$n_1 = {nref1},\ n_2 = {nref2},\ n_3 = {nref3}$".format(
-                nref1=nref1, nref2=nref2, nref3=nref3
-            )
+            n = r"$n_1 = {nref1},\ n_2 = {nref2},\ n_3 = {nref3}$".format(nref1=nref1, nref2=nref2, nref3=nref3)
             r50 = r"$r_{{50,1}} = {r50ref1},\ r_{{50,2}} = {r50ref2},\ r_{{50,3}} = {r50ref3}\ arcsec$".format(
                 r50ref1=r50ref1, r50ref2=r50ref2, r50ref3=r50ref3
             )
@@ -1497,13 +1355,9 @@ def display_multiband(
         os.remove(png)
 
     if vertical:
-        fig, ax = plt.subplots(
-            nband + 1, 1, figsize=(inchperband, inchperband * (nband + 1))
-        )
+        fig, ax = plt.subplots(nband + 1, 1, figsize=(inchperband, inchperband * (nband + 1)))
     else:
-        fig, ax = plt.subplots(
-            1, nband + 1, figsize=(inchperband * (nband + 1), inchperband)
-        )
+        fig, ax = plt.subplots(1, nband + 1, figsize=(inchperband * (nband + 1), inchperband))
 
     # First display the color mosaic...
     if ellipsefit and ellipsefit["success"]:
@@ -1630,9 +1484,7 @@ def display_multiband(
             )
         else:
             if np.sum(dat) == 0:
-                ax1.imshow(
-                    np.zeros(shape=dat.shape), origin="lower", interpolation="nearest"
-                )
+                ax1.imshow(np.zeros(shape=dat.shape), origin="lower", interpolation="nearest")
             else:
                 try:
                     norm = ImageNormalize(dat, interval=interval, stretch=stretch)
@@ -1696,9 +1548,7 @@ def display_multiband(
             #    sma_alpha = 1.0
             # smas = np.linspace(0, ellipsefit['{}_sma'.format(filt.lower())][indx].max(), nplot)
             if len(np.atleast_1d(ellipsefit["sma_{}".format(filt.lower())])) > nplot:
-                smas = ellipsefit["sma_{}".format(filt.lower())][
-                    :: len(ellipsefit["sma_{}".format(filt.lower())]) // nplot
-                ]
+                smas = ellipsefit["sma_{}".format(filt.lower())][:: len(ellipsefit["sma_{}".format(filt.lower())]) // nplot]
             else:
                 smas = ellipsefit["sma_{}".format(filt.lower())]
 
@@ -1712,9 +1562,7 @@ def display_multiband(
             #    ax1.plot(x, y, color='k', lw=1, alpha=0.5)#, label='Fitted isophote')
             # x0, y0, eps, pa = mge['x0'], mge['y0'], mge['eps'], mge['pa']
             for sma in smas:
-                this = np.argmin(
-                    np.abs(ellipsefit["sma_{}".format(filt.lower())] - sma)
-                )
+                this = np.argmin(np.abs(ellipsefit["sma_{}".format(filt.lower())] - sma))
                 ax1.add_patch(
                     mpatches.Ellipse(
                         (
@@ -1763,19 +1611,11 @@ def display_multiband(
                     np.radians(ellipsefit["pa_moment"] - 90),
                 )
                 # ellaper.plot(color=cb_colors['blue'], lw=5, ax=ax1, alpha=1.0, label='Ellipse geometry')
-                ellaper.plot(
-                    color=cb_colors["blue"], lw=5, ax=ax1, alpha=1.0, label="R(26)"
-                )
+                ellaper.plot(color=cb_colors["blue"], lw=5, ax=ax1, alpha=1.0, label="R(26)")
 
             # Visualize the LSLGA geometry, if present.
-            if (
-                ("pa_leda" in ellipsefit.keys())
-                * ("ba_leda" in ellipsefit.keys())
-                * ("d25_leda" in ellipsefit.keys())
-            ):
-                maxis = (
-                    ellipsefit["d25_leda"] * 60 / ellipsefit["refpixscale"] / 2
-                )  # [pixels]
+            if ("pa_leda" in ellipsefit.keys()) * ("ba_leda" in ellipsefit.keys()) * ("d25_leda" in ellipsefit.keys()):
+                maxis = ellipsefit["d25_leda"] * 60 / ellipsefit["refpixscale"] / 2  # [pixels]
                 ellaper = EllipticalAperture(
                     (ellipsefit["x0_moment"], ellipsefit["y0_moment"]),
                     maxis,
@@ -1808,9 +1648,7 @@ def display_multiband(
                         maxis * (1 - geometry.eps),
                         geometry.pa,
                     )
-                    ellaper.plot(
-                        color="navy", lw=2, ax=ax1, alpha=1.0, label="Input geometry"
-                    )
+                    ellaper.plot(color="navy", lw=2, ax=ax1, alpha=1.0, label="Input geometry")
 
             if ii == nband - 1:
                 fntsize = 20
@@ -1875,10 +1713,8 @@ def display_ellipsefit(ellipsefit, xlog=False, cosmo=None, png=None, verbose=Tru
         bad = ~good
         ax1.fill_between(
             ellipsefit[refband]["sma"][good] * refpixscale,
-            ellipsefit[refband]["eps_moment"][good]
-            - ellipsefit[refband]["eps_moment_err"][good],
-            ellipsefit[refband]["eps_moment"][good]
-            + ellipsefit[refband]["eps_moment_err"][good],
+            ellipsefit[refband]["eps_moment"][good] - ellipsefit[refband]["eps_moment_err"][good],
+            ellipsefit[refband]["eps_moment"][good] + ellipsefit[refband]["eps_moment_err"][good],
         )  # ,
         # edgecolor='k', lw=2)
         if np.count_nonzero(bad) > 0:
@@ -1901,14 +1737,8 @@ def display_ellipsefit(ellipsefit, xlog=False, cosmo=None, png=None, verbose=Tru
 
         ax2.fill_between(
             ellipsefit[refband]["sma"][good] * refpixscale,
-            np.degrees(
-                ellipsefit[refband]["pa_moment"][good]
-                - ellipsefit[refband]["pa_moment_err"][good]
-            ),
-            np.degrees(
-                ellipsefit[refband]["pa_moment"][good]
-                + ellipsefit[refband]["pa_moment_err"][good]
-            ),
+            np.degrees(ellipsefit[refband]["pa_moment"][good] - ellipsefit[refband]["pa_moment_err"][good]),
+            np.degrees(ellipsefit[refband]["pa_moment"][good] + ellipsefit[refband]["pa_moment_err"][good]),
         )  # ,
         # edgecolor='k', lw=2)
         if np.count_nonzero(bad) > 0:
@@ -1929,10 +1759,8 @@ def display_ellipsefit(ellipsefit, xlog=False, cosmo=None, png=None, verbose=Tru
 
         ax3.fill_between(
             ellipsefit[refband]["sma"][good] * refpixscale,
-            ellipsefit[refband]["x0_moment"][good]
-            - ellipsefit[refband]["x0_moment_err"][good],
-            ellipsefit[refband]["x0_moment"][good]
-            + ellipsefit[refband]["x0_moment_err"][good],
+            ellipsefit[refband]["x0_moment"][good] - ellipsefit[refband]["x0_moment_err"][good],
+            ellipsefit[refband]["x0_moment"][good] + ellipsefit[refband]["x0_moment_err"][good],
         )  # ,
         # edgecolor='k', lw=2)
         if np.count_nonzero(bad) > 0:
@@ -1953,10 +1781,8 @@ def display_ellipsefit(ellipsefit, xlog=False, cosmo=None, png=None, verbose=Tru
 
         ax4.fill_between(
             ellipsefit[refband]["sma"][good] * refpixscale,
-            ellipsefit[refband]["y0_moment"][good]
-            - ellipsefit[refband]["y0_moment_err"][good],
-            ellipsefit[refband]["y0_moment"][good]
-            + ellipsefit[refband]["y0_moment_err"][good],
+            ellipsefit[refband]["y0_moment"][good] - ellipsefit[refband]["y0_moment_err"][good],
+            ellipsefit[refband]["y0_moment"][good] + ellipsefit[refband]["y0_moment_err"][good],
         )  # ,
         # edgecolor='k', lw=2)
         if np.count_nonzero(bad) > 0:
@@ -2006,9 +1832,7 @@ def display_ellipsefit(ellipsefit, xlog=False, cosmo=None, png=None, verbose=Tru
             for xx in (ax1, ax2, ax3, ax4):
                 xx.set_xscale("log")
 
-        fig.subplots_adjust(
-            hspace=0.03, wspace=0.03, bottom=0.15, right=0.85, left=0.15
-        )
+        fig.subplots_adjust(hspace=0.03, wspace=0.03, bottom=0.15, right=0.85, left=0.15)
 
         if png:
             # if verbose:
@@ -2044,18 +1868,14 @@ def display_ellipse_sbprofile(
     isdict = type(ellipsefit) is dict
 
     if ellipsefit["success"] and np.atleast_1d(ellipsefit["sma_r"])[0] != -1:
-        sbprofile = ellipse_sbprofile(
-            ellipsefit, minerr=minerr, sma_not_radius=~plot_radius
-        )
+        sbprofile = ellipse_sbprofile(ellipsefit, minerr=minerr, sma_not_radius=~plot_radius)
 
         if isdict:
             bands = ellipsefit["bands"]
             refband = ellipsefit["refband"]
             if "redshift" in ellipsefit.keys():
                 redshift = ellipsefit["redshift"]
-                radscale = legacyhalos.misc.arcsec2kpc(
-                    redshift, cosmo=cosmo
-                )  # [kpc/arcsec]
+                radscale = legacyhalos.misc.arcsec2kpc(redshift, cosmo=cosmo)  # [kpc/arcsec]
             else:
                 redshift = None
         else:
@@ -2067,9 +1887,7 @@ def display_ellipse_sbprofile(
                 pixscale = ellipsefit["pixscale"][0]
             if "redshift" in ellipsefit.colnames:
                 sbprofile["redshift"] = ellipsefit["redshift"][0]
-                radscale = legacyhalos.misc.arcsec2kpc(
-                    redshift, cosmo=cosmo
-                )  # [kpc/arcsec]
+                radscale = legacyhalos.misc.arcsec2kpc(redshift, cosmo=cosmo)  # [kpc/arcsec]
             else:
                 redshift = None
 
@@ -2124,9 +1942,7 @@ def display_ellipse_sbprofile(
             )
 
             if bool(pipeline_ellipsefit) and False:
-                pipeline_sbprofile = ellipse_sbprofile(
-                    pipeline_ellipsefit, minerr=minerr, sma_not_radius=plot_radius
-                )
+                pipeline_sbprofile = ellipse_sbprofile(pipeline_ellipsefit, minerr=minerr, sma_not_radius=plot_radius)
                 _radius = pipeline_sbprofile["radius_{}".format(filt.lower())] ** 0.25
                 _mu = pipeline_sbprofile["mu_{}".format(filt.lower())]
                 _muerr = pipeline_sbprofile["mu_{}_err".format(filt.lower())]
@@ -2147,9 +1963,7 @@ def display_ellipse_sbprofile(
 
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
-                    sky = astropy.stats.mad_std(
-                        sky_ellipsefit[filt], axis=1, ignore_nan=True
-                    )
+                    sky = astropy.stats.mad_std(sky_ellipsefit[filt], axis=1, ignore_nan=True)
                     # sky = np.nanstd(skyellipsefit[filt], axis=1) # / np.sqrt(skyellipsefit[
 
                 skygood = np.isfinite(sky)
@@ -2170,9 +1984,7 @@ def display_ellipse_sbprofile(
             #    ax1.axhline(y=ysky, color=col, ls='--')
 
         if bool(sdss_ellipsefit):
-            sdss_sbprofile = ellipse_sbprofile(
-                sdss_ellipsefit, minerr=minerr, sma_not_radius=plot_radius
-            )
+            sdss_sbprofile = ellipse_sbprofile(sdss_ellipsefit, minerr=minerr, sma_not_radius=plot_radius)
             for filt in sdss_ellipsefit["bands"]:
                 radius = sdss_sbprofile["radius_{}".format(filt.lower())] ** 0.25
                 mu = sdss_sbprofile["mu_{}".format(filt.lower())]
@@ -2226,9 +2038,7 @@ def display_ellipse_sbprofile(
             # ax1_twin.set_xticks(np.linspace(xlim_twinx[0], xlim_twinx[1], len(ax1.get_xticks())+1))
             kpc = np.array([1, 3, 5, 10, 20, 30, 50, 75, 100, 150, 200])
             # kpc = kpc[kpc < radscale*xlim[1]**4]
-            kpc = kpc[
-                (kpc >= radscale * xlim[0] ** 4) * (kpc <= radscale * xlim[1] ** 4)
-            ]
+            kpc = kpc[(kpc >= radscale * xlim[0] ** 4) * (kpc <= radscale * xlim[1] ** 4)]
             ax1_twin.set_xticks((kpc / radscale) ** 0.25)
             ax1_twin.set_xticklabels(["{:g}".format(kk) for kk in kpc])
             if plot_radius:
@@ -2269,17 +2079,13 @@ def display_ellipse_sbprofile(
 
             if False:
                 rr = (ellipsefit["majoraxis"] * ellipsefit["refpixscale"]) ** 0.25
-                (ll,) = ax1.plot(
-                    [rr, rr], [ylim[1], ylim[0]], lw=2, color="#e41a1c", ls="dotted"
-                )
+                (ll,) = ax1.plot([rr, rr], [ylim[1], ylim[0]], lw=2, color="#e41a1c", ls="dotted")
                 # ll, = ax1.plot([rr, rr], [ylim[1], sbprofile['mu_{}'.format(refband)][0]], lw=2, color='red', ls='dotted')
                 # ll = ax1.axvline(x=rr, lw=2, color='red', ls='dotted')
                 lline.append(ll), llabel.append("Moment Size")
 
             if len(lline) > 0:
-                leg2 = ax1.legend(
-                    lline, llabel, loc="lower left", frameon=False, fontsize=14
-                )
+                leg2 = ax1.legend(lline, llabel, loc="lower left", frameon=False, fontsize=14)
                 ax1.add_artist(leg1)
 
         # Now the color-radius plot
@@ -2358,13 +2164,9 @@ def display_ellipse_sbprofile(
             #    transform=ax2.transAxes, fontsize=10)
 
         if redshift:
-            fig.subplots_adjust(
-                hspace=0.0, left=0.15, bottom=0.15, top=0.85, right=0.95
-            )
+            fig.subplots_adjust(hspace=0.0, left=0.15, bottom=0.15, top=0.85, right=0.95)
         else:
-            fig.subplots_adjust(
-                hspace=0.0, left=0.15, bottom=0.15, top=0.95, right=0.95
-            )
+            fig.subplots_adjust(hspace=0.0, left=0.15, bottom=0.15, top=0.95, right=0.95)
 
         if png:
             # if verbose:
@@ -2375,9 +2177,7 @@ def display_ellipse_sbprofile(
             plt.show()
 
 
-def sample_trends(
-    sample, htmldir, analysisdir=None, verbose=True, cosmo=None, xlim=(0, 100)
-):
+def sample_trends(sample, htmldir, analysisdir=None, verbose=True, cosmo=None, xlim=(0, 100)):
     """Trends with the whole sample."""
     from astropy.cosmology import WMAP9 as cosmo
     from legacyhalos.io import read_ellipsefit
@@ -2404,9 +2204,7 @@ def sample_trends(
             if len(ellipsefit) > 0:
                 if ellipsefit["success"]:
                     refband, redshift = ellipsefit["refband"], ellipsefit["redshift"]
-                    smascale = legacyhalos.misc.arcsec2kpc(
-                        redshift, cosmo=cosmo
-                    )  # [kpc/arcsec]
+                    smascale = legacyhalos.misc.arcsec2kpc(redshift, cosmo=cosmo)  # [kpc/arcsec]
                     sbprofile = ellipse_sbprofile(ellipsefit, minerr=0.01)
 
                     sma = sbprofile["sma"] * smascale
@@ -2421,13 +2219,9 @@ def sample_trends(
                     allcolor.append(sbprofile[color])
                     allcolorerr.append(sbprofile["{}_err".format(color)])
                 else:
-                    allsma.append([]), allgood.append([]), allcolor.append(
-                        []
-                    ), allcolorerr.append([])
+                    allsma.append([]), allgood.append([]), allcolor.append([]), allcolorerr.append([])
             else:
-                allsma.append([]), allgood.append([]), allcolor.append(
-                    []
-                ), allcolorerr.append([])
+                allsma.append([]), allgood.append([]), allcolor.append([]), allcolorerr.append([])
 
         # get the median and interquartile trend
         color_stats = statsinbins(np.hstack(allsma), np.hstack(allcolor), 3, minpts=5)
@@ -2437,9 +2231,7 @@ def sample_trends(
             allcolor_interp = np.zeros((ngal, len(refsma))) * np.nan
             for ii in range(ngal):
                 if len(allsma[ii]) > 0:
-                    allcolor_interp[ii, :] = np.interp(
-                        refsma, allsma[ii], allcolor[ii], left=np.nan, right=np.nan
-                    )
+                    allcolor_interp[ii, :] = np.interp(refsma, allsma[ii], allcolor[ii], left=np.nan, right=np.nan)
             color_trend = np.nanpercentile(allcolor_interp, [25, 50, 75], axis=0)
 
         # now make the plot
@@ -2514,18 +2306,14 @@ def sample_trends(
             if len(ellipsefit) > 0:
                 if ellipsefit["success"]:
                     refband, redshift = ellipsefit["refband"], ellipsefit["redshift"]
-                    smascale = ellipsefit["refpixscale"] * legacyhalos.misc.arcsec2kpc(
-                        redshift, cosmo=cosmo
-                    )  # [kpc/pixel]
+                    smascale = ellipsefit["refpixscale"] * legacyhalos.misc.arcsec2kpc(redshift, cosmo=cosmo)  # [kpc/pixel]
 
                     good = ellipsefit[refband].stop_code < 4
                     # good = np.arange( len(ellipsefit[refband].sma) )
                     ax1.fill_between(
                         ellipsefit[refband].sma[good] * smascale,
-                        ellipsefit[refband].eps[good]
-                        - ellipsefit[refband].ellip_err[good],
-                        ellipsefit[refband].eps[good]
-                        + ellipsefit[refband].ellip_err[good],
+                        ellipsefit[refband].eps[good] - ellipsefit[refband].ellip_err[good],
+                        ellipsefit[refband].eps[good] + ellipsefit[refband].ellip_err[good],
                         alpha=0.6,
                         color="gray",
                     )
@@ -2552,21 +2340,15 @@ def sample_trends(
     _ellipticity_vs_sma()  # ellipticity vs semi-major axis
 
 
-def display_ccdpos(
-    onegal, ccds, radius, grzfile, pixscale=0.262, png=None, verbose=False
-):
+def display_ccdpos(onegal, ccds, radius, grzfile, pixscale=0.262, png=None, verbose=False):
     """Visualize the position of all the CCDs contributing to the image stack of a
     single galaxy.
 
     radius in pixels
 
     """
-    wcs_clust = legacyhalos.misc.simple_wcs(
-        onegal, factor=1.0, radius=radius, pixscale=pixscale
-    )
-    wcs = legacyhalos.misc.simple_wcs(
-        onegal, factor=15, radius=radius, pixscale=pixscale
-    )
+    wcs_clust = legacyhalos.misc.simple_wcs(onegal, factor=1.0, radius=radius, pixscale=pixscale)
+    wcs = legacyhalos.misc.simple_wcs(onegal, factor=15, radius=radius, pixscale=pixscale)
     width, height = (
         wcs.get_width() * pixscale / 3600,
         wcs.get_height() * pixscale / 3600,
@@ -2622,9 +2404,7 @@ def display_ccdpos(
                     fill=False,
                     lw=2,
                     edgecolor=next(col),
-                    label="{}-{}".format(
-                        ccds.expnum[these[ii]], ccds.ccdname[these[ii]]
-                    ),
+                    label="{}-{}".format(ccds.expnum[these[ii]], ccds.ccdname[these[ii]]),
                 )
             )
             # label='ccd{:02d}'.format(these[ii])))
@@ -2706,23 +2486,13 @@ def display_ccd_apphot():
     apphot["RCEN"] = rin + deltar / 2.0
     for ii in range(nap):
         ap = CircularAperture((xcen, ycen), apphot["RCEN"][ii])
-        skyap = CircularAnnulus(
-            (xcen, ycen), r_in=apphot["RIN"][ii], r_out=apphot["ROUT"][ii]
-        )
+        skyap = CircularAnnulus((xcen, ycen), r_in=apphot["RIN"][ii], r_out=apphot["ROUT"][ii])
 
         # pdb.set_trace()
-        apphot["PIPEFLUX"][ii] = aperture_photometry(image_nopipesky, ap)[
-            "aperture_sum"
-        ].data
-        apphot["NEWFLUX"][ii] = aperture_photometry(image_nonewsky, ap)[
-            "aperture_sum"
-        ].data
-        apphot["PIPESKYFLUX"][ii] = aperture_photometry(image_nopipesky, skyap)[
-            "aperture_sum"
-        ].data
-        apphot["NEWSKYFLUX"][ii] = aperture_photometry(image_nonewsky, skyap)[
-            "aperture_sum"
-        ].data
+        apphot["PIPEFLUX"][ii] = aperture_photometry(image_nopipesky, ap)["aperture_sum"].data
+        apphot["NEWFLUX"][ii] = aperture_photometry(image_nonewsky, ap)["aperture_sum"].data
+        apphot["PIPESKYFLUX"][ii] = aperture_photometry(image_nopipesky, skyap)["aperture_sum"].data
+        apphot["NEWSKYFLUX"][ii] = aperture_photometry(image_nonewsky, skyap)["aperture_sum"].data
 
         apphot["AREA"][ii] = ap.area()
         apphot["SKYAREA"][ii] = skyap.area()
@@ -2866,15 +2636,11 @@ def _display_ccdmask_and_sky(ccdargs):
         ext=key,
     )
 
-    newmask = fitsio.read(
-        os.path.join(galaxydir, "{}-custom-ccdmask-grz.fits.gz".format(galaxy)), ext=key
-    )
+    newmask = fitsio.read(os.path.join(galaxydir, "{}-custom-ccdmask-grz.fits.gz".format(galaxy)), ext=key)
     newsky = np.zeros_like(image).astype("f4") + hdr["SKYMED"]
 
     # Rebuild the pipeline (spline) sky model (see legacypipe.image.LegacySurveyImage.read_sky_model)
-    Ti = fits_table(
-        os.path.join(galaxydir, "{}-pipeline-sky.fits".format(galaxy)), ext=key
-    )[0]
+    Ti = fits_table(os.path.join(galaxydir, "{}-pipeline-sky.fits".format(galaxy)), ext=key)[0]
     h, w = Ti.gridh, Ti.gridw
     Ti.gridvals = Ti.gridvals[:h, :w]
     Ti.xgrid = Ti.xgrid[:w]
@@ -2925,21 +2691,9 @@ def _display_ccdmask_and_sky(ccdargs):
             vmin=vmin,
             vmax=vmax,
         )
-        thisax.add_patch(
-            patches.Circle(
-                (xcen, ycen), radius_pixel, fill=False, edgecolor="white", lw=2
-            )
-        )
-        thisax.add_patch(
-            patches.Circle(
-                (xcen, ycen), 2 * radius_pixel, fill=False, edgecolor="white", lw=1
-            )
-        )
-        thisax.add_patch(
-            patches.Circle(
-                (xcen, ycen), 5 * radius_pixel, fill=False, edgecolor="white", lw=1
-            )
-        )
+        thisax.add_patch(patches.Circle((xcen, ycen), radius_pixel, fill=False, edgecolor="white", lw=2))
+        thisax.add_patch(patches.Circle((xcen, ycen), 2 * radius_pixel, fill=False, edgecolor="white", lw=1))
+        thisax.add_patch(patches.Circle((xcen, ycen), 5 * radius_pixel, fill=False, edgecolor="white", lw=1))
 
         div = make_axes_locatable(thisax)
         cax = div.append_axes("right", size="15%", pad=0.1)
@@ -2960,9 +2714,7 @@ def _display_ccdmask_and_sky(ccdargs):
     plt.close(fig)
 
 
-def _display_ellipse_sbprofile(
-    ellipsefit, skyellipsefit={}, minerr=0.0, cosmo=None, png=None, verbose=True
-):
+def _display_ellipse_sbprofile(ellipsefit, skyellipsefit={}, minerr=0.0, cosmo=None, png=None, verbose=True):
     """Display the multi-band surface brightness profile.
 
     4-panel including PA and ellipticity
@@ -3040,12 +2792,8 @@ def _display_ellipse_sbprofile(
         if False:
             ax2.fill_between(
                 ellipsefit[refband].sma[good] * refpixscale,
-                np.degrees(
-                    ellipsefit[refband].pa[good] - ellipsefit[refband].pa_err[good]
-                ),
-                np.degrees(
-                    ellipsefit[refband].pa[good] + ellipsefit[refband].pa_err[good]
-                ),
+                np.degrees(ellipsefit[refband].pa[good] - ellipsefit[refband].pa_err[good]),
+                np.degrees(ellipsefit[refband].pa[good] + ellipsefit[refband].pa_err[good]),
             )  # ,
             # edgecolor='k', lw=2)
             if np.count_nonzero(bad) > 0:
@@ -3128,9 +2876,7 @@ def _display_ellipse_sbprofile(
 
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
-                    sky = astropy.stats.mad_std(
-                        skyellipsefit[filt], axis=1, ignore_nan=True
-                    )
+                    sky = astropy.stats.mad_std(skyellipsefit[filt], axis=1, ignore_nan=True)
                     # sky = np.nanstd(skyellipsefit[filt], axis=1) # / np.sqrt(skyellipsefit[
 
                 skygood = np.isfinite(sky)

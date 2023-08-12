@@ -27,9 +27,7 @@ class BuildRefcat(MpiStep):
         ref["mag_leda"] = self.sample[MAGCOLUMN]
         ref["ba"] = np.repeat(1.0, ngal).astype("f4")  # fixed b/a
         ref["pa"] = np.repeat(0.0, ngal).astype("f4")  # fixed position angle
-        ref["diam"] = np.repeat(10.0 / 60.0, ngal).astype(
-            "f4"
-        )  # fixed diameter = 10 arcsec [arcmin]
+        ref["diam"] = np.repeat(10.0 / 60.0, ngal).astype("f4")  # fixed diameter = 10 arcsec [arcmin]
 
         # Directly get the path to the reference catalog from the environment.
         reffile = os.environ["LARGEGALAXIES_CAT"]

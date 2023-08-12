@@ -22,67 +22,20 @@ def _init_phot(nrad_uniform=30, ngal=1, band=("g", "r", "z")):
     """Initialize the output photometry table."""
     phot = Table()
 
-    [
-        phot.add_column(
-            Column(name="RMAX_{}".format(bb.upper()), dtype="f4", length=ngal)
-        )
-        for bb in band
-    ]
+    [phot.add_column(Column(name="RMAX_{}".format(bb.upper()), dtype="f4", length=ngal)) for bb in band]
 
-    [
-        phot.add_column(
-            Column(name="FLUX10_{}".format(bb.upper()), dtype="f4", length=ngal)
-        )
-        for bb in band
-    ]
-    [
-        phot.add_column(
-            Column(name="FLUX30_{}".format(bb.upper()), dtype="f4", length=ngal)
-        )
-        for bb in band
-    ]
-    [
-        phot.add_column(
-            Column(name="FLUX100_{}".format(bb.upper()), dtype="f4", length=ngal)
-        )
-        for bb in band
-    ]
-    [
-        phot.add_column(
-            Column(name="FLUXRMAX_{}".format(bb.upper()), dtype="f4", length=ngal)
-        )
-        for bb in band
-    ]
+    [phot.add_column(Column(name="FLUX10_{}".format(bb.upper()), dtype="f4", length=ngal)) for bb in band]
+    [phot.add_column(Column(name="FLUX30_{}".format(bb.upper()), dtype="f4", length=ngal)) for bb in band]
+    [phot.add_column(Column(name="FLUX100_{}".format(bb.upper()), dtype="f4", length=ngal)) for bb in band]
+    [phot.add_column(Column(name="FLUXRMAX_{}".format(bb.upper()), dtype="f4", length=ngal)) for bb in band]
 
-    [
-        phot.add_column(
-            Column(name="FLUX10_IVAR_{}".format(bb.upper()), dtype="f4", length=ngal)
-        )
-        for bb in band
-    ]
-    [
-        phot.add_column(
-            Column(name="FLUX30_IVAR_{}".format(bb.upper()), dtype="f4", length=ngal)
-        )
-        for bb in band
-    ]
-    [
-        phot.add_column(
-            Column(name="FLUX100_IVAR_{}".format(bb.upper()), dtype="f4", length=ngal)
-        )
-        for bb in band
-    ]
-    [
-        phot.add_column(
-            Column(name="FLUXRMAX_IVAR_{}".format(bb.upper()), dtype="f4", length=ngal)
-        )
-        for bb in band
-    ]
+    [phot.add_column(Column(name="FLUX10_IVAR_{}".format(bb.upper()), dtype="f4", length=ngal)) for bb in band]
+    [phot.add_column(Column(name="FLUX30_IVAR_{}".format(bb.upper()), dtype="f4", length=ngal)) for bb in band]
+    [phot.add_column(Column(name="FLUX100_IVAR_{}".format(bb.upper()), dtype="f4", length=ngal)) for bb in band]
+    [phot.add_column(Column(name="FLUXRMAX_IVAR_{}".format(bb.upper()), dtype="f4", length=ngal)) for bb in band]
 
     phot.add_column(Column(name="RAD", dtype="f4", length=ngal, shape=(nrad_uniform,)))
-    phot.add_column(
-        Column(name="RAD_AREA", dtype="f4", length=ngal, shape=(nrad_uniform,))
-    )
+    phot.add_column(Column(name="RAD_AREA", dtype="f4", length=ngal, shape=(nrad_uniform,)))
     [
         phot.add_column(
             Column(
@@ -121,9 +74,7 @@ def _dointegrate(radius, sb, sberr, rmin=None, rmax=None, band="r"):
         rmin = 0.0
         sberr_rmin = sberr[0]
     else:
-        sberr_rmin = interp1d(radius, sberr, kind="linear", fill_value="extrapolate")(
-            rmin
-        )
+        sberr_rmin = interp1d(radius, sberr, kind="linear", fill_value="extrapolate")(rmin)
 
     sb_rmin = interp1d(radius, sb, kind="quadratic", fill_value="extrapolate")(rmin)
 
@@ -148,9 +99,7 @@ def _dointegrate(radius, sb, sberr, rmin=None, rmax=None, band="r"):
 
         # Integrate!
         flux = 2 * np.pi * integrate.simps(x=_radius, y=_radius * _sb)  # [nanomaggies]
-        ferr = (
-            2 * np.pi * integrate.simps(x=_radius, y=_radius * _sberr)
-        )  # [nanomaggies]
+        ferr = 2 * np.pi * integrate.simps(x=_radius, y=_radius * _sberr)  # [nanomaggies]
 
         if band == "r":
             area = 2 * np.pi * integrate.simps(x=_radius, y=_radius)  # [kpc2]
@@ -169,9 +118,7 @@ def _integrate_one(args):
     return integrate_one(*args)
 
 
-def integrate_one(
-    galaxy, galaxydir, phot=None, minerr=0.01, snrmin=1, nrad_uniform=30, count=1
-):
+def integrate_one(galaxy, galaxydir, phot=None, minerr=0.01, snrmin=1, nrad_uniform=30, count=1):
     """Integrate over various radial ranges."""
     if phot is None:
         phot = _init_phot(ngal=1, nrad_uniform=nrad_uniform)
@@ -182,26 +129,20 @@ def integrate_one(
     if not bool(ellipsefit) or ellipsefit["success"] == False:
         return phot
 
-    sbprofile = legacyhalos.ellipse.ellipse_sbprofile(
-        ellipsefit, minerr=minerr, snrmin=snrmin, linear=True
-    )
+    sbprofile = legacyhalos.ellipse.ellipse_sbprofile(ellipsefit, minerr=minerr, snrmin=snrmin, linear=True)
     allband, refpixscale = ellipsefit["bands"], ellipsefit["refpixscale"]
     arcsec2kpc = legacyhalos.misc.arcsec2kpc(ellipsefit["redshift"])  # [kpc/arcsec]
 
     def _get_sbprofile(sbprofile, band, minerr=0.01, snrmin=1):
         sb = sbprofile["mu_{}".format(band)] / arcsec2kpc**2  # [nanomaggies/kpc2]
-        sberr = (
-            sbprofile["muerr_{}".format(band)] / arcsec2kpc**2
-        )  # [nanomaggies/kpc2]
+        sberr = sbprofile["muerr_{}".format(band)] / arcsec2kpc**2  # [nanomaggies/kpc2]
         radius = sbprofile["radius_{}".format(band)] * arcsec2kpc  # [kpc]
         return radius, sb, sberr
 
     # First integrate to r=10, 30, 100, and max kpc.
     min_r, max_r = [], []
     for band in allband:
-        radius, sb, sberr = _get_sbprofile(
-            sbprofile, band, minerr=minerr, snrmin=snrmin
-        )
+        radius, sb, sberr = _get_sbprofile(sbprofile, band, minerr=minerr, snrmin=snrmin)
         if len(radius) == 0:
             continue
 
@@ -229,26 +170,18 @@ def integrate_one(
 
     min_r, max_r = np.min(min_r), np.max(max_r)
     if False:
-        rad_uniform = 10 ** np.linspace(
-            np.log10(min_r), np.log10(max_r), nrad_uniform + 1
-        )  # log-spacing
+        rad_uniform = 10 ** np.linspace(np.log10(min_r), np.log10(max_r), nrad_uniform + 1)  # log-spacing
     else:
-        rad_uniform = (
-            np.linspace(min_r**0.25, max_r**0.25, nrad_uniform + 1) ** 4
-        )  # r^1/4 spacing
+        rad_uniform = np.linspace(min_r**0.25, max_r**0.25, nrad_uniform + 1) ** 4  # r^1/4 spacing
     rmin_uniform, rmax_uniform = rad_uniform[:-1], rad_uniform[1:]
     phot["RAD"][:] = (rmax_uniform - rmin_uniform) / 2 + rmin_uniform
 
     for band in allband:
-        radius, sb, sberr = _get_sbprofile(
-            sbprofile, band, minerr=minerr, snrmin=snrmin
-        )
+        radius, sb, sberr = _get_sbprofile(sbprofile, band, minerr=minerr, snrmin=snrmin)
         for ii, (rmin, rmax) in enumerate(zip(rmin_uniform, rmax_uniform)):
             # if band == 'r' and ii == 49:
             #    pdb.set_trace()
-            obsflux, obsivar, obsarea = _dointegrate(
-                radius, sb, sberr, rmin=rmin, rmax=rmax, band=band
-            )
+            obsflux, obsivar, obsarea = _dointegrate(radius, sb, sberr, rmin=rmin, rmax=rmax, band=band)
             # print(band, ii, rmin, rmax, 22.5-2.5*np.log10(obsflux), obsarea)
 
             if band == "r":
@@ -313,9 +246,7 @@ def legacyhalos_integrate(
 
     args = list()
     for ii in range(ngal):
-        args.append(
-            (galaxy[ii], galaxydir[ii], phot[ii], minerr, snrmin, nrad_uniform, ii)
-        )
+        args.append((galaxy[ii], galaxydir[ii], phot[ii], minerr, snrmin, nrad_uniform, ii))
 
     # Divide the sample by cores.
     if nproc > 1:

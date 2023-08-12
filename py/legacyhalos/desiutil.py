@@ -108,12 +108,8 @@ def plot_slices(
     for i in range(num_slices):
         s = slice(2 * i, 2 * i + 2)
         if counts[i] >= min_count:
-            axis.fill_between(
-                xstack[s], y_m2[s], y_p2[s], alpha=0.15, color="red", zorder=10
-            )
-            axis.fill_between(
-                xstack[s], y_m1[s], y_p1[s], alpha=0.25, color="red", zorder=10
-            )
+            axis.fill_between(xstack[s], y_m2[s], y_p2[s], alpha=0.15, color="red", zorder=10)
+            axis.fill_between(xstack[s], y_m1[s], y_p1[s], alpha=0.25, color="red", zorder=10)
             axis.plot(xstack[s], y_med[s], "r-", lw=2.0)
             # For ylim
             max_yr = max(max_yr, np.max(y_p2[s] - y_m2[s]))
@@ -319,9 +315,7 @@ def prepare_data(data, mask=None, clip_lo=None, clip_hi=None, save_limits=False)
         clip_hi, mask_hi = get_clip(clip_hi)
 
     if save_limits:
-        clipped = MaskedArrayWithLimits(
-            np.clip(data, clip_lo, clip_hi), cmask, vmin=clip_lo, vmax=clip_hi
-        )
+        clipped = MaskedArrayWithLimits(np.clip(data, clip_lo, clip_hi), cmask, vmin=clip_lo, vmax=clip_hi)
     else:
         clipped = numpy.ma.MaskedArray(np.clip(data, clip_lo, clip_hi), cmask)
 
@@ -437,9 +431,7 @@ def init_sky(
             AZ = np.linspace(azf[0], 360.0 + azf[0], n)
             for i, az in enumerate(AZ):
                 # Skips segments along equator (Geod can't handle equatorial arcs).
-                if np.allclose(0.0, y0) and (
-                    np.allclose(90.0, az) or np.allclose(270.0, az)
-                ):
+                if np.allclose(0.0, y0) and (np.allclose(90.0, az) or np.allclose(270.0, az)):
                     continue
 
                 # In polar coordinates, with the origin at the center of the
@@ -472,9 +464,7 @@ def init_sky(
             return poly
 
     # Create an instance of our custom Basemap.
-    m = BasemapWithEllipse(
-        projection=projection, lon_0=ra_center, resolution=None, celestial=False, ax=ax
-    )
+    m = BasemapWithEllipse(projection=projection, lon_0=ra_center, resolution=None, celestial=False, ax=ax)
     if ra_labels is not None:
         if projection in ("hammer", "moll"):
             labels = [0, 0, 0, 0]
@@ -514,9 +504,7 @@ def init_sky(
     return m
 
 
-def plot_healpix_map(
-    data, nest=False, cmap="viridis", colorbar=True, label=None, basemap=None
-):
+def plot_healpix_map(data, nest=False, cmap="viridis", colorbar=True, label=None, basemap=None):
     """Plot a healpix map using an all-sky projection.
 
     Pass the data array through :func:`prepare_data` to select a subset to plot
@@ -580,9 +568,7 @@ def plot_healpix_map(
     verts = np.array([x.reshape(-1, 4), y.reshape(-1, 4)]).transpose(1, 2, 0)
 
     # Find and mask any pixels that wrap around in RA.
-    uv_verts = np.array(
-        [corner_phi.reshape(-1, 4), corner_theta.reshape(-1, 4)]
-    ).transpose(1, 2, 0)
+    uv_verts = np.array([corner_phi.reshape(-1, 4), corner_theta.reshape(-1, 4)]).transpose(1, 2, 0)
     theta_edge = np.unique(uv_verts[:, :, 1])
     phi_edge = np.radians(basemap.lonmax)
     eps = 0.1 * np.sqrt(hp.nside2pixarea(nside))
@@ -598,9 +584,7 @@ def plot_healpix_map(
         norm = None
 
     # Make the collection and add it to the plot.
-    collection = PolyCollection(
-        verts, array=data, cmap=cmap, norm=norm, edgecolors="none"
-    )
+    collection = PolyCollection(verts, array=data, cmap=cmap, norm=norm, edgecolors="none")
 
     axes = plt.gca() if basemap.ax is None else basemap.ax
     axes.add_collection(collection)
@@ -621,9 +605,7 @@ def plot_healpix_map(
     return basemap
 
 
-def plot_grid_map(
-    data, ra_edges, dec_edges, cmap="viridis", colorbar=True, label=None, basemap=None
-):
+def plot_grid_map(data, ra_edges, dec_edges, cmap="viridis", colorbar=True, label=None, basemap=None):
     """Plot an array of 2D values using an all-sky projection.
 
     Pass the data array through :func:`prepare_data` to select a subset to plot
@@ -880,9 +862,7 @@ def plot_sky_circles(
     n_pt = max(8, int(np.ceil(field_of_view)))
 
     # Loop over non-wrapped circles.
-    for ra, dec, dra, fc in zip(
-        ra_center[~wrapped], dec_center[~wrapped], dRA[~wrapped], facecolors[~wrapped]
-    ):
+    for ra, dec, dra, fc in zip(ra_center[~wrapped], dec_center[~wrapped], dRA[~wrapped], facecolors[~wrapped]):
         basemap.ellipse(ra, dec, dra, dDEC, n_pt, facecolor=fc, edgecolor=edgecolor)
 
     if colorbar:
@@ -988,9 +968,7 @@ def plot_sky_binned(
         "healpix",
     )
     if plot_type not in plot_types:
-        raise ValueError(
-            "Invalid plot_type, should be one of {0}.".format(", ".join(plot_types))
-        )
+        raise ValueError("Invalid plot_type, should be one of {0}.".format(", ".join(plot_types)))
 
     if data is not None and weights is None:
         weights = np.ones_like(data)
@@ -1024,9 +1002,7 @@ def plot_sky_binned(
         if data is None:
             grid_data = counts / bin_area
         else:
-            sums, _, _ = np.histogram2d(
-                dec, ra, [dec_edges, ra_edges], weights=weights * data
-            )
+            sums, _, _ = np.histogram2d(dec, ra, [dec_edges, ra_edges], weights=weights * data)
             # This ratio might result in some nan (0/0) or inf (1/0) values,
             # but these will be masked by prepare_data().
             settings = np.seterr(all="ignore")
@@ -1035,9 +1011,7 @@ def plot_sky_binned(
 
         grid_data = prepare_data(grid_data, clip_lo=clip_lo, clip_hi=clip_hi)
 
-        basemap = plot_grid_map(
-            grid_data, ra_edges, dec_edges, cmap, colorbar, label, basemap
-        )
+        basemap = plot_grid_map(grid_data, ra_edges, dec_edges, cmap, colorbar, label, basemap)
 
     elif plot_type == "healpix":
         import healpy as hp
@@ -1335,9 +1309,7 @@ class Bricks(object):
         ara, adec = self._array_radec(ra, dec)
         irow, icol = self._row_col(ara, adec)
         # ADM grab the edges from the class
-        ramin, ramax = np.array(
-            [self._edges_ra[row][col : col + 2] for row, col in zip(irow, icol)]
-        ).T
+        ramin, ramax = np.array([self._edges_ra[row][col : col + 2] for row, col in zip(irow, icol)]).T
         decmin, decmax = self._edges_dec[irow], self._edges_dec[irow + 1]
         vertices = np.reshape(
             np.vstack([ramin, decmin, ramax, decmin, ramax, decmax, ramin, decmax]).T,

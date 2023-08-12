@@ -71,11 +71,7 @@ print(iso.stop_code)
 
 good = np.where(iso.stop_code < 4)[0]
 nn = len(good)
-print(
-    "Starting values: x0={}, y0={}, eps={}, pa={}".format(
-        geo.x0, geo.y0, geo.eps, props2.pa
-    )
-)
+print("Starting values: x0={}, y0={}, eps={}, pa={}".format(geo.x0, geo.y0, geo.eps, props2.pa))
 # print('Final values: x0={}, y0={}, eps={}, pa={}'.format(geo.x0, geo.y0, geo.eps, props2.pa))
 
 xx0 = iso.x0[good]

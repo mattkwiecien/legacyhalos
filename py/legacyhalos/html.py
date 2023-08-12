@@ -132,9 +132,7 @@ def make_ccd_qa(
     # maskfile = os.path.join(galaxydir, '{}-custom-ccdmasks.fits.fz'.format(galaxy))
 
     if ccds is None:
-        ccdsfile = glob(
-            os.path.join(galaxydir, "{}-ccds-*.fits".format(galaxy))
-        )  # north, south
+        ccdsfile = glob(os.path.join(galaxydir, "{}-ccds-*.fits".format(galaxy)))  # north, south
         if os.path.isfile(ccdsfile):
             ccds = survey.cleanup_ccds_table(fits_table(ccdsfile))
             print("Read {} CCDs from {}".format(len(ccds), ccdsfile))
@@ -148,10 +146,7 @@ def make_ccd_qa(
         if mp is None:
             mp = multiproc(nthreads=1)
 
-        ccdargs = [
-            (galaxy, galaxydir, qarootfile, radius_pixel, _ccd, iccd, survey)
-            for iccd, _ccd in enumerate(ccds)
-        ]
+        ccdargs = [(galaxy, galaxydir, qarootfile, radius_pixel, _ccd, iccd, survey) for iccd, _ccd in enumerate(ccds)]
         mp.map(_display_ccdmask_and_sky, ccdargs)
 
     grzfile = glob(os.path.join(galaxydir, "{}-*-image-grz.jpg".format(galaxy)))[0]
@@ -203,9 +198,7 @@ def make_ccdpos_qa(
     #    if not os.path.isfile(ccdposfile) or clobber:
     #        display_ccdpos(onegal, ccds, radius=radius, png=ccdposfile, verbose=verbose)
 
-    ccdsfile = glob(
-        os.path.join(galaxydir, "{}-ccds-*.fits".format(galaxy))
-    )  # north, south
+    ccdsfile = glob(os.path.join(galaxydir, "{}-ccds-*.fits".format(galaxy)))  # north, south
     if len(ccdsfile) == 0:
         print("CCDs file not found!")
         return
@@ -245,15 +238,9 @@ def make_montage_coadds(
     Image.MAX_IMAGE_PIXELS = None
 
     for filesuffix in ["custom", "pipeline"]:
-        montagefile = os.path.join(
-            htmlgalaxydir, "{}-{}-montage-grz.png".format(galaxy, filesuffix)
-        )
-        thumbfile = os.path.join(
-            htmlgalaxydir, "thumb-{}-{}-montage-grz.png".format(galaxy, filesuffix)
-        )
-        thumb2file = os.path.join(
-            htmlgalaxydir, "thumb2-{}-{}-montage-grz.png".format(galaxy, filesuffix)
-        )
+        montagefile = os.path.join(htmlgalaxydir, "{}-{}-montage-grz.png".format(galaxy, filesuffix))
+        thumbfile = os.path.join(htmlgalaxydir, "thumb-{}-{}-montage-grz.png".format(galaxy, filesuffix))
+        thumb2file = os.path.join(htmlgalaxydir, "thumb2-{}-{}-montage-grz.png".format(galaxy, filesuffix))
         if not os.path.isfile(montagefile) or clobber:
             if filesuffix == "custom":
                 coaddfiles = (
@@ -269,9 +256,7 @@ def make_montage_coadds(
                 )
 
             # Image coadd with the scale bar label--
-            barpngfile = os.path.join(
-                htmlgalaxydir, "{}-{}.png".format(galaxy, coaddfiles[0])
-            )
+            barpngfile = os.path.join(htmlgalaxydir, "{}-{}.png".format(galaxy, coaddfiles[0]))
 
             # Make sure all the files exist.
             check, _just_coadds = True, just_coadds
@@ -305,9 +290,7 @@ def make_montage_coadds(
                     resize = None
 
                 # Make a quick thumbnail of just the data.
-                cmd = "convert -thumbnail {0}x{0} {1} {2}".format(
-                    96, np.atleast_1d(jpgfile)[0], thumb2file
-                )
+                cmd = "convert -thumbnail {0}x{0} {1} {2}".format(96, np.atleast_1d(jpgfile)[0], thumb2file)
                 if os.path.isfile(thumb2file):
                     os.remove(thumb2file)
                 print("Writing {}".format(thumb2file))
@@ -316,9 +299,7 @@ def make_montage_coadds(
                 # Add a bar and label to the first image.
                 if _just_coadds:
                     if resize:
-                        cmd = "montage -bordercolor white -borderwidth 1 -tile 1x1 -resize {} -geometry +0+0 ".format(
-                            resize
-                        )
+                        cmd = "montage -bordercolor white -borderwidth 1 -tile 1x1 -resize {} -geometry +0+0 ".format(resize)
                     else:
                         cmd = "montage -bordercolor white -borderwidth 1 -tile 1x1 -geometry +0+0 "
                     if barlen:
@@ -339,9 +320,7 @@ def make_montage_coadds(
                         thumbsz = sz[0]
                 else:
                     if resize:
-                        cmd = "montage -bordercolor white -borderwidth 1 -tile 3x1 -resize {} -geometry +0+0 ".format(
-                            resize
-                        )
+                        cmd = "montage -bordercolor white -borderwidth 1 -tile 3x1 -resize {} -geometry +0+0 ".format(resize)
                     else:
                         cmd = "montage -bordercolor white -borderwidth 1 -tile 3x1 -geometry +0+0 "
                     if barlen:
@@ -373,9 +352,7 @@ def make_montage_coadds(
                     continue
 
                 # Create a couple smaller thumbnail images
-                cmd = "convert -thumbnail {0} {1} {2}".format(
-                    thumbsz, montagefile, thumbfile
-                )
+                cmd = "convert -thumbnail {0} {1} {2}".format(thumbsz, montagefile, thumbfile)
                 # print(cmd)
                 if os.path.isfile(thumbfile):
                     os.remove(thumbfile)
@@ -414,9 +391,7 @@ def make_multiwavelength_coadds(
     filesuffix = "custom"
 
     for bandsuffix, pixscale in zip(("FUVNUV", "W1W2"), (1.5, 2.75)):
-        montagefile = os.path.join(
-            htmlgalaxydir, "{}-{}-montage-{}.png".format(galaxy, filesuffix, bandsuffix)
-        )
+        montagefile = os.path.join(htmlgalaxydir, "{}-{}-montage-{}.png".format(galaxy, filesuffix, bandsuffix))
         thumbfile = os.path.join(
             htmlgalaxydir,
             "thumb-{}-{}-montage-{}.png".format(galaxy, filesuffix, bandsuffix),
@@ -433,9 +408,7 @@ def make_multiwavelength_coadds(
             )
 
             # Image coadd with the scale bar label--
-            barpngfile = os.path.join(
-                htmlgalaxydir, "{}-{}.png".format(galaxy, coaddfiles[0])
-            )
+            barpngfile = os.path.join(htmlgalaxydir, "{}-{}.png".format(galaxy, coaddfiles[0]))
 
             # Make sure all the files exist.
             check, _just_coadds = True, just_coadds
@@ -469,9 +442,7 @@ def make_multiwavelength_coadds(
                     resize = None
 
                 # Make a quick thumbnail of just the data.
-                cmd = "convert -thumbnail {0}x{0} {1} {2}".format(
-                    96, np.atleast_1d(jpgfile)[0], thumb2file
-                )
+                cmd = "convert -thumbnail {0}x{0} {1} {2}".format(96, np.atleast_1d(jpgfile)[0], thumb2file)
                 if os.path.isfile(thumb2file):
                     os.remove(thumb2file)
                 print("Writing {}".format(thumb2file))
@@ -480,9 +451,7 @@ def make_multiwavelength_coadds(
                 # Add a bar and label to the first image.
                 if _just_coadds:
                     if resize:
-                        cmd = "montage -bordercolor white -borderwidth 1 -tile 1x1 -resize {} -geometry +0+0 ".format(
-                            resize
-                        )
+                        cmd = "montage -bordercolor white -borderwidth 1 -tile 1x1 -resize {} -geometry +0+0 ".format(resize)
                     else:
                         cmd = "montage -bordercolor white -borderwidth 1 -tile 1x1 -geometry +0+0 "
                     if barlen:
@@ -503,9 +472,7 @@ def make_multiwavelength_coadds(
                         thumbsz = sz[0]
                 else:
                     if resize:
-                        cmd = "montage -bordercolor white -borderwidth 1 -tile 3x1 -resize {} -geometry +0+0 ".format(
-                            resize
-                        )
+                        cmd = "montage -bordercolor white -borderwidth 1 -tile 3x1 -resize {} -geometry +0+0 ".format(resize)
                     else:
                         cmd = "montage -bordercolor white -borderwidth 1 -tile 3x1 -geometry +0+0 "
                     if barlen:
@@ -541,9 +508,7 @@ def make_multiwavelength_coadds(
                     continue
 
                 # Create a couple smaller thumbnail images
-                cmd = "convert -thumbnail {0} {1} {2}".format(
-                    thumbsz, montagefile, thumbfile
-                )
+                cmd = "convert -thumbnail {0} {1} {2}".format(thumbsz, montagefile, thumbfile)
                 # print(cmd)
                 if os.path.isfile(thumbfile):
                     os.remove(thumbfile)
@@ -558,16 +523,10 @@ def make_maskbits_qa(galaxy, galaxydir, htmlgalaxydir, clobber=False, verbose=Fa
 
     filesuffix = "largegalaxy"
 
-    maskbitsfile = os.path.join(
-        htmlgalaxydir, "{}-{}-maskbits.png".format(galaxy, filesuffix)
-    )
+    maskbitsfile = os.path.join(htmlgalaxydir, "{}-{}-maskbits.png".format(galaxy, filesuffix))
     if not os.path.isfile(maskbitsfile) or clobber:
-        fitsfile = os.path.join(
-            galaxydir, "{}-{}-maskbits.fits.fz".format(galaxy, filesuffix)
-        )
-        tractorfile = os.path.join(
-            galaxydir, "{}-{}-tractor.fits".format(galaxy, filesuffix)
-        )
+        fitsfile = os.path.join(galaxydir, "{}-{}-maskbits.fits.fz".format(galaxy, filesuffix))
+        tractorfile = os.path.join(galaxydir, "{}-{}-tractor.fits".format(galaxy, filesuffix))
         if not os.path.isfile(fitsfile):
             if verbose:
                 print("File {} not found!".format(fitsfile))
@@ -646,9 +605,7 @@ def make_ellipse_qa(
     # optionally read the Tractor catalog
     tractor = None
     if galex or unwise:
-        tractorfile = os.path.join(
-            galaxydir, "{}-{}-tractor.fits".format(galaxy, data["filesuffix"])
-        )
+        tractorfile = os.path.join(galaxydir, "{}-{}-tractor.fits".format(galaxy, data["filesuffix"]))
         if os.path.isfile(tractorfile):
             tractor = Table(fitsio.read(tractorfile, lower=True))
 
@@ -677,18 +634,13 @@ def make_ellipse_qa(
                     _tractor = None
                     if tractor is not None:
                         _tractor = tractor[
-                            (tractor["ref_cat"] != "  ")
-                            * np.isin(tractor["ref_id"], data["galaxy_id"][igal])
+                            (tractor["ref_cat"] != "  ") * np.isin(tractor["ref_id"], data["galaxy_id"][igal])
                         ]  # fragile...
-                    qa_multiwavelength_sed(
-                        ellipsefit, tractor=_tractor, png=sedfile, verbose=verbose
-                    )
+                    qa_multiwavelength_sed(ellipsefit, tractor=_tractor, png=sedfile, verbose=verbose)
 
             sbprofilefile = os.path.join(
                 htmlgalaxydir,
-                "{}-{}-ellipse-{}sbprofile.png".format(
-                    galaxy, data["filesuffix"], galid
-                ),
+                "{}-{}-ellipse-{}sbprofile.png".format(galaxy, data["filesuffix"], galid),
             )
             if not os.path.isfile(sbprofilefile) or clobber:
                 display_ellipse_sbprofile(
@@ -721,15 +673,11 @@ def make_ellipse_qa(
             if unwise:
                 multibandfile = os.path.join(
                     htmlgalaxydir,
-                    "{}-{}-ellipse-{}multiband-W1W2.png".format(
-                        galaxy, data["filesuffix"], galid
-                    ),
+                    "{}-{}-ellipse-{}multiband-W1W2.png".format(galaxy, data["filesuffix"], galid),
                 )
                 thumbfile = os.path.join(
                     htmlgalaxydir,
-                    "thumb-{}-{}-ellipse-{}multiband-W1W2.png".format(
-                        galaxy, data["filesuffix"], galid
-                    ),
+                    "thumb-{}-{}-ellipse-{}multiband-W1W2.png".format(galaxy, data["filesuffix"], galid),
                 )
                 if not os.path.isfile(multibandfile) or clobber:
                     with Image.open(
@@ -752,9 +700,7 @@ def make_ellipse_qa(
                             unwise=True,
                         )
                     # Create a thumbnail.
-                    cmd = "convert -thumbnail 1024x1024 {} {}".format(
-                        multibandfile, thumbfile
-                    )  # .replace('>', '\>')
+                    cmd = "convert -thumbnail 1024x1024 {} {}".format(multibandfile, thumbfile)  # .replace('>', '\>')
                     if os.path.isfile(thumbfile):
                         os.remove(thumbfile)
                     print("Writing {}".format(thumbfile))
@@ -763,15 +709,11 @@ def make_ellipse_qa(
             if galex:
                 multibandfile = os.path.join(
                     htmlgalaxydir,
-                    "{}-{}-ellipse-{}multiband-FUVNUV.png".format(
-                        galaxy, data["filesuffix"], galid
-                    ),
+                    "{}-{}-ellipse-{}multiband-FUVNUV.png".format(galaxy, data["filesuffix"], galid),
                 )
                 thumbfile = os.path.join(
                     htmlgalaxydir,
-                    "thumb-{}-{}-ellipse-{}multiband-FUVNUV.png".format(
-                        galaxy, data["filesuffix"], galid
-                    ),
+                    "thumb-{}-{}-ellipse-{}multiband-FUVNUV.png".format(galaxy, data["filesuffix"], galid),
                 )
                 if not os.path.isfile(multibandfile) or clobber:
                     with Image.open(
@@ -794,9 +736,7 @@ def make_ellipse_qa(
                             unwise=False,
                         )
                     # Create a thumbnail.
-                    cmd = "convert -thumbnail 1024x1024 {} {}".format(
-                        multibandfile, thumbfile
-                    )  # .replace('>', '\>')
+                    cmd = "convert -thumbnail 1024x1024 {} {}".format(multibandfile, thumbfile)  # .replace('>', '\>')
                     if os.path.isfile(thumbfile):
                         os.remove(thumbfile)
                     print("Writing {}".format(thumbfile))
@@ -804,15 +744,11 @@ def make_ellipse_qa(
 
             multibandfile = os.path.join(
                 htmlgalaxydir,
-                "{}-{}-ellipse-{}multiband.png".format(
-                    galaxy, data["filesuffix"], galid
-                ),
+                "{}-{}-ellipse-{}multiband.png".format(galaxy, data["filesuffix"], galid),
             )
             thumbfile = os.path.join(
                 htmlgalaxydir,
-                "thumb-{}-{}-ellipse-{}multiband.png".format(
-                    galaxy, data["filesuffix"], galid
-                ),
+                "thumb-{}-{}-ellipse-{}multiband.png".format(galaxy, data["filesuffix"], galid),
             )
             if not os.path.isfile(multibandfile) or clobber:
                 with Image.open(
@@ -835,9 +771,7 @@ def make_ellipse_qa(
                     )
 
                 # Create a thumbnail.
-                cmd = "convert -thumbnail 1024x1024 {} {}".format(
-                    multibandfile, thumbfile
-                )  # .replace('>', '\>')
+                cmd = "convert -thumbnail 1024x1024 {} {}".format(multibandfile, thumbfile)  # .replace('>', '\>')
                 if os.path.isfile(thumbfile):
                     os.remove(thumbfile)
                 print("Writing {}".format(thumbfile))
@@ -891,18 +825,14 @@ def make_sersic_qa(
     # Double Sersic, no wavelength dependence
     double = read_sersic(galaxy, galaxydir, modeltype="double-nowavepower")
     if bool(double):
-        doublefile = os.path.join(
-            htmlgalaxydir, "{}-sersic-double-nowavepower.png".format(galaxy)
-        )
+        doublefile = os.path.join(htmlgalaxydir, "{}-sersic-double-nowavepower.png".format(galaxy))
         if not os.path.isfile(doublefile) or clobber:
             display_sersic(double, cosmo=cosmo, png=doublefile, verbose=verbose)
 
     # Single Sersic, no wavelength dependence
     single = read_sersic(galaxy, galaxydir, modeltype="single-nowavepower")
     if bool(single):
-        singlefile = os.path.join(
-            htmlgalaxydir, "{}-sersic-single-nowavepower.png".format(galaxy)
-        )
+        singlefile = os.path.join(htmlgalaxydir, "{}-sersic-single-nowavepower.png".format(galaxy))
         if not os.path.isfile(singlefile) or clobber:
             display_sersic(single, cosmo=cosmo, png=singlefile, verbose=verbose)
 
@@ -916,18 +846,14 @@ def make_sersic_qa(
     # Sersic-exponential
     serexp = read_sersic(galaxy, galaxydir, modeltype="exponential")
     if bool(serexp):
-        serexpfile = os.path.join(
-            htmlgalaxydir, "{}-sersic-exponential.png".format(galaxy)
-        )
+        serexpfile = os.path.join(htmlgalaxydir, "{}-sersic-exponential.png".format(galaxy))
         if not os.path.isfile(serexpfile) or clobber:
             display_sersic(serexp, cosmo=cosmo, png=serexpfile, verbose=verbose)
 
     # Sersic-exponential, no wavelength dependence
     serexp = read_sersic(galaxy, galaxydir, modeltype="exponential-nowavepower")
     if bool(serexp):
-        serexpfile = os.path.join(
-            htmlgalaxydir, "{}-sersic-exponential-nowavepower.png".format(galaxy)
-        )
+        serexpfile = os.path.join(htmlgalaxydir, "{}-sersic-exponential-nowavepower.png".format(galaxy))
         if not os.path.isfile(serexpfile) or clobber:
             display_sersic(serexp, cosmo=cosmo, png=serexpfile, verbose=verbose)
 
@@ -999,11 +925,7 @@ def make_plots(
             # shutil.chown(htmlgalaxydir, group='cosmo')
 
         if barlen is None and zcolumn in onegal.colnames:
-            barlen = np.round(
-                barlen_kpc
-                / legacyhalos.misc.arcsec2kpc(onegal[zcolumn], cosmo=cosmo)
-                / pixscale
-            ).astype(
+            barlen = np.round(barlen_kpc / legacyhalos.misc.arcsec2kpc(onegal[zcolumn], cosmo=cosmo) / pixscale).astype(
                 "int"
             )  # [kpc]
 
@@ -1108,11 +1030,7 @@ def make_plots(
 
 
 def skyserver_link(sdss_objid):
-    return (
-        "http://skyserver.sdss.org/dr14/en/tools/explore/summary.aspx?id={:d}".format(
-            sdss_objid
-        )
-    )
+    return "http://skyserver.sdss.org/dr14/en/tools/explore/summary.aspx?id={:d}".format(sdss_objid)
 
 
 # Get the viewer link
@@ -1136,8 +1054,6 @@ def viewer_link(ra, dec, width, sga=False, manga=False, dr10=False):
     if manga:
         layer1 = layer1 + "&manga"
 
-    viewer = "{}?ra={:.6f}&dec={:.6f}&zoom={:g}&layer={}{}".format(
-        baseurl, ra, dec, zoom, drlayer, layer1
-    )
+    viewer = "{}?ra={:.6f}&dec={:.6f}&zoom={:g}&layer={}{}".format(baseurl, ra, dec, zoom, drlayer, layer1)
 
     return viewer

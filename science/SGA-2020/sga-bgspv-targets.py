@@ -30,17 +30,11 @@ out = []
 
 for survey in ["bright", "dark"]:
     print(f"Working on {survey}")
-    tfiles = glob(
-        os.getenv("DESI_TARGET")
-        + f"/catalogs/dr9/1.1.1/targets/main/resolve/{survey}/targets-{survey}-*.fits"
-    )
+    tfiles = glob(os.getenv("DESI_TARGET") + f"/catalogs/dr9/1.1.1/targets/main/resolve/{survey}/targets-{survey}-*.fits")
     for tfile in tfiles:  # [:2]:
         tt = Table(fitsio.read(tfile, "TARGETS", columns=cols))
 
-        I = np.where(
-            (desi_mask.mask("BGS_ANY") & tt["DESI_TARGET"] != 0)
-            * (tt["REF_CAT"] == "L3")
-        )[0]
+        I = np.where((desi_mask.mask("BGS_ANY") & tt["DESI_TARGET"] != 0) * (tt["REF_CAT"] == "L3"))[0]
         tbgs = []
         if len(I) > 0:
             tbgs = tt[I]
@@ -61,10 +55,7 @@ for survey in ["bright", "dark"]:
             _, uindx = np.unique(_out["TARGETID"], return_index=True)
             _out = _out[uindx]
             if "TARG_1" in _out.colnames:
-                _out["TARG"] = [
-                    t1 + "-" + t2
-                    for t1, t2 in zip(_out["TARG_1"].data, _out["TARG_2"].data)
-                ]
+                _out["TARG"] = [t1 + "-" + t2 for t1, t2 in zip(_out["TARG_1"].data, _out["TARG_2"].data)]
                 _out.remove_columns(["TARG_1", "TARG_2"])
         elif len(tbgs) > 0 and len(tpv) == 0:
             _out = tbgs

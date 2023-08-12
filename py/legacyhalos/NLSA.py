@@ -56,19 +56,9 @@ def get_galaxy_galaxydir(cat, datadir=None, htmldir=None, html=False):
         # galaxy = np.array(['{:08d}'.format(mid) for mid in cat['ID']])
         pixnum = radec2pix(nside, cat["RA"], cat["DEC"]).data
 
-    galaxydir = np.array(
-        [
-            os.path.join(get_healpix_subdir(nside, pix, datadir), gal)
-            for pix, gal in zip(pixnum, galaxy)
-        ]
-    )
+    galaxydir = np.array([os.path.join(get_healpix_subdir(nside, pix, datadir), gal) for pix, gal in zip(pixnum, galaxy)])
     if html:
-        htmlgalaxydir = np.array(
-            [
-                os.path.join(get_healpix_subdir(nside, pix, htmldir), gal)
-                for pix, gal in zip(pixnum, galaxy)
-            ]
-        )
+        htmlgalaxydir = np.array([os.path.join(get_healpix_subdir(nside, pix, htmldir), gal) for pix, gal in zip(pixnum, galaxy)])
 
     if ngal == 1:
         galaxy = galaxy[0]
@@ -131,11 +121,7 @@ def read_nlsa_parent(
             rows = np.arange(first, last)
         else:
             if last >= nrows:
-                print(
-                    "Index last cannot be greater than the number of rows, {} >= {}".format(
-                        last, nrows
-                    )
-                )
+                print("Index last cannot be greater than the number of rows, {} >= {}".format(last, nrows))
                 raise ValueError()
             rows = np.arange(first, last + 1)
         return rows
@@ -157,15 +143,9 @@ def read_nlsa_parent(
         sample["BRICKNAME"] = np.array(["", "", "", ""])
         sample["OBJID"] = np.array([0, 1, 2, 3])
         sample["Z"] = np.array([0.0, 0.0060, 0.0, 0.0])
-        sample["RA"] = np.array([178.205851, 207.313452, 196.455276, 173.05609]).astype(
-            "f8"
-        )
-        sample["DEC"] = np.array([44.120774, 60.190476, 37.604659, 0.819287]).astype(
-            "f8"
-        )
-        sample["REFF"] = np.array([78.6 / 2, 78.6 / 2, 78.6 / 2, 20.0]).astype(
-            "f4"
-        )  # [arcsec]
+        sample["RA"] = np.array([178.205851, 207.313452, 196.455276, 173.05609]).astype("f8")
+        sample["DEC"] = np.array([44.120774, 60.190476, 37.604659, 0.819287]).astype("f8")
+        sample["REFF"] = np.array([78.6 / 2, 78.6 / 2, 78.6 / 2, 20.0]).astype("f4")  # [arcsec]
         # Move the center of the galaxy group over a bit
         sample["RA"][3] = 173.0722  # move the center over a bit
         sample["DEC"][3] = 0.8194
@@ -180,12 +160,7 @@ def read_nlsa_parent(
         print("Choosing a random subset of galaxies!")
         seed = 1
         npilot = 35
-        keep = np.where(
-            (sample["SB"] > 18)
-            * (sample["SB"] < 27)
-            * (sample["RMAG"] < 19)
-            * (sample["REFF"] > 5)
-        )[0]
+        keep = np.where((sample["SB"] > 18) * (sample["SB"] < 27) * (sample["RMAG"] < 19) * (sample["REFF"] > 5))[0]
         sample = sample[keep]
         sb = sample["SB"].data
 
@@ -250,9 +225,7 @@ def make_html(
             zoom = 14
         else:
             zoom = 15
-        viewer = "{}?ra={:.6f}&dec={:.6f}&zoom={:g}&layer=decals-{}".format(
-            baseurl, onegal["RA"], onegal["DEC"], zoom, dr
-        )
+        viewer = "{}?ra={:.6f}&dec={:.6f}&zoom={:g}&layer=decals-{}".format(baseurl, onegal["RA"], onegal["DEC"], zoom, dr)
         return viewer
 
     homehtml = "index.html"
@@ -265,16 +238,12 @@ def make_html(
     with open(htmlfile, "w") as html:
         html.write("<html><body>\n")
         html.write('<style type="text/css">\n')
-        html.write(
-            "table, td, th {padding: 5px; text-align: left; border: 1px solid black;}\n"
-        )
+        html.write("table, td, th {padding: 5px; text-align: left; border: 1px solid black;}\n")
         html.write("</style>\n")
 
         html.write("<h1>Nlsa-NSA</h1>\n")
         html.write("<p>\n")
-        html.write(
-            '<a href="https://github.com/moustakas/LSLGA">Code and documentation</a>\n'
-        )
+        html.write('<a href="https://github.com/moustakas/LSLGA">Code and documentation</a>\n')
         html.write("</p>\n")
 
         html.write("<table>\n")
@@ -298,11 +267,7 @@ def make_html(
             html.write("<td>{:.7f}</td>\n".format(onegal["RA"]))
             html.write("<td>{:.7f}</td>\n".format(onegal["DEC"]))
             html.write("<td>{:.5f}</td>\n".format(onegal["Z"]))
-            html.write(
-                '<td><a href="{}" target="_blank">Link</a></td>\n'.format(
-                    _viewer_link(onegal, dr)
-                )
-            )
+            html.write('<td><a href="{}" target="_blank">Link</a></td>\n'.format(_viewer_link(onegal, dr)))
             html.write("</tr>\n")
         html.write("</table>\n")
 
@@ -325,9 +290,7 @@ def make_html(
         width_kpc = width_arcsec / LSLGA.misc.arcsec2kpc(onegal["Z"])
 
         survey.output_dir = os.path.join(analysisdir, galaxy)
-        survey.ccds = fits_table(
-            os.path.join(survey.output_dir, "{}-ccds.fits".format(galaxy))
-        )
+        survey.ccds = fits_table(os.path.join(survey.output_dir, "{}-ccds.fits".format(galaxy)))
 
         htmlgalaxydir = os.path.join(htmldir, "{}".format(galaxy))
         if not os.path.exists(htmlgalaxydir):
@@ -337,9 +300,7 @@ def make_html(
         with open(htmlfile, "w") as html:
             html.write("<html><body>\n")
             html.write('<style type="text/css">\n')
-            html.write(
-                "table, td, th {padding: 5px; text-align: left; border: 1px solid black;}\n"
-            )
+            html.write("table, td, th {padding: 5px; text-align: left; border: 1px solid black;}\n")
             html.write("</style>\n")
 
             html.write("<h1>Nlsa ID {}</h1>\n".format(galaxy))
@@ -367,11 +328,7 @@ def make_html(
             html.write("<td>{:.7f}</td>\n".format(onegal["RA"]))
             html.write("<td>{:.7f}</td>\n".format(onegal["DEC"]))
             html.write("<td>{:.5f}</td>\n".format(onegal["Z"]))
-            html.write(
-                '<td><a href="{}" target="_blank">Link</a></td>\n'.format(
-                    _viewer_link(onegal, dr)
-                )
-            )
+            html.write('<td><a href="{}" target="_blank">Link</a></td>\n'.format(_viewer_link(onegal, dr)))
             html.write("</tr>\n")
             html.write("</table>\n")
 
@@ -449,9 +406,7 @@ def make_html(
 
                 # single-sersic
                 html.write("<tr>\n")
-                html.write(
-                    "<th>Single Sersic (No Wavelength Dependence)</th><th>Single Sersic</th>\n"
-                )
+                html.write("<th>Single Sersic (No Wavelength Dependence)</th><th>Single Sersic</th>\n")
                 html.write("</tr>\n")
                 html.write("<tr>\n")
                 pngfile = "{}-sersic-single-nowavepower.png".format(galaxy)
@@ -470,9 +425,7 @@ def make_html(
 
                 # Sersic+exponential
                 html.write("<tr>\n")
-                html.write(
-                    "<th>Sersic+Exponential (No Wavelength Dependence)</th><th>Sersic+Exponential</th>\n"
-                )
+                html.write("<th>Sersic+Exponential (No Wavelength Dependence)</th><th>Sersic+Exponential</th>\n")
                 html.write("</tr>\n")
                 html.write("<tr>\n")
                 pngfile = "{}-sersic-exponential-nowavepower.png".format(galaxy)
@@ -491,9 +444,7 @@ def make_html(
 
                 # double-sersic
                 html.write("<tr>\n")
-                html.write(
-                    "<th>Double Sersic (No Wavelength Dependence)</th><th>Double Sersic</th>\n"
-                )
+                html.write("<th>Double Sersic (No Wavelength Dependence)</th><th>Double Sersic</th>\n")
                 html.write("</tr>\n")
                 html.write("<tr>\n")
                 pngfile = "{}-sersic-double-nowavepower.png".format(galaxy)
@@ -560,25 +511,17 @@ def make_html(
             # Custom plots
             ellipsefit = read_ellipsefit(galaxy, galaxydir)
 
-            cogfile = os.path.join(
-                htmlgalaxydir, "{}-curve-of-growth.png".format(galaxy)
-            )
+            cogfile = os.path.join(htmlgalaxydir, "{}-curve-of-growth.png".format(galaxy))
             if not os.path.isfile(cogfile) or clobber:
                 LSLGA.qa.qa_curveofgrowth(ellipsefit, png=cogfile, verbose=verbose)
 
             # pdb.set_trace()
 
-            sbprofilefile = os.path.join(
-                htmlgalaxydir, "{}-ellipse-sbprofile.png".format(galaxy)
-            )
+            sbprofilefile = os.path.join(htmlgalaxydir, "{}-ellipse-sbprofile.png".format(galaxy))
             if not os.path.isfile(sbprofilefile) or clobber:
-                LSLGA.qa.display_ellipse_sbprofile(
-                    ellipsefit, png=sbprofilefile, verbose=verbose
-                )
+                LSLGA.qa.display_ellipse_sbprofile(ellipsefit, png=sbprofilefile, verbose=verbose)
 
-            LSLGA.qa.qa_multiwavelength_coadds(
-                galaxy, galaxydir, htmlgalaxydir, clobber=clobber, verbose=verbose
-            )
+            LSLGA.qa.qa_multiwavelength_coadds(galaxy, galaxydir, htmlgalaxydir, clobber=clobber, verbose=verbose)
 
             # Plots common to legacyhalos
             # make_plots([onegal], galaxylist=[galaxy], analysisdir=analysisdir,

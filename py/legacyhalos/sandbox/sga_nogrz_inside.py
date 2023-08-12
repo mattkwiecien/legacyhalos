@@ -44,9 +44,7 @@ theta, phi = hp.pix2ang(nside, pixs, nest=nest)
 ra, dec = 180.0 / np.pi * phi, 90.0 - 180.0 / np.pi * theta
 
 # dr9 pixels with g+r+z
-ccdpixs = hp.ang2pix(
-    nside, (90.0 - ccd["dec"]) * np.pi / 180.0, ccd["ra"] * np.pi / 180.0, nest=nest
-)
+ccdpixs = hp.ang2pix(nside, (90.0 - ccd["dec"]) * np.pi / 180.0, ccd["ra"] * np.pi / 180.0, nest=nest)
 isgrz = np.ones(npix, dtype=bool)
 for band in ["g", "r", "z"]:
     reject = ~np.in1d(pixs, ccdpixs[ccd["filter"] != band])
@@ -57,26 +55,19 @@ edgepixs = pixs[get_footedge(isgrz, nside, nest)]
 # "thickening the border"
 for step in range(5):
     edgepixs = np.unique(
-        edgepixs.tolist()
-        + sum(
-            [hp.get_all_neighbours(nside, p, nest=nest).tolist() for p in edgepixs], []
-        )
+        edgepixs.tolist() + sum([hp.get_all_neighbours(nside, p, nest=nest).tolist() for p in edgepixs], [])
     )  ## safe: adding pixels on the edge
 
 # sga
 sga = fits.open(sgadir + "SGA-dropped-v3.0.fits")[1].data
-sgapixs = hp.ang2pix(
-    nside, (90.0 - sga["dec"]) * np.pi / 180.0, sga["ra"] * np.pi / 180.0, nest=nest
-)
+sgapixs = hp.ang2pix(nside, (90.0 - sga["dec"]) * np.pi / 180.0, sga["ra"] * np.pi / 180.0, nest=nest)
 inside = ((sga["dropbit"] & 2**1) != 0) & (~np.in1d(sgapixs, edgepixs))
 onedge = ((sga["dropbit"] & 2**1) != 0) & (np.in1d(sgapixs, edgepixs))
 
 
 #
 fig, ax = plt.subplots()
-ax.scatter(
-    ra[edgepixs], dec[edgepixs], c="y", zorder=0, s=2, label="healpix edge pixels"
-)
+ax.scatter(ra[edgepixs], dec[edgepixs], c="y", zorder=0, s=2, label="healpix edge pixels")
 ax.scatter(
     sga["ra"][onedge],
     sga["dec"][onedge],

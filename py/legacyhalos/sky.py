@@ -45,9 +45,7 @@ def sky_coadd(
     brickname = custom_brickname(ra, dec, prefix="custom-")
 
     blobfile = os.path.join(outdir, "{}-blobs.fits.gz".format(prefix))
-    imfiles = [
-        os.path.join(outdir, "{}-{}.fits.fz".format(prefix, filt)) for filt in band
-    ]
+    imfiles = [os.path.join(outdir, "{}-{}.fits.fz".format(prefix, filt)) for filt in band]
 
     # Are we already done?
     alldone = True
@@ -66,9 +64,7 @@ def sky_coadd(
 
         # Set up runbrick
         cmd = "python {legacypipe_dir}/py/legacypipe/runbrick.py "
-        cmd += (
-            "--radec {ra} {dec} --width {size} --height {size} --pixscale {pixscale} "
-        )
+        cmd += "--radec {ra} {dec} --width {size} --height {size} --pixscale {pixscale} "
         cmd += "--threads {threads} --outdir {outdir} "
         cmd += "--skip-calibs --no-write --stage image_coadds --blob-image "
 
@@ -91,9 +87,7 @@ def sky_coadd(
             # Move the files we want and clean up.
             print("Writing {}".format(blobfile))
             shutil.copy(
-                os.path.join(
-                    outdir, "metrics", "cus", "blobs-{}.fits.gz".format(brickname)
-                ),
+                os.path.join(outdir, "metrics", "cus", "blobs-{}.fits.gz".format(brickname)),
                 blobfile,
             )
             for filt, imfile in zip(band, imfiles):
@@ -179,10 +173,7 @@ def sky_positions(ra_cluster, dec_cluster, redshift, r_lambda, nsky, rand):
     """
     from legacyhalos.misc import cutout_radius_cluster
 
-    rcluster = (
-        cutout_radius_cluster(redshift, r_lambda, pixscale=1, factor=1.0)  # [degrees]
-        / 3600
-    )
+    rcluster = cutout_radius_cluster(redshift, r_lambda, pixscale=1, factor=1.0) / 3600  # [degrees]
     radius = rand.uniform(5 * rcluster, 10 * rcluster, nsky)  # [degrees]
 
     dra = radius / np.cos(np.deg2rad(dec_cluster))
@@ -231,9 +222,7 @@ def legacyhalos_sky(
             size = np.ceil(3 * ellipsefit["geometry"].sma).astype("int")
 
             # get the (random) sky coordinates
-            ra, dec = sky_positions(
-                sample["ra"], sample["dec"], sample["z"], sample["r_lambda"], nsky, rand
-            )
+            ra, dec = sky_positions(sample["ra"], sample["dec"], sample["z"], sample["r_lambda"], nsky, rand)
 
             # initialize the output dictionary
             sky = dict()
@@ -279,9 +268,7 @@ def legacyhalos_sky(
 
             if bool(skyellipsefit):
                 # write out!
-                legacyhalos.io.write_ellipsefit(
-                    objid, objdir, sky, verbose=True, filesuffix="sky"
-                )
+                legacyhalos.io.write_ellipsefit(objid, objdir, sky, verbose=True, filesuffix="sky")
                 return 1
             else:
                 return 0

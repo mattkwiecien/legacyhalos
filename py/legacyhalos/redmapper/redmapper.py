@@ -12,9 +12,7 @@ import legacyhalos.misc
 from legacyhalos.redmapper import pzutils
 
 
-def compute_nofz(
-    cat=None, nboot=None, seed=None, area=None, dz=0.2, descale=False, verbose=True
-):
+def compute_nofz(cat=None, nboot=None, seed=None, area=None, dz=0.2, descale=False, verbose=True):
     """Calculate n(z) for several thresholds in lambda.
 
     Outputs the results to a file.  Incorporates P(z) and error estimation
@@ -83,9 +81,7 @@ def compute_nofz(
     vol = np.zeros(nz)
     for jj in range(nz):
         vol[jj] = (
-            (cosmo.comoving_volume(zmax[jj]) - cosmo.comoving_volume(zmin[jj])).value
-            * area
-            / (4 * np.pi * 180**2 / np.pi**2)
+            (cosmo.comoving_volume(zmax[jj]) - cosmo.comoving_volume(zmin[jj])).value * area / (4 * np.pi * 180**2 / np.pi**2)
         )
 
     nofz = np.zeros([nlambda, nz])  # output probability map
@@ -95,22 +91,14 @@ def compute_nofz(
     for ii in range(nlambda):
         if verbose:
             print(
-                "Get probabilities for being in lambda bin {:02d}/{:02d}, {:.1f}-{:.1f}".format(
-                    ii, nlambda, lmin[ii], lmax[ii]
-                )
+                "Get probabilities for being in lambda bin {:02d}/{:02d}, {:.1f}-{:.1f}".format(ii, nlambda, lmin[ii], lmax[ii])
             )
         p_lbin[ii] = pzutils.p_in_lambdabin(mylambda, mylambda_err, lmin[ii], lmax[ii])
         for jj in range(nz):
             if verbose:
-                print(
-                    "Looping over redshift bin {:02d}/{:02d}, {:.3f}-{:.3f}".format(
-                        jj, nz, zmin[jj], zmax[jj]
-                    )
-                )
+                print("Looping over redshift bin {:02d}/{:02d}, {:.3f}-{:.3f}".format(jj, nz, zmin[jj], zmax[jj]))
             if ii == 0:
-                p_zbin[jj] = pzutils.p_in_zbin(
-                    cat["PZ"].data, cat["PZBINS"].data, zmin[jj], zmax[jj]
-                )
+                p_zbin[jj] = pzutils.p_in_zbin(cat["PZ"].data, cat["PZBINS"].data, zmin[jj], zmax[jj])
             nofz[ii, jj] = np.sum(p_zbin[jj] * p_lbin[ii]) / vol[jj]  # [Mpc**-3]
 
     # Estimate the variance using the bootstrap samples.
@@ -121,16 +109,11 @@ def compute_nofz(
             for jj in range(nlambda):
                 for kk in range(nz):
                     # Total the probabilities for each bootstrap sample.
-                    nofz_boot[ii, jj, kk] = (
-                        np.sum(p_zbin[kk, bootindx[ii]] * p_lbin[jj, bootindx[ii]])
-                        / vol[kk]
-                    )
+                    nofz_boot[ii, jj, kk] = np.sum(p_zbin[kk, bootindx[ii]] * p_lbin[jj, bootindx[ii]]) / vol[kk]
 
         for ii in range(nlambda):
             for jj in range(nz):
-                nofz_err[ii, jj] = np.sum(
-                    (nofz[ii, jj] - nofz_boot[:, ii, jj]) ** 2
-                ) / (nboot - 1)
+                nofz_err[ii, jj] = np.sum((nofz[ii, jj] - nofz_boot[:, ii, jj]) ** 2) / (nboot - 1)
 
     # Write out.
     outfile = "junk.txt"

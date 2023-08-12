@@ -42,9 +42,7 @@ def _rearrange_files(
     import fitsio
     import shutil
 
-    def _copyfile(
-        infile, outfile, clobber=False, update_header=False, missing_ok=False
-    ):
+    def _copyfile(infile, outfile, clobber=False, update_header=False, missing_ok=False):
         if os.path.isfile(outfile) and not clobber:
             return 1
         if os.path.isfile(infile):
@@ -70,9 +68,7 @@ def _rearrange_files(
         shutil.rmtree(os.path.join(output_dir, "metrics"), ignore_errors=True)
         shutil.rmtree(os.path.join(output_dir, "tractor"), ignore_errors=True)
         shutil.rmtree(os.path.join(output_dir, "tractor-i"), ignore_errors=True)
-        picklefiles = glob(
-            os.path.join(output_dir, "{}-{}-*.p".format(galaxy, stagesuffix))
-        )
+        picklefiles = glob(os.path.join(output_dir, "{}-{}-*.p".format(galaxy, stagesuffix)))
         for picklefile in picklefiles:
             if os.path.isfile(picklefile):
                 os.remove(picklefile)
@@ -89,9 +85,7 @@ def _rearrange_files(
                 "cus",
                 "fitoncoadds-{}-{}.jpg".format(brickname, qatype),
             ),
-            os.path.join(
-                output_dir, "{}-{}-{}.jpg".format(galaxy, stagesuffix, qatype)
-            ),
+            os.path.join(output_dir, "{}-{}-{}.jpg".format(galaxy, stagesuffix, qatype)),
             clobber=clobber,
             missing_ok=True,
         )
@@ -136,9 +130,7 @@ def _rearrange_files(
         allbands = fitsio.read(ccdsfile, columns="filter")
         ubands = list(sorted(set(allbands)))
 
-        if require_grz and (
-            "g" not in ubands or "r" not in ubands or "z" not in ubands
-        ):
+        if require_grz and ("g" not in ubands or "r" not in ubands or "z" not in ubands):
             print("Lost grz coverage and require_grz=True.")
             if cleanup:
                 _do_cleanup()
@@ -203,9 +195,7 @@ def _rearrange_files(
                     ),
                     os.path.join(
                         output_dir,
-                        "{}-{}-{}-{}.fits.fz".format(
-                            galaxy, stagesuffix, outtype, band
-                        ),
+                        "{}-{}-{}-{}.fits.fz".format(galaxy, stagesuffix, outtype, band),
                     ),
                     clobber=clobber,
                     missing_ok=missing_ok,
@@ -222,15 +212,11 @@ def _rearrange_files(
                             "coadd",
                             "cus",
                             brickname,
-                            "legacysurvey-{}-{}-{}.fits.fz".format(
-                                brickname, imtype, band
-                            ),
+                            "legacysurvey-{}-{}-{}.fits.fz".format(brickname, imtype, band),
                         ),
                         os.path.join(
                             output_dir,
-                            "{}-{}-{}-{}.fits.fz".format(
-                                galaxy, stagesuffix, outtype, band
-                            ),
+                            "{}-{}-{}-{}.fits.fz".format(galaxy, stagesuffix, outtype, band),
                         ),
                         clobber=clobber,
                         missing_ok=missing_ok,
@@ -266,9 +252,7 @@ def _rearrange_files(
 
     if False:
         ok = _copyfile(
-            os.path.join(
-                output_dir, "metrics", "cus", "blobs-{}.fits.gz".format(brickname)
-            ),
+            os.path.join(output_dir, "metrics", "cus", "blobs-{}.fits.gz".format(brickname)),
             os.path.join(output_dir, "{}-{}-blobs.fits.gz".format(galaxy, stagesuffix)),
             clobber=clobber,
             missing_ok=missing_ok,
@@ -277,12 +261,8 @@ def _rearrange_files(
             return ok
 
     ok = _copyfile(
-        os.path.join(
-            output_dir, "metrics", "cus", "outlier-mask-{}.fits.fz".format(brickname)
-        ),
-        os.path.join(
-            output_dir, "{}-{}-outlier-mask.fits.fz".format(galaxy, stagesuffix)
-        ),
+        os.path.join(output_dir, "metrics", "cus", "outlier-mask-{}.fits.fz".format(brickname)),
+        os.path.join(output_dir, "{}-{}-outlier-mask.fits.fz".format(galaxy, stagesuffix)),
         clobber=clobber,
         missing_ok=missing_ok,
     )
@@ -338,9 +318,7 @@ def _rearrange_files(
                 brickname,
                 "legacysurvey-{}-{}.jpg".format(brickname, imtype),
             ),
-            os.path.join(
-                output_dir, "{}-{}-{}-grz.jpg".format(galaxy, stagesuffix, imtype)
-            ),
+            os.path.join(output_dir, "{}-{}-{}-grz.jpg".format(galaxy, stagesuffix, imtype)),
             clobber=clobber,
             missing_ok=missing_ok,
         )
@@ -387,9 +365,7 @@ def _rearrange_files(
             if not ok:
                 return ok
 
-        for imtype, suffix in zip(
-            ("wise", "wisemodel", "wiseresid"), ("image", "model", "resid")
-        ):
+        for imtype, suffix in zip(("wise", "wisemodel", "wiseresid"), ("image", "model", "resid")):
             ok = _copyfile(
                 os.path.join(
                     output_dir,
@@ -398,9 +374,7 @@ def _rearrange_files(
                     brickname,
                     "legacysurvey-{}-{}.jpg".format(brickname, imtype),
                 ),
-                os.path.join(
-                    output_dir, "{}-{}-{}-W1W2.jpg".format(galaxy, stagesuffix, suffix)
-                ),
+                os.path.join(output_dir, "{}-{}-{}-W1W2.jpg".format(galaxy, stagesuffix, suffix)),
                 clobber=clobber,
                 missing_ok=missing_ok,
             )
@@ -447,9 +421,7 @@ def _rearrange_files(
             if not ok:
                 return ok
 
-        for imtype, suffix in zip(
-            ("galex", "galexmodel", "galexresid"), ("image", "model", "resid")
-        ):
+        for imtype, suffix in zip(("galex", "galexmodel", "galexresid"), ("image", "model", "resid")):
             ok = _copyfile(
                 os.path.join(
                     output_dir,
@@ -484,9 +456,7 @@ def get_ccds(survey, ra, dec, pixscale, width, bands=["g", "r", "z"]):
     brickname = "custom-{}".format(custom_brickname(ra, dec))
     brick = BrickDuck(ra, dec, brickname)
 
-    targetwcs = wcs_for_brick(
-        brick, W=np.float32(width), H=np.float32(width), pixscale=pixscale
-    )
+    targetwcs = wcs_for_brick(brick, W=np.float32(width), H=np.float32(width), pixscale=pixscale)
     ccds = survey.ccds_touching_wcs(targetwcs)
 
     if ccds is None or np.sum(ccds.ccd_cuts == 0) == 0:
@@ -555,14 +525,10 @@ def custom_coadds(
         stagesuffix = "pipeline"
 
     width = _mosaic_width(radius_mosaic, pixscale)
-    brickname = "custom-{}".format(
-        custom_brickname(onegal[racolumn], onegal[deccolumn])
-    )
+    brickname = "custom-{}".format(custom_brickname(onegal[racolumn], onegal[deccolumn]))
 
     # Quickly read the input CCDs and check that we have all the colors we need.
-    ccds = get_ccds(
-        survey, onegal[racolumn], onegal[deccolumn], pixscale, width, bands=bands
-    )
+    ccds = get_ccds(survey, onegal[racolumn], onegal[deccolumn], pixscale, width, bands=bands)
     if len(ccds) == 0:
         print("No CCDs touching this brick; nothing to do.")
         return 1, stagesuffix
@@ -572,9 +538,7 @@ def custom_coadds(
     print("Bands touching this brick, {}".format(" ".join([filt for filt in usebands])))
     if np.sum(these) < len(bands) and require_grz:
         print("Missing imaging in at least grz and require_grz=True; nothing to do.")
-        ccdsfile = os.path.join(
-            survey.output_dir, "{}-ccds-{}.fits".format(galaxy, run)
-        )
+        ccdsfile = os.path.join(survey.output_dir, "{}-ccds-{}.fits".format(galaxy, run))
         # should we write out the CCDs file?
         print("Writing {} CCDs to {}".format(len(ccds), ccdsfile))
         ccds.writeto(ccdsfile, overwrite=True)
@@ -669,9 +633,7 @@ def custom_coadds(
         from legacypipe.galex import galex_psf
 
         cat = fitsio.read(
-            os.path.join(
-                survey.output_dir, "tractor", "cus", "tractor-{}.fits".format(brickname)
-            ),
+            os.path.join(survey.output_dir, "tractor", "cus", "tractor-{}.fits".format(brickname)),
             columns=[
                 "brick_primary",
                 "ref_cat",
@@ -689,9 +651,7 @@ def custom_coadds(
             "legacysurvey-{}-copsf-r.fits.fz".format(brickname),
         )
         if not os.path.isfile(psffile):
-            psffile = os.path.join(
-                survey.output_dir, "{}-{}-psf-r.fits.fz".format(galaxy, stagesuffix)
-            )
+            psffile = os.path.join(survey.output_dir, "{}-{}-psf-r.fits.fz".format(galaxy, stagesuffix))
         hdr = fitsio.read_header(psffile)
 
         for remcard in ("MJD", "MJD_TAI", "PSF_SIG", "INPIXSC"):
@@ -707,9 +667,7 @@ def custom_coadds(
             from legacypipe.survey import wcs_for_brick, BrickDuck
 
             brick = BrickDuck(onegal[racolumn], onegal[deccolumn], brickname)
-            targetwcs = wcs_for_brick(
-                brick, W=np.float32(width), H=np.float32(width), pixscale=pixscale
-            )
+            targetwcs = wcs_for_brick(brick, W=np.float32(width), H=np.float32(width), pixscale=pixscale)
             tiles = unwise_tiles_touching_wcs(targetwcs)
             coadd_id = tiles.coadd_id[0]  # grab the first one
 
@@ -724,18 +682,14 @@ def custom_coadds(
             wband = "W{}".format(band)
             # hdr['BAND'] = wband
             hdr.delete("BAND")
-            hdr.add_record(
-                dict(name="BAND", value=wband, comment="Band of this coadd/PSF")
-            )
+            hdr.add_record(dict(name="BAND", value=wband, comment="Band of this coadd/PSF"))
 
             # psfimg = unwise_psf.get_unwise_psf(band, coadd_id)
             # psfimg /= psfimg.sum()
 
             if (band == 1) or (band == 2):
                 # we only have updated PSFs for W1 and W2
-                psfimg = unwise_psf.get_unwise_psf(
-                    band, coadd_id, modelname="neo6_unwisecat"
-                )
+                psfimg = unwise_psf.get_unwise_psf(band, coadd_id, modelname="neo6_unwisecat")
                 # psfimg = unwise_psf.get_unwise_psf(band, coadd_id, modelname='neo7_unwisecat')
             else:
                 psfimg = unwise_psf.get_unwise_psf(band, coadd_id)
@@ -776,9 +730,7 @@ def custom_coadds(
         for band in ("f", "n"):
             # hdr['BAND'] = gband[band]
             hdr.delete("BAND")
-            hdr.add_record(
-                dict(name="BAND", value=gband[band], comment="Band of this coadd/PSF")
-            )
+            hdr.add_record(dict(name="BAND", value=gband[band], comment="Band of this coadd/PSF"))
             psfimg = galex_psf(band, os.getenv("GALEX_DIR"))
             psfimg /= psfimg.sum()
             with survey.write_output("copsf", brick=brickname, band=gband[band]) as out:

@@ -6,79 +6,52 @@ RUN echo '<policymap></policymap>' > /etc/ImageMagick-6/policy.xml
 RUN /sbin/ldconfig
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
-SHELL [ "/bin/bash", "--login", "-c" ]
+ENV PATH /opt/conda/bin:$PATH
 
 # Get non python dependencies
 RUN apt-get update && \
     apt-get -y upgrade
-RUN apt-get install -y curl build-essential gfortran && \
+RUN apt-get install -y curl build-essential gfortran tini && \
     apt-get clean all
 
 # Create a non-root user
-ARG username=legacyhalos
-ARG uid=1000
-ARG gid=100
-ENV USER $username
-ENV UID $uid
-ENV GID $gid
-ENV HOME /home/$USER
+RUN /usr/sbin/groupadd -g 1000 user && \
+    /usr/sbin/useradd -u 1000 -g 1000 -d /opt/legacyhalos legacyhalos && \
+    mkdir /opt/legacyhalos && \
+    chown legacyhalos.user /opt/legacyhalos && \
+    chown -R legacyhalos.user /opt
 
-RUN adduser --disabled-password \
-    --gecos "Non-root user" \
-    --uid $UID \
-    --gid $GID \
-    --home $HOME \
-    $USER
+COPY . /opt/legacyhalos/workdir
+RUN chown -R legacyhalos.user /opt/legacyhalos/workdir
 
-COPY environment.yml /tmp/
-RUN chown $UID:$GID /tmp/environment.yml
+# Install mamba/conda
+RUN curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh && \
+    /bin/bash ~/mambaforge.sh -b -p /opt/conda && \
+    rm ~/mambaforge.sh
 
-# Create a project directory inside user home
-ENV PROJECT_DIR $HOME/src
-RUN mkdir $PROJECT_DIR
-WORKDIR $PROJECT_DIR
-
-# Copy the code to the non-root user's home directory and change the owner
-COPY . $PROJECT_DIR
-RUN chown -R $USER $PROJECT_DIR
-
-COPY docker/entrypoint.sh /usr/local/bin/
-RUN chown $UID:$GID /usr/local/bin/entrypoint.sh && \
-    chmod u+x /usr/local/bin/entrypoint.sh
+RUN chown -R legacyhalos.user /homedir
 
 # Finally, swap to non-root user
 USER legacyhalos
 
-ENV CONDA_DIR $HOME/miniforge
+RUN . /opt/conda/etc/profile.d/conda.sh && \
+    cd /opt/legacyhalos/workdir && \
+    mamba env create -n legacyhalos -f environment.yml && \
+    mamba clean -af --yes
 
-# Install mamba/conda
-RUN curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh && \
-    chmod +x ~/mambaforge.sh && \
-    ~/mambaforge.sh -b -p $CONDA_DIR && \
-    rm ~/mambaforge.sh
-
-# make non-activate conda commands available
-ENV PATH=$CONDA_DIR/bin:$PATH
-
-# make conda activate command available from /bin/bash --login shells
-RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.profile
-
-# make conda activate command available from /bin/bash --interative shells
-RUN conda init bash
-
-# build the conda environment
-RUN mamba env create --name legacyhalos-env --file /tmp/environment.yml --force && \
-    conda clean --all --yes
-
-RUN . $CONDA_DIR/etc/profile.d/conda.sh && \
-    conda activate legacyhalos-env && \
+RUN echo ". /opt/conda/etc/profile.d/conda.sh" > /opt/legacyhalos/startup.sh && \
+    echo "conda activate legacyhalos" >> /opt/legacyhalos/startup.sh
+    
+RUN . /opt/conda/etc/profile.d/conda.sh && \
+    cd /opt/legacyhalos/workdir && \
+    conda activate legacyhalos && \
     pip install . --no-deps
 
 ENV IPYTHONDIR /tmp/ipython-config
 ENV PYTHONPATH=/home/legacyhalos/src:$PYTHONPATH
 ENV PATH=/home/legacyhalos/src:$PATH
 
-ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
+# ENTRYPOINT [ "/opt/legacyhalos/startup.sh" ]
 
 
 # # # MPI install needs to be done explicitly 

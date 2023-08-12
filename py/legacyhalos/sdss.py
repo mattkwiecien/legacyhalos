@@ -89,12 +89,8 @@ def get_psf_sigma(img, invvar, wcs, ref_ra, ref_dec, ref_flux, band, verbose=Fal
 
         psf = tractor.NCircularGaussianPSF([4.0], [1.0])
         psf.radius = R / 2
-        tim = tractor.Image(
-            data=subimg, inverr=subie, psf=psf, photocal=LinearPhotoCal(1.0, band=band)
-        )
-        src = tractor.PointSource(
-            tractor.PixPos(R, R), NanoMaggies(**{band: ref_flux[istar]})
-        )
+        tim = tractor.Image(data=subimg, inverr=subie, psf=psf, photocal=LinearPhotoCal(1.0, band=band))
+        src = tractor.PointSource(tractor.PixPos(R, R), NanoMaggies(**{band: ref_flux[istar]}))
         tr = tractor.Tractor([tim], [src])
 
         tim.freezeAllBut("psf")
@@ -145,9 +141,7 @@ def forced_phot(galaxy, survey, srcs, cat, band, log):
     """Perform forced photometry on a single SDSS bandpass (mosaic)."""
     from astrometry.util.util import Tan
 
-    bandfile = os.path.join(
-        survey.output_dir, "{}-sdss-image-{}.fits.fz".format(galaxy, band)
-    )
+    bandfile = os.path.join(survey.output_dir, "{}-sdss-image-{}.fits.fz".format(galaxy, band))
     img, hdr = fitsio.read(bandfile, header=True)
     tanwcs = Tan(
         hdr["CRVAL1"],
@@ -166,12 +160,7 @@ def forced_phot(galaxy, survey, srcs, cat, band, log):
     invvar = np.ones_like(img)
 
     # Estimate the PSF by fitting a simple Gaussian PSF to all the point sources.
-    istar = np.array(
-        [
-            (cat1.type.strip() == "PSF") * (cat1.flux_r > 10 ** (-0.4 * 22.5))
-            for cat1 in cat
-        ]
-    )
+    istar = np.array([(cat1.type.strip() == "PSF") * (cat1.flux_r > 10 ** (-0.4 * 22.5)) for cat1 in cat])
     if len(istar) == 0:
         print(
             "No point sources in the field, assuming psf_sigma=1.3 **units**.",
@@ -183,9 +172,7 @@ def forced_phot(galaxy, survey, srcs, cat, band, log):
         psf_sigma_nstar = 0
     else:
         print(
-            "Using {} stars to estimate the {}-band PSF width.".format(
-                len(istar), band
-            ),
+            "Using {} stars to estimate the {}-band PSF width.".format(len(istar), band),
             flush=True,
             file=log,
         )
@@ -193,13 +180,9 @@ def forced_phot(galaxy, survey, srcs, cat, band, log):
         ref_dec = cat.dec[istar]
         ref_flux = cat.flux_r[istar]
 
-        psf_sigma_all = get_psf_sigma(
-            img, invvar, wcs.wcs, ref_ra, ref_dec, ref_flux, band
-        )
+        psf_sigma_all = get_psf_sigma(img, invvar, wcs.wcs, ref_ra, ref_dec, ref_flux, band)
         psf_sigma_nstar = len(psf_sigma_all)
-        psf_sigma, psf_sigma_err = np.median(psf_sigma_all), np.std(
-            psf_sigma_all
-        ) / np.sqrt(psf_sigma_nstar)
+        psf_sigma, psf_sigma_err = np.median(psf_sigma_all), np.std(psf_sigma_all) / np.sqrt(psf_sigma_nstar)
 
     # Now build the tim and perform forced photometry.
     psf = tractor.GaussianMixturePSF(1.0, 0.0, 0.0, psf_sigma**2, psf_sigma**2, 0.0)
@@ -316,9 +299,7 @@ def custom_coadds(
         sdss_srcs.append(src)
 
     print("Working on band {}".format(bands), flush=True, file=log)
-    res = mp.map(
-        _forced_phot, [(galaxy, survey, sdss_srcs, cat, band, log) for band in bands]
-    )
+    res = mp.map(_forced_phot, [(galaxy, survey, sdss_srcs, cat, band, log) for band in bands])
     res = list(zip(*res))
     imgs, mods, mods_nocentral = res[1], res[2], res[3]
 
@@ -337,15 +318,11 @@ def custom_coadds(
         resids.append(img - mod)
         imgs_central.append(img - mod_nocentral)
 
-        bandfile = os.path.join(
-            survey.output_dir, "{}-sdss-image-{}.fits.fz".format(galaxy, band)
-        )
+        bandfile = os.path.join(survey.output_dir, "{}-sdss-image-{}.fits.fz".format(galaxy, band))
         hdr = fitsio.read_header(bandfile)
 
         for data, suffix in zip((mod, mod_nocentral), ("model", "model-nocentral")):
-            outfile = os.path.join(
-                survey.output_dir, "{}-sdss-{}-{}.fits.fz".format(galaxy, suffix, band)
-            )
+            outfile = os.path.join(survey.output_dir, "{}-sdss-{}-{}.fits.fz".format(galaxy, suffix, band))
             if os.path.isfile(outfile):
                 os.remove(outfile)
             print("Writing {}".format(outfile))
@@ -357,9 +334,7 @@ def custom_coadds(
 
         rgb = sdss_rgb(data, bands)  # , **rgbkwargs)
         kwa = {}
-        outfn = os.path.join(
-            survey.output_dir, "{}-sdss-{}-gri.jpg".format(galaxy, suffix)
-        )
+        outfn = os.path.join(survey.output_dir, "{}-sdss-{}-gri.jpg".format(galaxy, suffix))
         print("Writing {}".format(outfn), flush=True, file=log)
         imsave_jpeg(outfn, rgb, origin="lower", **kwa)
         del rgb
@@ -414,9 +389,7 @@ def download(sample, pixscale=0.396, bands="gri", clobber=False):
             for ii, band in enumerate(bands):
                 hdr = copy.deepcopy(hdrs)
                 hdr.add_record(dict(name="BAND", value=band, comment="SDSS bandpass"))
-                bandfile = os.path.join(
-                    galdir, "{}-sdss-image-{}.fits.fz".format(gal, band)
-                )
+                bandfile = os.path.join(galdir, "{}-sdss-image-{}.fits.fz".format(gal, band))
                 if os.path.isfile(bandfile):
                     os.remove(bandfile)
                 print("Writing {}".format(bandfile))

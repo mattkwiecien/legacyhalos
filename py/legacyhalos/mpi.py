@@ -36,13 +36,9 @@ def _done(galaxy, galaxydir, err, t0, stage, filesuffix=None, log=None):
             flush=True,
             file=log,
         )
-        donefile = os.path.join(
-            galaxydir, "{}{}-{}.isfail".format(galaxy, suffix, stage)
-        )
+        donefile = os.path.join(galaxydir, "{}{}-{}.isfail".format(galaxy, suffix, stage))
     else:
-        donefile = os.path.join(
-            galaxydir, "{}{}-{}.isdone".format(galaxy, suffix, stage)
-        )
+        donefile = os.path.join(galaxydir, "{}{}-{}.isdone".format(galaxy, suffix, stage))
 
     cmd = "touch {}".format(donefile)
     subprocess.call(cmd.split())
@@ -133,9 +129,7 @@ def call_ellipse(
                 clobber=clobber,
             )
             if write_donefile:
-                _done(
-                    galaxy, galaxydir, err, t0, "ellipse", data["filesuffix"], log=log
-                )
+                _done(galaxy, galaxydir, err, t0, "ellipse", data["filesuffix"], log=log)
 
     return err
 
@@ -171,9 +165,7 @@ def call_sersic(onegal, galaxy, galaxydir, seed, verbose, debug, logfile):
                 _done(galaxy, err, t0, log=log)
 
 
-def call_sky(
-    onegal, galaxy, galaxydir, survey, seed, nproc, pixscale, verbose, debug, logfile
-):
+def call_sky(onegal, galaxy, galaxydir, survey, seed, nproc, pixscale, verbose, debug, logfile):
     """Wrapper script to do Sersic-fitting."""
     import legacyhalos.sky
 

@@ -32,9 +32,7 @@ def p_in_lambdabin(lambda_val, lambda_err, lm_min, lm_max):
         )
 
     if len(blist) > 0:
-        clist = np.where((lambda_val[blist] >= lm_min) * (lambda_val[blist] < lm_max))[
-            0
-        ]
+        clist = np.where((lambda_val[blist] >= lm_min) * (lambda_val[blist] < lm_max))[0]
         p[blist][clist] = 1
 
     return p
@@ -54,11 +52,7 @@ def p_in_zbin(pz, pzbins, zmin, zmax, verbose=False):
         p[alist] = 0 * alist + 1.0
 
     # Case 2: zmax cutoff is in the pzbins range.
-    blist = np.where(
-        (zmin < np.min(pzbins, 1))
-        * (zmax < np.max(pzbins, 1))
-        * (zmax > np.min(pzbins, 1))
-    )[0]
+    blist = np.where((zmin < np.min(pzbins, 1)) * (zmax < np.max(pzbins, 1)) * (zmax > np.min(pzbins, 1)))[0]
     if len(blist) > 0:
         for i in range(len(blist)):
             bmax = np.max(np.where(pzbins[blist[i], :] < zmax)[0])
@@ -66,18 +60,12 @@ def p_in_zbin(pz, pzbins, zmin, zmax, verbose=False):
             p[blist[i]] = (
                 np.sum(pz[blist[i], : bmax + 1]) * dz[blist[i]]
                 - pz[blist[i], bmax] * dz[blist[i]] / 2.0
-                + (pz[blist[i], bmax] * 2 + slope * (zmax - pzbins[blist[i], bmax]))
-                * (zmax - pzbins[blist[i], bmax])
-                / 2.0
+                + (pz[blist[i], bmax] * 2 + slope * (zmax - pzbins[blist[i], bmax])) * (zmax - pzbins[blist[i], bmax]) / 2.0
             )
             # print p[blist[i]],slope,pzbins[blist[i],bmax],pzbins[blist[i],bmax+1]
 
     # Case 3: zmin cutoff is in the pzbins range.
-    blist = np.where(
-        (zmax > np.max(pzbins, 1))
-        * (zmin > np.min(pzbins, 1))
-        * (zmin < np.max(pzbins, 1))
-    )[0]
+    blist = np.where((zmax > np.max(pzbins, 1)) * (zmin > np.min(pzbins, 1)) * (zmin < np.max(pzbins, 1)))[0]
     if len(blist) > 0:
         for i in range(len(blist)):
             bmin = np.min(np.where(pzbins[blist[i], :] > zmin)[0])
@@ -85,9 +73,7 @@ def p_in_zbin(pz, pzbins, zmin, zmax, verbose=False):
             p[blist[i]] = (
                 np.sum(pz[blist[i], bmin:]) * dz[blist[i]]
                 - pz[blist[i], bmin] * dz[blist[i]] / 2.0
-                + (pz[blist[i], bmin] * 2 - slope * (pzbins[blist[i], bmin] - zmin))
-                * (pzbins[blist[i], bmin] - zmin)
-                / 2.0
+                + (pz[blist[i], bmin] * 2 - slope * (pzbins[blist[i], bmin] - zmin)) * (pzbins[blist[i], bmin] - zmin) / 2.0
             )
 
     # Case 4: zmax and zmin cutoff are both in the pzbins range.
@@ -102,13 +88,9 @@ def p_in_zbin(pz, pzbins, zmin, zmax, verbose=False):
             p[clist[i]] = (
                 np.sum(dz[clist[i]] * pz[clist[i], cmin : cmax + 1])
                 - pz[clist[i], cmax] * dz[clist[i]] / 2.0
-                + (pz[clist[i], cmax] * 2 + slope_max * (zmax - pzbins[clist[i], cmax]))
-                * (zmax - pzbins[clist[i], cmax])
-                / 2.0
+                + (pz[clist[i], cmax] * 2 + slope_max * (zmax - pzbins[clist[i], cmax])) * (zmax - pzbins[clist[i], cmax]) / 2.0
                 - pz[clist[i], cmin] * dz[clist[i]] / 2.0
-                + (pz[clist[i], cmin] * 2 - slope_min * (pzbins[clist[i], cmin] - zmin))
-                * (pzbins[clist[i], cmin] - zmin)
-                / 2.0
+                + (pz[clist[i], cmin] * 2 - slope_min * (pzbins[clist[i], cmin] - zmin)) * (pzbins[clist[i], cmin] - zmin) / 2.0
             )
 
     ## Clamp probabilities in excess of unity due to numerical roundoff.
@@ -130,18 +112,12 @@ def p_in_mstarbin(pofm, pofm_bins, mstarmin, mstarmax, verbose=False):
     p = np.zeros(len(pofm))
 
     # Case 1: PDF is entirely in the pofm_bins range.
-    alist = np.where(
-        (mstarmin < np.min(pofm_bins, 1)) * (mstarmax > np.max(pofm_bins, 1))
-    )[0]
+    alist = np.where((mstarmin < np.min(pofm_bins, 1)) * (mstarmax > np.max(pofm_bins, 1)))[0]
     if len(alist) != 0:
         p[alist] = 0 * alist + 1.0
 
     # Case 2: mstarmax cutoff is in the pofm_bins range.
-    blist = np.where(
-        (mstarmin < np.min(pofm_bins, 1))
-        * (mstarmax < np.max(pofm_bins, 1))
-        * (mstarmax > np.min(pofm_bins, 1))
-    )[0]
+    blist = np.where((mstarmin < np.min(pofm_bins, 1)) * (mstarmax < np.max(pofm_bins, 1)) * (mstarmax > np.min(pofm_bins, 1)))[0]
     if len(blist) > 0:
         for i in range(len(blist)):
             bmax = np.max(np.where(pofm_bins[blist[i], :] < mstarmax)[0])
@@ -149,21 +125,14 @@ def p_in_mstarbin(pofm, pofm_bins, mstarmin, mstarmax, verbose=False):
             p[blist[i]] = (
                 np.sum(pofm[blist[i], : bmax + 1]) * dz[blist[i]]
                 - pofm[blist[i], bmax] * dz[blist[i]] / 2.0
-                + (
-                    pofm[blist[i], bmax] * 2
-                    + slope * (mstarmax - pofm_bins[blist[i], bmax])
-                )
+                + (pofm[blist[i], bmax] * 2 + slope * (mstarmax - pofm_bins[blist[i], bmax]))
                 * (mstarmax - pofm_bins[blist[i], bmax])
                 / 2.0
             )
             # print p[blist[i]],slope,pofm_bins[blist[i],bmax],pofm_bins[blist[i],bmax+1]
 
     # Case 3: mstarmin cutoff is in the pofm_bins range.
-    blist = np.where(
-        (mstarmax > np.max(pofm_bins, 1))
-        * (mstarmin > np.min(pofm_bins, 1))
-        * (mstarmin < np.max(pofm_bins, 1))
-    )[0]
+    blist = np.where((mstarmax > np.max(pofm_bins, 1)) * (mstarmin > np.min(pofm_bins, 1)) * (mstarmin < np.max(pofm_bins, 1)))[0]
     if len(blist) > 0:
         for i in range(len(blist)):
             bmin = np.min(np.where(pofm_bins[blist[i], :] > mstarmin)[0])
@@ -171,18 +140,13 @@ def p_in_mstarbin(pofm, pofm_bins, mstarmin, mstarmax, verbose=False):
             p[blist[i]] = (
                 np.sum(pofm[blist[i], bmin:]) * dz[blist[i]]
                 - pofm[blist[i], bmin] * dz[blist[i]] / 2.0
-                + (
-                    pofm[blist[i], bmin] * 2
-                    - slope * (pofm_bins[blist[i], bmin] - mstarmin)
-                )
+                + (pofm[blist[i], bmin] * 2 - slope * (pofm_bins[blist[i], bmin] - mstarmin))
                 * (pofm_bins[blist[i], bmin] - mstarmin)
                 / 2.0
             )
 
     # Case 4: mstarmax and mstarmin cutoff are both in the pofm_bins range.
-    clist = np.where(
-        (mstarmax < np.max(pofm_bins, 1)) * (mstarmin > np.min(pofm_bins, 1))
-    )[0]
+    clist = np.where((mstarmax < np.max(pofm_bins, 1)) * (mstarmin > np.min(pofm_bins, 1)))[0]
     if len(clist) > 0:
         for i in range(len(clist)):
             cmin = np.min(np.where(pofm_bins[clist[i], :] > mstarmin)[0])
@@ -193,17 +157,11 @@ def p_in_mstarbin(pofm, pofm_bins, mstarmin, mstarmax, verbose=False):
             p[clist[i]] = (
                 np.sum(dz[clist[i]] * pofm[clist[i], cmin : cmax + 1])
                 - pofm[clist[i], cmax] * dz[clist[i]] / 2.0
-                + (
-                    pofm[clist[i], cmax] * 2
-                    + slope_max * (mstarmax - pofm_bins[clist[i], cmax])
-                )
+                + (pofm[clist[i], cmax] * 2 + slope_max * (mstarmax - pofm_bins[clist[i], cmax]))
                 * (mstarmax - pofm_bins[clist[i], cmax])
                 / 2.0
                 - pofm[clist[i], cmin] * dz[clist[i]] / 2.0
-                + (
-                    pofm[clist[i], cmin] * 2
-                    - slope_min * (pofm_bins[clist[i], cmin] - mstarmin)
-                )
+                + (pofm[clist[i], cmin] * 2 - slope_min * (pofm_bins[clist[i], cmin] - mstarmin))
                 * (pofm_bins[clist[i], cmin] - mstarmin)
                 / 2.0
             )
