@@ -24,6 +24,9 @@ RUN /usr/sbin/groupadd -g 1000 user && \
 COPY . /opt/legacyhalos/workdir
 RUN chown -R legacyhalos.user /opt/legacyhalos/workdir
 
+RUN mkdir /opt/legacyhalos/env && \
+    chown -R legacyhalos.user /opt/legacyhalos/env
+
 COPY docker/entrypoint.sh /opt/legacyhalos/entrypoint.sh
 RUN chown legacyhalos.user /opt/legacyhalos/entrypoint.sh && \
     chmod u+x /opt/legacyhalos/entrypoint.sh
@@ -32,7 +35,6 @@ RUN chown legacyhalos.user /opt/legacyhalos/entrypoint.sh && \
 RUN curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh && \
     /bin/bash ~/mambaforge.sh -b -p /opt/conda && \
     rm ~/mambaforge.sh
-
 RUN chown -R legacyhalos.user /homedir
 
 # Finally, swap to non-root user
@@ -40,33 +42,23 @@ USER legacyhalos
 
 RUN . /opt/conda/etc/profile.d/conda.sh && \
     cd /opt/legacyhalos/workdir && \
-    mamba env create -n legacyhalos -f environment.yml && \
-    mamba clean -af --yes
+    mamba env create -p /opt/legacyhalos/env -f environment.yml && \
+    conda clean -af --yes
 
-RUN echo ". /opt/conda/etc/profile.d/conda.sh" > /opt/legacyhalos/startup.sh && \
-    echo "conda activate legacyhalos" >> /opt/legacyhalos/startup.sh
-    
+# Extra work for mpi on NERSC
+ENV LD_LIBRARY_PATH=/opt/cray/pe/mpt/7.7.10/gni/mpich-gnu-abi/8.2/lib:$LD_LIBRARY_PATH 
+RUN . /opt/conda/etc/profile.d/conda.sh && \
+    conda activate /opt/legacyhalos/env && \
+    mamba remove mpi4py && \
+    mamba install -c conda-forge  "mpich=4.0.3=external_*" mpi4py 
+
 RUN . /opt/conda/etc/profile.d/conda.sh && \
     cd /opt/legacyhalos/workdir && \
-    conda activate legacyhalos && \
+    conda activate /opt/legacyhalos/env && \
     pip install . --no-deps
 
+# Prepend paths to use this conda environment's package 
+# Note we do this instead of using an entrypoint script due to non-root user issues.
 ENV IPYTHONDIR /tmp/ipython-config
-ENV PYTHONPATH=/home/legacyhalos/src:$PYTHONPATH
-ENV PATH=/home/legacyhalos/src:$PATH
-
-ENTRYPOINT [ "/opt/legacyhalos/entrypoint.sh" ]
-
-
-# # # MPI install needs to be done explicitly 
-# # ARG mpich=4.0.2
-# # ARG mpich_prefix=mpich-$mpich
-# # RUN wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz         && \
-# #     tar xvzf $mpich_prefix.tar.gz                                                   && \
-# #     cd $mpich_prefix                                                                && \
-# #     ./configure FFLAGS=-fallow-argument-mismatch FCFLAGS=-fallow-argument-mismatch  && \
-# #     make -j 4                                                                       && \
-# #     make install                                                                    && \
-# #     make clean                                                                      && \
-# #     cd ..                                                                           && \
-# #     rm -rf $mpich_prefix
+ENV PYTHONPATH=/opt/legacyhalos/env/bin:$PYTHONPATH
+ENV PATH=/opt/legacyhalos/env/bin:$PATH
