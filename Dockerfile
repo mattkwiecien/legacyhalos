@@ -68,4 +68,4 @@ RUN . /opt/conda/etc/profile.d/conda.sh && \
 
 ENV IPYTHONDIR=/tmp/ipython-config PYTHONPATH=/src/legacyhalos:$PYTHONPATH PATH=/src/legacyhalos:$PATH
 
-ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/docker-entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "source /usr/local/bin/docker-entrypoint.sh"]
