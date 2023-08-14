@@ -2,7 +2,9 @@ name: legacyhalos
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
+  # REMARK: We need to match astrometry's python version, otherwise there will be errors in the docker img.
+  # see https://github.com/Homebrew/homebrew-core/issues/116710
+  - python=3.10
   - fitsio
   - scipy
   - numpy
