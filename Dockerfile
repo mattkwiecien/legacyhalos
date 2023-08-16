@@ -1,71 +1,53 @@
 FROM legacysurvey/legacypipe:DR10.1.3
 
-# BASE IMAGE REMARK: We need to match astrometry's python version, otherwise there will be errors
-# see https://github.com/Homebrew/homebrew-core/issues/116710
+ENV dependencies="ipython pydl pyyaml h5py colossus gnureadline corner \
+                scikit-image fitsio scipy numpy matplotlib astropy astrometry \
+                photutils seaborn corner"
+RUN python3 -m pip --no-cache-dir install --no-deps $dependencies
 
-# Tractor isn't added to the pythonpath in the base image.
-ENV PYTHONPATH=$PYTHONPATH:/src/tractor
+# Extra steps for mpich
+
+RUN \
+    apt-get update        && \
+    apt-get upgrade --yes && \
+    apt-get install --yes    \
+        build-essential      \
+        gfortran             \
+        libcurl4             \
+        wget                 \
+        vim              &&  \
+    apt-get clean all    &&  \
+    rm -rf /var/lib/apt/lists/*
+
+ARG mpich=4.0.2
+ARG mpich_prefix=mpich-$mpich
+
+RUN \
+    wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz && \
+    tar xvzf $mpich_prefix.tar.gz                                           && \
+    cd $mpich_prefix                                                        && \
+    FFLAGS=-fallow-argument-mismatch FCFLAGS=-fallow-argument-mismatch ./configure            && \
+    make -j 16                                                              && \
+    make install                                                            && \
+    make clean                                                              && \
+    cd ..                                                                   && \
+    rm -rf $mpich_prefix
+
+RUN /sbin/ldconfig
+
+RUN python3 -m pip install mpi4py
 
 # Remove the policy.xml file so we do not get an 'exhausted cache resources'
 # error when we build mosaics for very large systems.
 RUN echo '<policymap></policymap>' > /etc/ImageMagick-6/policy.xml
-RUN /sbin/ldconfig
+ENV IPYTHONDIR /tmp/ipython-config
 
-ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 PATH=/opt/conda/bin:$PATH
-
-# Get non python dependencies
-RUN apt-get update && \
-    apt-get -y upgrade && \
-    apt-get install -y curl build-essential gfortran tini && \
-    apt-get clean all
-
-# Create a non-root user
-RUN /usr/sbin/groupadd -g 1000 user && \
-    /usr/sbin/useradd -u 1000 -g 1000 -d /opt/legacyhalos legacyhalos && \
-    mkdir /opt/legacyhalos && \
-    chown legacyhalos.user /opt/legacyhalos && \
-    chown -R legacyhalos.user /opt
-
-# Copy codebase to /opt/legacyhalos
-COPY . /src/legacyhalos
-COPY docker/docker-entrypoint.sh /usr/local/bin/
-
-RUN chown -R legacyhalos.user /src && \
-    chown -R legacyhalos.user /src/legacyhalos && \
-    chown legacyhalos.user /usr/local/bin/docker-entrypoint.sh && \
-    chmod u+x /usr/local/bin/docker-entrypoint.sh && \
-    mkdir /opt/legacyhalos/env && \
-    chown -R legacyhalos.user /opt/legacyhalos/env
-
-# Install mamba/conda
-RUN curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh && \
-    /bin/bash ~/mambaforge.sh -b -p /opt/conda && \
-    rm ~/mambaforge.sh
-
-# Finally, swap to non-root user and set their home directory
-USER legacyhalos
 WORKDIR /src
-ENV HOME=/opt/legacyhalos
 
-# Install the development environment
-RUN . /opt/conda/etc/profile.d/conda.sh && \
-    cd /src/legacyhalos && \
-    mamba env create -p /opt/legacyhalos/env -f environment.yml && \
-    conda clean -af --yes
+# Copy codebase to /src
+COPY . /src/legacyhalos
+RUN cd /src/legacyhalos && \
+    python3 -m pip install --no-deps .
 
-# Extra work for mpi on NERSC
-# ENV LD_LIBRARY_PATH=/opt/cray/pe/mpt/7.7.10/gni/mpich-gnu-abi/8.2/lib:$LD_LIBRARY_PATH 
-# RUN . /opt/conda/etc/profile.d/conda.sh && \
-#     conda activate /opt/legacyhalos/env && \
-#     mamba remove mpi4py --yes && \
-#     mamba install --yes -c conda-forge  "mpich=4.0.3=external_*" mpi4py 
-
-# Install legacyhalos into the conda environment
-RUN . /opt/conda/etc/profile.d/conda.sh && \
-    cd /src/legacyhalos && \
-    conda activate /opt/legacyhalos/env && \
-    pip install . --no-deps
-
-ENV IPYTHONDIR=/tmp/ipython-config PYTHONPATH=/src/legacyhalos:$PYTHONPATH PATH=/src/legacyhalos:$PATH
-
-ENTRYPOINT ["/usr/bin/tini", "--", "source /usr/local/bin/docker-entrypoint.sh"]
+ENV PYTHONPATH=/src/legacyhalos/py:$PYTHONPATH
+ENV PATH=/src/legacyhalos/bin:$PATH
