@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import argparse
 import matplotlib.pyplot as plt
 from astropy.table import Table
 import os
@@ -9,6 +9,7 @@ from astropy.table import join
 from esutil import htm
 from photutils.aperture import EllipticalAperture
 from photutils.isophote import EllipseGeometry
+import h5py
 
 # From Jiaxuan repo
 HSC_pixel_scale = 0.168
@@ -235,6 +236,11 @@ def create_sv3_jiaxuan_matched_catalog(jiaxuan_cat):
     combined_cat.write("/Users/matt/Data/legacydata/jiaxuan_data/sv3_matches.fits", overwrite=True)
 
 def main():
+    args = argparse.ArgumentParser()
+    args.add_argument("--start", type=int, default=100, help="Start index")    
+    args.add_argument("--numplots", default=5, type=int, help="Number of subplots to make")
+    args = args.parse_args()
+
     # After running legacyhalos on the above data, we pull the ellipse fit, tractor, and sample data and write them to fits files. 
     # Below, we combine the sample (ref cat) and ellipse fit data
     jiaxuan_cat = Table.read("/Users/matt/Data/legacydata/jiaxuan_data/s16a_massive_z_0.5_logm_11.4_decals_full_fdfc_bsm_ell_decals_2021_07.fits")
@@ -257,16 +263,28 @@ def main():
 
     fig, (axes, axes2) = plt.subplots(2, 5, figsize=(30, 12))
 
-    for i, my_fit in enumerate(ellipse_cat[100:105]):
-        
+    start = args.start
+    num_plots = args.numplots
+    plots=0
+    for i, my_fit in enumerate(ellipse_cat[start:]):
+        if plots > 4:
+            break
         # For this HSC ID, grab Jiaxuan's fit data
         s16a_id = str(my_fit['ID_S16A'])
         filenm = f'{s16a_id}/{s16a_id}-custom-{s16a_id}-ellipse.fits'
         path = f"/Users/matt/Data/legacydata/jiaxuan_data/DECaLS-data-2021-07/{s16a_id[:4]}/"
         ellipsefit_j = Table.read(os.path.join(path, filenm))
-        jz = jiaxuan_cat[jiaxuan_cat['id_s16a'] == int(s16a_id)]['z_best']
+        jrow = jiaxuan_cat[jiaxuan_cat['id_s16a'] == int(s16a_id)]
+        if 'nz0304' not in jrow['new_dir'][0]:
+            continue
 
-        ax = axes[i]
+        jz = jrow['z_best']
+
+        h5_files = '/Users/matt/Data/legacydata/jiaxuan_data/HDF5/'
+        hsc_data = jrow['new_dir'][0].replace('./neosbp/nz0304/HDF5/', h5_files)
+        hsc_h5 = h5py.File(hsc_data, 'r')
+
+        ax = axes[plots]
 
         ell_decals = Table(
             data=[
@@ -314,13 +332,26 @@ def main():
             x_max=4,
             ticksize=16, labelsize=16, 
             show_banner=True)
+        
+        SBP_single(
+            Table(hsc_h5['r-band/ell_fix'][:]),
+            jz,
+            pixel_scale=HSC_pixel_scale,
+            zeropoint=HSC_zeropoint,
+            ax=ax,
+            physical_unit=True,
+            linecolor='black',
+            label='HSC',
+            x_max=4,
+            ticksize=16, labelsize=16, 
+            show_banner=True)
 
-        ax.invert_yaxis()
+        # ax.invert_yaxis()
 
-        ax_lower = axes2[i]
+        ax_lower = axes2[plots]
 
         sma = my_fit["SMA_MOMENT"] 
-        pa = my_fit["PA_MOMENT"] * np.pi/180
+        pa = (my_fit["PA_MOMENT"] * np.pi/180) + np.pi/2
         eps = my_fit["EPS_MOMENT"]
         eg = EllipseGeometry(0, 0, sma, eps, pa)
         ea = EllipticalAperture((eg.x0, eg.y0), eg.sma, eg.sma*(1-eg.eps), eg.pa)
@@ -332,7 +363,7 @@ def main():
         ax_lower.set_ylim(eg.y0-1.5*sma, eg.y0+1.5*sma)
 
         sma = ellipsefit_j["MAJORAXIS"][0] * DECaLS_pixel_scale
-        pa = ellipsefit_j["PA"][0] * np.pi/180
+        pa = (ellipsefit_j["PA"][0] * np.pi/180) + np.pi/2
         eps = ellipsefit_j["EPS"][0]
         eg = EllipseGeometry(0, 0, sma, eps, pa)
         ea = EllipticalAperture((eg.x0, eg.y0), eg.sma, eg.sma*(1-eg.eps), eg.pa)
@@ -344,17 +375,23 @@ def main():
         ax_lower.set_yticks([])
         ax_lower.set_title("Geometry")
 
+        # ax_lower.invert_xaxis()
+
+        sv3_x = np.cos((my_fit["PA_MOMENT"]* np.pi/180) + np.pi/2)
+        sv3_y = np.sin((my_fit["PA_MOMENT"]* np.pi/180) + np.pi/2)
         ax_lower.plot(
-            [0, my_fit["SMA_MOMENT"] * np.cos(my_fit["PA_MOMENT"]* np.pi/180)],
-            [0, my_fit["SMA_MOMENT"] * np.sin(my_fit["PA_MOMENT"]* np.pi/180)],
+            [0, my_fit["SMA_MOMENT"] * sv3_x],
+            [0, my_fit["SMA_MOMENT"] * sv3_y],
             linewidth=2,
             color="tab:red",
             alpha=1,
         )
 
+        j_x = np.cos((ellipsefit_j["PA"][0] * np.pi/180) + np.pi/2)
+        j_y = np.sin((ellipsefit_j["PA"][0] * np.pi/180) + np.pi/2)
         ax_lower.plot(
-            [0, ellipsefit_j['MAJORAXIS'][0] * DECaLS_pixel_scale * np.cos(ellipsefit_j["PA"][0] * np.pi/180)],
-            [0, ellipsefit_j['MAJORAXIS'][0] * DECaLS_pixel_scale * np.sin(ellipsefit_j["PA"][0] * np.pi/180)],
+            [0, ellipsefit_j['MAJORAXIS'][0] * DECaLS_pixel_scale * j_x],
+            [0, ellipsefit_j['MAJORAXIS'][0] * DECaLS_pixel_scale * j_y],
             linewidth=2,
             color="tab:blue",
             alpha=1,
@@ -363,11 +400,16 @@ def main():
         ax_lower.text(.05,.05, f"SMA = ${int(my_fit['SMA_MOMENT']):d}$ arcsec", color="tab:red", fontsize=18, transform=ax_lower.transAxes)
 
         ax_lower.text(.05,.15, f"SMA = ${int(ellipsefit_j['MAJORAXIS'][0] * DECaLS_pixel_scale):d}$ arcsec", color="tab:blue", fontsize=18, transform=ax_lower.transAxes)
+        id = str(my_fit["TARGETID"])
+        url = "https://portal.nersc.gov/project/cosmo/temp/mkwiecien/hsc-sv3/html/%s/%s/%s.html"
+        ax_lower.text(0.05, .9, "Link", url=(url % (id[:4], id, id)), color="black", fontsize=18, transform=ax_lower.transAxes)
+        ax.text(3.2, 21, f'ID={id}', fontsize=12, ha='center', va='center')
 
-        ax.text(3.2, 21, f'ID={my_fit["TARGETID"]}', fontsize=12, ha='center', va='center')
+        plots+=1
 
     fig.subplots_adjust(hspace=0.3)
-    fig.savefig("SBP_comparison.png", dpi=300)
+    fig.tight_layout()
+    fig.savefig(f"SBP_comparison_{start}_{start+num_plots}.pdf", format='pdf')
 
     # 4th column
     # https://portal.nersc.gov/project/cosmo/temp/mkwiecien/hsc-sv3/html/3962/39627775669178657/39627775669178657.html
