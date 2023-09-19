@@ -456,7 +456,7 @@ def get_ccds(survey, ra, dec, pixscale, width, bands=["g", "r", "z"]):
     brickname = "custom-{}".format(custom_brickname(ra, dec))
     brick = BrickDuck(ra, dec, brickname)
 
-    targetwcs = wcs_for_brick(brick, W=np.float32(width), H=np.float32(width), pixscale=pixscale)
+    targetwcs = wcs_for_brick(brick, W=float(width), H=float(width), pixscale=pixscale)
     ccds = survey.ccds_touching_wcs(targetwcs)
 
     if ccds is None or np.sum(ccds.ccd_cuts == 0) == 0:
@@ -667,7 +667,7 @@ def custom_coadds(
             from legacypipe.survey import wcs_for_brick, BrickDuck
 
             brick = BrickDuck(onegal[racolumn], onegal[deccolumn], brickname)
-            targetwcs = wcs_for_brick(brick, W=np.float32(width), H=np.float32(width), pixscale=pixscale)
+            targetwcs = wcs_for_brick(brick, W=float(width), H=float(width), pixscale=pixscale)
             tiles = unwise_tiles_touching_wcs(targetwcs)
             coadd_id = tiles.coadd_id[0]  # grab the first one
 

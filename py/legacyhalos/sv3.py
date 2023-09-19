@@ -412,6 +412,7 @@ def _build_multiband_mask(
         pa = pa % 180
 
         if tractor.shape_r[indx] < 1:
+            # We do this because extrapolating such a small galaxy will have bad results.
             print("Galaxy half-light radius is < 1 arcsec!")
             raise ValueError
 
