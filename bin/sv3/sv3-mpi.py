@@ -154,6 +154,8 @@ def main():
         # If we're debugging, loop through and print the failures.
         if rank == 0 and args.count and args.debug:
             if len(fail[rank]) == 0:
+                if comm is not None:
+                    comm.barrier()
                 return
 
             print(
@@ -165,6 +167,8 @@ def main():
             for ii, dd, diam in zip(fail[rank], np.atleast_1d(galaxydir), sample[fail[rank]][DIAMCOLUMN]):
                 print("  {} {} (r={:.3f} arcsec)".format(ii, dd, diam), flush=True)
 
+        if comm is not None:
+            comm.barrier()
         return
 
     print("Rank {}: {} galaxies left to do.".format(rank, len(groups[rank])), flush=True)
@@ -188,6 +192,8 @@ def main():
             galaxy, galaxydir = get_galaxy_galaxydir(sample[todo])
             for ii, dd, diam in zip(todo, np.atleast_1d(galaxydir), sample[todo][DIAMCOLUMN]):
                 print("  {} {} (r={:.3f} arcsec)".format(ii, dd, diam))
+        if comm is not None:
+            comm.barrier()
         return
 
     # Loop on the remaining objects.
