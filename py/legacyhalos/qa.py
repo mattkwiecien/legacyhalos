@@ -148,7 +148,7 @@ def addbar_to_png(
             )
             # print(sz, fntsize, x0, x1, y0, y1, barlen*pixscalefactor)
             draw.line((x0, y1, x1, y1), fill="white", width=width)
-            ww, hh = draw.textsize(barlabel, font=font)
+            ww = draw.textlength(barlabel, font=font)
             dx = ((x1 - x0) - ww) // 2
             # print(x0, x1, y0, y1, ww, x0+dx, sz)
             draw.text((x0 + dx, y0), barlabel, font=font)
@@ -157,7 +157,7 @@ def addbar_to_png(
         if imtype:
             # fntsize = 20 # np.round(sz[0]/20).astype('int')
             font = ImageFont.truetype(fonttype, size=imtype_fntsize)
-            ww, hh = draw.textsize(imtype, font=font)
+            ww = draw.textlength(imtype, font=font)
             x0, y0, y1 = (
                 imtype_fntsize * 1.2,
                 imtype_fntsize * 2,
@@ -1431,7 +1431,7 @@ def display_multiband(
             )  # 4
             # print(sz, fntsize, x0, x1, y0, y1, barlen*pixscalefactor)
             draw.line((x0, y1, x1, y1), fill="white", width=width)
-            ww, hh = draw.textsize(barlabel, font=font)
+            ww = draw.textlength(barlabel, font=font)
             dx = ((x1 - x0) - ww) // 2
             # print(x0, x1, y0, y1, ww, x0+dx, sz)
             draw.text((x0 + dx, y0), barlabel, font=font)
