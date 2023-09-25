@@ -220,7 +220,10 @@ def main():
         if args.debug:
             logfile = None
         else:
-            logfile = os.path.join(galaxydir, "{}-{}.log".format(galaxy, suffix))
+            if rank == 0:
+                logfile = os.path.join(galaxydir, "{}-{}.log".format(galaxy, suffix))
+            else:
+                logfile = os.path.join(galaxydir, "{}-{}-rank{}.log".format(galaxy, suffix, rank))
 
         # Need the cluster "radius" to build the coadds.
         radius_mosaic_arcsec = onegal[DIAMCOLUMN] / 2  # radius [arcsec]
@@ -283,23 +286,25 @@ def main():
             from legacyhalos.sv3 import call_ellipse
 
             input_ellipse = None
-
-            call_ellipse(
-                onegal,
-                galaxy=galaxy,
-                galaxydir=galaxydir,
-                input_ellipse=input_ellipse,
-                bands=["g", "r", "z"],
-                refband="r",
-                pixscale=args.pixscale,
-                nproc=args.nproc,
-                verbose=args.verbose,
-                debug=args.debug,
-                sky_tests=args.sky_tests,
-                unwise=False,
-                logfile=logfile,
-                clobber=args.clobber,
-            )
+            try:
+                call_ellipse(
+                    onegal,
+                    galaxy=galaxy,
+                    galaxydir=galaxydir,
+                    input_ellipse=input_ellipse,
+                    bands=["g", "r", "z"],
+                    refband="r",
+                    pixscale=args.pixscale,
+                    nproc=args.nproc,
+                    verbose=args.verbose,
+                    debug=args.debug,
+                    sky_tests=args.sky_tests,
+                    unwise=False,
+                    logfile=logfile,
+                    clobber=args.clobber,
+                )
+            except:
+                print(f"Rank {rank} threw in ellipse, continuing to next barrier", flush=True)
 
         if args.htmlplots:
             from legacyhalos.mpi import call_htmlplots

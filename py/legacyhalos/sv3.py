@@ -414,7 +414,7 @@ def _build_multiband_mask(
         if tractor.shape_r[indx] < 1:
             # We do this because extrapolating such a small galaxy will have bad results.
             print("Galaxy half-light radius is < 1 arcsec!")
-            raise ValueError
+            raise ValueError()
 
         majoraxis = factor * tractor.shape_r[indx] / filt2pixscale[refband]  # [pixels]
 
@@ -451,7 +451,6 @@ def _build_multiband_mask(
         # central in case there was a poor deblend.
         largeshift = False
         mge, centralmask = tractor2mge(central, factor=neighborfactor)
-
         iclose = np.where([centralmask[np.int32(by), np.int32(bx)] for by, bx in zip(tractor.by, tractor.bx)])[0]
 
         srcs = tractor.copy()
